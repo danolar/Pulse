@@ -10,16 +10,13 @@ const hasActiveProfileAdapter = (): boolean => {
   );
 };
 
-export const isSignalsStageReady = (): boolean => {
-  const { requestors } = usePulseStore.getState();
-  return hasActiveProfileAdapter() || requestors.length > 0;
-};
+export const isSignalsStageReady = (): boolean => hasActiveProfileAdapter();
 
 export const validateEnabledModulesForActivation = (): boolean => {
   if (isSignalsStageReady()) return true;
 
   notification.error(
-    "Authorize at least one adapter on your profile (via Adapters) or add a trusted requestor.",
+    "Authorize at least one signal adapter on your profile. Configure credentials in Adapters first.",
   );
   return false;
 };

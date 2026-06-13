@@ -31,7 +31,7 @@ export const DecisionLayerSection = ({ onSetup }: DecisionLayerSectionProps) => 
       </div>
 
       <p className="mb-4 text-xs text-pulse-muted">
-        Randomness and attempt sequencing are configured in Setup → Rhythm. This step only binds the decision agent
+        Randomness and attempt sequencing are configured in Configure → Rhythm. This step only binds the decision agent
         signer.
       </p>
 

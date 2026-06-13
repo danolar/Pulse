@@ -1,20 +1,111 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Minus, Plus } from "lucide-react";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
-import { NumberField } from "~~/components/pulse/ui/NumberField";
 import { RandomnessBlock } from "~~/components/pulse/setup/rhythm/RandomnessBlock";
 import { CONFIG_FIELD_HINTS } from "~~/constants/pulseProtocol";
 import { DEMO_RHYTHM_CONFIG, describeMonitoringRhythm } from "~~/constants/monitoringProfiles";
 import type { ProfileConfig } from "~~/types/pulse";
 
-const CONFIG_FIELDS: Array<{ field: keyof ProfileConfig; label: string; unit: string }> = [
-  { field: "windowDuration", label: "Window duration", unit: "days" },
-  { field: "attemptsPerWindow", label: "Attempts per window", unit: "count" },
-  { field: "responseWindow", label: "Response window", unit: "hours" },
-  { field: "missedAttemptWeight", label: "Missed attempt weight", unit: "points" },
-  { field: "threshold", label: "Threshold", unit: "points" },
+type RhythmFieldConfig = {
+  field: keyof ProfileConfig;
+  label: string;
+  unit: string;
+  min?: number;
+  step?: number;
+};
+
+const RHYTHM_GROUPS: { title: string; description: string; fields: RhythmFieldConfig[] }[] = [
+  {
+    title: "Monitoring window",
+    description: "How long each epoch runs and how many verification attempts it contains.",
+    fields: [
+      { field: "windowDuration", label: "Window duration", unit: "days", min: 1, step: 1 },
+      { field: "attemptsPerWindow", label: "Attempts per window", unit: "count", min: 1, step: 1 },
+    ],
+  },
+  {
+    title: "Response & accrual",
+    description: "Time to respond when an attempt opens, and weight added when one is missed.",
+    fields: [
+      { field: "responseWindow", label: "Response window", unit: "hours", min: 1, step: 1 },
+      { field: "missedAttemptWeight", label: "Missed attempt weight", unit: "points", min: 1, step: 1 },
+    ],
+  },
+  {
+    title: "Threshold",
+    description: "Total accumulated weight that triggers the onchain outcome event.",
+    fields: [{ field: "threshold", label: "Threshold", unit: "points", min: 1, step: 5 }],
+  },
 ];
+
+type RhythmNumberFieldProps = {
+  label: string;
+  unit: string;
+  value: number;
+  min: number;
+  step: number;
+  hint?: string;
+  disabled?: boolean;
+  onChange: (value: number) => void;
+};
+
+const RhythmNumberField = ({
+  label,
+  unit,
+  value,
+  min,
+  step,
+  hint,
+  disabled,
+  onChange,
+}: RhythmNumberFieldProps) => {
+  const clamp = (next: number) => Math.max(min, next);
+
+  return (
+    <div className="rounded-2xl border border-base-content/10 bg-base-100/60 p-4">
+      <div className="mb-3 flex items-start justify-between gap-2">
+        <div>
+          <p className="text-sm font-medium text-base-content">{label}</p>
+          <p className="text-xs text-pulse-muted">{unit}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        <PulseButton
+          type="button"
+          variant="secondary"
+          className="btn-square h-10 w-10 min-h-10 shrink-0 rounded-xl p-0"
+          disabled={disabled || value <= min}
+          aria-label={`Decrease ${label}`}
+          onClick={() => onChange(clamp(value - step))}
+        >
+          <Minus className="h-4 w-4" />
+        </PulseButton>
+        <input
+          type="number"
+          min={min}
+          step={step}
+          disabled={disabled}
+          value={value}
+          className="input input-bordered h-10 min-h-10 flex-1 rounded-xl text-center font-mono text-base tabular-nums"
+          onChange={event => onChange(clamp(Number(event.target.value) || min))}
+        />
+        <PulseButton
+          type="button"
+          variant="secondary"
+          className="btn-square h-10 w-10 min-h-10 shrink-0 rounded-xl p-0"
+          disabled={disabled}
+          aria-label={`Increase ${label}`}
+          onClick={() => onChange(value + step)}
+        >
+          <Plus className="h-4 w-4" />
+        </PulseButton>
+      </div>
+      {hint ? <p className="mt-2 text-xs leading-relaxed text-pulse-muted">{hint}</p> : null}
+    </div>
+  );
+};
 
 type ConfigFormProps = {
   disabled?: boolean;
@@ -28,17 +119,27 @@ const ConfigForm = ({ disabled, draftConfig, onChange }: ConfigFormProps) => {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-      {CONFIG_FIELDS.map(({ field, label, unit }) => (
-        <NumberField
-          key={field}
-          label={label}
-          unit={unit}
-          value={draftConfig[field]}
-          disabled={disabled}
-          hint={CONFIG_FIELD_HINTS[field]}
-          onChange={value => updateField(field, value)}
-        />
+    <div className="space-y-6">
+      {RHYTHM_GROUPS.map(group => (
+        <div key={group.title}>
+          <h3 className="mb-1 text-sm font-medium text-base-content">{group.title}</h3>
+          <p className="mb-3 text-xs text-pulse-muted">{group.description}</p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {group.fields.map(({ field, label, unit, min = 1, step = 1 }) => (
+              <RhythmNumberField
+                key={field}
+                label={label}
+                unit={unit}
+                value={draftConfig[field]}
+                min={min}
+                step={step}
+                disabled={disabled}
+                hint={CONFIG_FIELD_HINTS[field]}
+                onChange={value => updateField(field, value)}
+              />
+            ))}
+          </div>
+        </div>
       ))}
     </div>
   );
@@ -53,19 +154,24 @@ const NotificationTargetField = ({
   value: string;
   onChange: (value: string) => void;
 }) => (
-  <label className="form-control">
-    <span className="label-text mb-1 text-sm text-pulse-muted">Notification target (advanced)</span>
-    <input
-      className="input input-bordered rounded-2xl font-mono text-sm"
-      placeholder="0x… consumer contract (optional)"
-      value={value}
-      disabled={disabled}
-      onChange={event => onChange(event.target.value)}
-    />
-    <span className="mt-1 text-xs text-pulse-muted">
-      Empty = passive ThresholdReached event only. Set an IThresholdConsumer contract for an active push.
-    </span>
-  </label>
+  <div className="rounded-2xl border border-base-content/10 bg-base-100/60 p-4">
+    <label className="form-control">
+      <span className="mb-1 text-sm font-medium text-base-content">Notification target</span>
+      <span className="mb-3 block text-xs text-pulse-muted">
+        Optional consumer contract for active push notifications (advanced).
+      </span>
+      <input
+        className="input input-bordered h-10 min-h-10 w-full rounded-xl font-mono text-sm"
+        placeholder="0x… IThresholdConsumer (optional)"
+        value={value}
+        disabled={disabled}
+        onChange={event => onChange(event.target.value)}
+      />
+      <span className="mt-2 text-xs leading-relaxed text-pulse-muted">
+        Leave empty for passive ThresholdReached events only.
+      </span>
+    </label>
+  </div>
 );
 
 const PlainLanguageSummary = ({ config }: { config: ProfileConfig }) => (
@@ -143,21 +249,13 @@ export const StageRhythm = ({
           Load demo preset
         </PulseButton>
         {isDemoPreset ? (
-          <StatusTagInline label="Real onchain values, compressed for Explorer testing" />
+          <span className="text-xs text-pulse-muted">Compressed values for Explorer testing</span>
         ) : null}
       </div>
 
-      <SaveConfigButton disabled={disabled} onClick={handleSave} />
+      <PulseButton disabled={disabled} onClick={handleSave}>
+        Save rhythm configuration
+      </PulseButton>
     </section>
   );
 };
-
-const StatusTagInline = ({ label }: { label: string }) => (
-  <span className="text-xs text-pulse-muted">{label}</span>
-);
-
-const SaveConfigButton = ({ disabled, onClick }: { disabled: boolean; onClick: () => void }) => (
-  <PulseButton disabled={disabled} onClick={onClick}>
-    Save configuration
-  </PulseButton>
-);

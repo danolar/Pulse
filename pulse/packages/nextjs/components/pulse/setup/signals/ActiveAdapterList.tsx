@@ -1,83 +1,93 @@
 "use client";
 
 import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
 import { StatusTag } from "~~/components/pulse/ui/StatusTag";
-import { NumberField } from "~~/components/pulse/ui/NumberField";
 import { usePulseStore } from "~~/services/store/pulseStore";
 
 export const ActiveAdapterList = () => {
-  const { adapters, mockRevokeProfileAdapter, setModuleAdapter } = usePulseStore();
+  const { adapters, setModuleAdapter } = usePulseStore();
   const active = adapters.filter(adapter => adapter.address?.trim());
 
   return (
     <section className="pulse-card p-5 sm:p-6">
-      <div className="mb-5 space-y-3">
-        <h2 className="pulse-section-title">Active signal adapters</h2>
-        <p className="text-sm text-pulse-muted">
-          Adapters authorized on this profile. Configure credentials and bind signers in{" "}
-          <Link href="/adapters" className="link link-primary">
-            Adapters
-          </Link>{" "}
-          first, then activate them here.
-        </p>
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="pulse-section-title">Active signal adapters</h2>
+          <p className="mt-1 text-sm text-pulse-muted">
+            Adapters authorized on this profile. Add or revoke bindings in{" "}
+            <Link href="/adapters" className="link link-primary">
+              Adapters
+            </Link>
+            .
+          </p>
+        </div>
+        <Link href="/adapters">
+          <PulseButton variant="secondary" className="btn-sm gap-1.5">
+            Manage adapters
+            <ExternalLink className="h-3.5 w-3.5" />
+          </PulseButton>
+        </Link>
       </div>
 
       {active.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-base-content/15 px-4 py-8 text-center">
-          <p className="mb-4 text-sm text-pulse-muted">No adapters on this profile yet.</p>
+        <div className="rounded-2xl border border-dashed border-base-content/15 px-4 py-10 text-center">
+          <p className="mb-1 text-sm font-medium text-base-content">No adapters on this profile</p>
+          <p className="mb-4 text-sm text-pulse-muted">
+            Configure credentials in Adapters, then authorize signers on your profile.
+          </p>
           <Link href="/adapters">
-            <PulseButton variant="secondary">Add adapters</PulseButton>
+            <PulseButton>Open Adapters</PulseButton>
           </Link>
         </div>
       ) : (
-        <ul className="space-y-3">
-          {active.map(adapter => (
-            <li
-              key={adapter.id}
-              className="rounded-2xl border border-base-content/10 bg-base-200/40 p-4"
-            >
-              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <span className="pulse-item-title">{adapter.label}</span>
-                  {adapter.typeLabel ? (
-                    <span className="ml-2 text-xs text-pulse-muted">{adapter.typeLabel}</span>
-                  ) : null}
-                </div>
-                {adapter.capabilities ? (
-                  <StatusTag label={adapter.capabilities} tone="neutral" />
-                ) : null}
-              </div>
-              <p className="mb-3 font-mono text-xs text-pulse-muted">{adapter.address}</p>
-              {adapter.weight > 0 ? (
-                <NumberField
-                  label="Weight"
-                  unit="points"
-                  value={adapter.weight}
-                  onChange={weight => {
-                    if (adapter.moduleId) setModuleAdapter(adapter.moduleId, { weight });
-                  }}
-                />
-              ) : (
-                <p className="text-xs text-pulse-muted">Decision gate · weight 0</p>
-              )}
-              <PulseButton
-                variant="ghost"
-                className="btn-sm mt-3"
-                onClick={() => mockRevokeProfileAdapter(adapter.id)}
-              >
-                Deactivate
-              </PulseButton>
-            </li>
-          ))}
-        </ul>
+        <div className="overflow-hidden rounded-2xl border border-base-content/10">
+          <table className="table table-sm">
+            <thead>
+              <tr className="text-pulse-muted">
+                <th>Adapter</th>
+                <th className="hidden sm:table-cell">Signer</th>
+                <th className="w-28">Weight</th>
+              </tr>
+            </thead>
+            <tbody>
+              {active.map(adapter => (
+                <tr key={adapter.id}>
+                  <td>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-medium">{adapter.label}</span>
+                      {adapter.typeLabel ? (
+                        <StatusTag label={adapter.typeLabel} tone="neutral" />
+                      ) : null}
+                    </div>
+                    <p className="mt-1 font-mono text-[11px] text-pulse-muted sm:hidden">{adapter.address}</p>
+                  </td>
+                  <td className="hidden font-mono text-xs sm:table-cell">{adapter.address}</td>
+                  <td>
+                    {adapter.weight > 0 ? (
+                      <input
+                        type="number"
+                        min={1}
+                        className="input input-bordered input-sm h-9 w-full min-w-[4.5rem] rounded-xl text-center font-mono"
+                        value={adapter.weight}
+                        onChange={event => {
+                          const weight = Number(event.target.value);
+                          if (adapter.moduleId && weight > 0) {
+                            setModuleAdapter(adapter.moduleId, { weight });
+                          }
+                        }}
+                      />
+                    ) : (
+                      <span className="text-xs text-pulse-muted">Gate · 0</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
-
-      <div className="mt-4">
-        <Link href="/adapters">
-          <PulseButton variant="secondary">Add from catalog</PulseButton>
-        </Link>
-      </div>
     </section>
   );
 };

@@ -17,6 +17,10 @@ import {
   getSetupStageProgress,
   isStageUnlocked,
 } from "~~/components/pulse/setup/setupStages";
+import {
+  CONFIGURATION_PAGE_SUBTITLE,
+  CONFIGURATION_PAGE_TITLE,
+} from "~~/constants/explorerCopy";
 import { SHOW_SCAFFOLD_DEV_UI } from "~~/constants/pulseAppConfig";
 import { usePulseStore } from "~~/services/store/pulseStore";
 
@@ -32,9 +36,8 @@ export const SetupWizard = () => {
         deviceVerified: store.deviceVerified,
         configSaved: store.configSaved,
         adapters: store.adapters,
-        requestors: store.requestors,
       }),
-    [store.deviceVerified, store.configSaved, store.adapters, store.requestors],
+    [store.deviceVerified, store.configSaved, store.adapters],
   );
 
   const [currentStage, setCurrentStage] = useState<SetupStageId>(() => getDefaultSetupStage(progress));
@@ -76,13 +79,13 @@ export const SetupWizard = () => {
     <>
       <PageShell className={scrollClearance}>
         <SectionHeader
-          title="profile setup"
+          title={CONFIGURATION_PAGE_TITLE}
           eyebrow="pulse explorer"
-          subtitle="Signals, identity, and rhythm — one stage at a time."
+          subtitle={CONFIGURATION_PAGE_SUBTITLE}
         />
 
-        {currentStage === "signals" ? <StageSignals /> : null}
         {currentStage === "identity" ? <StageIdentity /> : null}
+        {currentStage === "signals" ? <StageSignals /> : null}
         {currentStage === "rhythm" ? (
           <StageRhythm
             disabled={!deviceVerified}

@@ -55,7 +55,7 @@ export const TopBar = ({ onOpenConnectionKit }: TopBarProps) => {
     () => [
       { label: "Explorer", href: "/explorer", matchPrefix: true },
       { label: "Adapters", href: "/adapters", icon: <Plug className="h-4 w-4 shrink-0" /> },
-      { label: "Setup", href: "/setup", icon: <Settings className="h-4 w-4 shrink-0" /> },
+      { label: "Configure", href: "/setup", icon: <Settings className="h-4 w-4 shrink-0" /> },
     ],
     [],
   );

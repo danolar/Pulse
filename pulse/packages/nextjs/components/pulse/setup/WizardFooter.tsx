@@ -82,7 +82,7 @@ export const WizardFooter = ({
   return (
     <footer
       className={`fixed inset-x-0 z-30 border-t border-base-content/6 bg-base-100/90 pb-[max(0.625rem,env(safe-area-inset-bottom))] backdrop-blur-md ${bottomOffset}`}
-      aria-label="Setup navigation"
+      aria-label="Configuration navigation"
     >
       <div className="pulse-page-x mx-auto max-w-3xl space-y-2 px-4 pt-3">
         <div className="flex items-center gap-2 sm:gap-3">
@@ -99,7 +99,7 @@ export const WizardFooter = ({
 
           <WizardNavArrow
             direction="forward"
-            label={isLastStage ? "Go to console" : "Next stage"}
+            label={isLastStage ? "View profile" : "Next stage"}
             disabled={forwardDisabled}
             finish={isLastStage}
             onClick={isLastStage ? onFinish : onNext}

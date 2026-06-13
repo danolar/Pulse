@@ -54,7 +54,7 @@ export const AdaptersPage = () => {
       <SectionHeader
         title="Signal adapters"
         eyebrow="data plane"
-        subtitle="Configure adapter credentials and authorize signers before activating them in profile setup."
+        subtitle="Configure adapter credentials and authorize signers before activating them in configuration."
       />
 
       <div className="space-y-8">

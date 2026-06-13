@@ -8,6 +8,14 @@ export const EXPLORER_SEARCH_LABEL = "Search a wallet address";
 
 export const EXPLORER_HERO_CTA = "Enter a wallet address to view its Pulse profile.";
 
+export const CONFIGURATION_PAGE_TITLE = "Pulse configuration";
+
+export const CONFIGURATION_PAGE_SUBTITLE =
+  "Identity, signal sources, and monitoring rhythm — configure your dev profile step by step.";
+
+export const REQUESTORS_CONFIG_CALLOUT =
+  "Trusted requestors are authorized per end-user profile inside your consumer app (for example Legacy Ledger), not globally in Explorer. Your app calls authorizeRequestor for specific wallets tied to that user's profile, then each requestor claims their slot with World ID.";
+
 export const PROFILE_NOT_FOUND = (address: string) =>
   `No Pulse profile found for ${address}.`;
 

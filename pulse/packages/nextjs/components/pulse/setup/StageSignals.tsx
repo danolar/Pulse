@@ -1,11 +1,11 @@
 "use client";
 
 import { ActiveAdapterList } from "~~/components/pulse/setup/signals/ActiveAdapterList";
-import { TrustedRequestorsSection } from "~~/components/pulse/setup/signals/SignalAdaptersSection";
+import { RequestorsConfigStatus } from "~~/components/pulse/setup/signals/RequestorsConfigStatus";
 
 export const StageSignals = () => (
   <div className="space-y-6">
     <ActiveAdapterList />
-    <TrustedRequestorsSection />
+    <RequestorsConfigStatus />
   </div>
 );
