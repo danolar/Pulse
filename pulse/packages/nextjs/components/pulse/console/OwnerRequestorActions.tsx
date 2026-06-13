@@ -3,12 +3,24 @@
 import { PulseWorldIdButton } from "~~/components/pulse/world-id/PulseWorldIdButton";
 import { usePulseStore } from "~~/services/store/pulseStore";
 import type { ActingRole, LifecycleState } from "~~/types/pulse";
+import { notification } from "~~/utils/scaffold-eth/notification";
+import type { PulseWorldIdVerification } from "~~/utils/worldIdProof";
 
 type OwnerRequestorActionsProps = {
   actingAs: ActingRole;
   lifecycle: LifecycleState;
   orbBound: boolean;
   profileId: string | null;
+};
+
+const runVerifiedAction = (action: (verification: PulseWorldIdVerification) => void) => {
+  return (verification: PulseWorldIdVerification) => {
+    try {
+      action(verification);
+    } catch (error) {
+      notification.error(error instanceof Error ? error.message : "Action rejected.");
+    }
+  };
 };
 
 export const OwnerRequestorActions = ({ actingAs, lifecycle, orbBound, profileId }: OwnerRequestorActionsProps) => {
@@ -31,20 +43,20 @@ export const OwnerRequestorActions = ({ actingAs, lifecycle, orbBound, profileId
                 action="pulse-checkin"
                 signal={profileId ?? "pulse-profile"}
                 label="Check In"
-                onVerified={() => {
+                onVerified={runVerifiedAction(verification => {
                   // TODO: wire to PulseOracle.checkin(...)
-                  mockCheckIn();
-                }}
+                  mockCheckIn(verification);
+                })}
               />
               <PulseWorldIdButton
                 level="device"
                 action="pulse-extension"
                 signal={profileId ?? "pulse-profile"}
                 label="Request Extension"
-                onVerified={() => {
+                onVerified={runVerifiedAction(verification => {
                   // TODO: wire to PulseOracle.requestExtension(...)
-                  mockRequestExtension();
-                }}
+                  mockRequestExtension(verification);
+                })}
               />
             </>
           ) : null}
@@ -55,10 +67,10 @@ export const OwnerRequestorActions = ({ actingAs, lifecycle, orbBound, profileId
               action="pulse-block"
               signal={profileId ?? "pulse-profile"}
               label="Block"
-              onVerified={() => {
+              onVerified={runVerifiedAction(verification => {
                 // TODO: wire to PulseOracle.block(...)
-                mockBlock();
-              }}
+                mockBlock(verification);
+              })}
             />
           ) : null}
 
@@ -68,10 +80,10 @@ export const OwnerRequestorActions = ({ actingAs, lifecycle, orbBound, profileId
               action="pulse-resurrect"
               signal={profileId ?? "pulse-profile"}
               label="Resurrect"
-              onVerified={() => {
+              onVerified={runVerifiedAction(verification => {
                 // TODO: wire to PulseOracle.resurrect(...)
-                mockResurrect();
-              }}
+                mockResurrect(verification);
+              })}
             />
           ) : null}
 
@@ -86,10 +98,10 @@ export const OwnerRequestorActions = ({ actingAs, lifecycle, orbBound, profileId
             action="pulse-evaluation"
             signal={profileId ?? "pulse-profile"}
             label="Request Evaluation"
-            onVerified={() => {
+            onVerified={runVerifiedAction(() => {
               // TODO: wire to PulseOracle.requestEvaluation(...)
               mockRequestEvaluation();
-            }}
+            })}
           />
         </div>
       )}

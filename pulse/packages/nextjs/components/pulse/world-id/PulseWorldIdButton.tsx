@@ -1,16 +1,27 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { IDKitRequestWidget, type IDKitResult, deviceLegacy, orbLegacy } from "@worldcoin/idkit";
+import {
+  IDKitRequestWidget,
+  type IDKitResult,
+  deviceLegacy,
+  proofOfHuman,
+} from "@worldcoin/idkit";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
+import { notification } from "~~/utils/scaffold-eth/notification";
+import {
+  type PulseWorldIdVerification,
+  type WorldIdProofLevel,
+  validateWorldIdProof,
+} from "~~/utils/worldIdProof";
 
 type PulseWorldIdButtonProps = {
-  level: "device" | "orb";
+  level: WorldIdProofLevel;
   action: string;
   signal: string;
   label: string;
   disabled?: boolean;
-  onVerified: (result?: IDKitResult | { mock: true }) => void;
+  onVerified: (verification: PulseWorldIdVerification) => void;
 };
 
 const getAppId = (): `app_${string}` | null => {
@@ -35,15 +46,32 @@ export const PulseWorldIdButton = ({ level, action, signal, label, disabled, onV
   const [rpContext, setRpContext] = useState<ReturnType<typeof buildMockRpContext> | null>(null);
   const appId = getAppId();
 
-  const preset = useMemo(() => (level === "orb" ? orbLegacy({ signal }) : deviceLegacy({ signal })), [level, signal]);
+  const preset = useMemo(() => {
+    if (level === "orb") {
+      return proofOfHuman({ signal });
+    }
+    return deviceLegacy({ signal });
+  }, [level, signal]);
 
   const handleMockVerify = () => {
-    onVerified({ mock: true });
+    onVerified({ mock: true, level });
   };
 
   const handleOpen = () => {
     setRpContext(buildMockRpContext());
     setOpen(true);
+  };
+
+  const handleProof = (result: IDKitResult) => {
+    try {
+      const validated = validateWorldIdProof(result, { level, action });
+      onVerified(validated);
+      setOpen(false);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "World ID verification rejected.";
+      notification.error(message);
+      setOpen(false);
+    }
   };
 
   if (!appId) {
@@ -69,11 +97,14 @@ export const PulseWorldIdButton = ({ level, action, signal, label, disabled, onV
           environment="staging"
           preset={preset}
           rp_context={rpContext}
-          onSuccess={async result => {
-            onVerified(result);
+          handleVerify={async result => {
+            validateWorldIdProof(result, { level, action });
+          }}
+          onSuccess={handleProof}
+          onError={errorCode => {
+            notification.error(`World ID verification failed (${errorCode}).`);
             setOpen(false);
           }}
-          onError={() => setOpen(false)}
         />
       ) : null}
     </>

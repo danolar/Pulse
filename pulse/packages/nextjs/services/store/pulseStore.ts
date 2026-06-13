@@ -10,6 +10,8 @@ import {
   type SignalAdapter,
   type VerificationAttempt,
 } from "~~/types/pulse";
+import type { PulseWorldIdVerification } from "~~/utils/worldIdProof";
+import { assertStoredNullifier, isMockWorldIdVerification } from "~~/utils/worldIdProof";
 
 const buildAttempts = (count: number): VerificationAttempt[] =>
   Array.from({ length: count }, (_, index) => ({
@@ -43,7 +45,9 @@ type PulseState = {
   actingAs: ActingRole;
   profileId: string | null;
   deviceVerified: boolean;
+  deviceNullifierHash: string | null;
   orbBound: boolean;
+  orbNullifierHash: string | null;
   configSaved: boolean;
   accessListsSaved: boolean;
   setupComplete: boolean;
@@ -56,17 +60,17 @@ type PulseState = {
   attempts: VerificationAttempt[];
   signals: ConsoleSignal[];
   setActingAs: (role: ActingRole) => void;
-  mockCreateProfile: (profileId: string) => void;
-  mockBindOrb: () => void;
+  mockCreateProfile: (profileId: string, verification?: PulseWorldIdVerification) => void;
+  mockBindOrb: (verification?: PulseWorldIdVerification) => void;
   mockSaveConfig: (config: ProfileConfig) => void;
   mockAddAdapter: (adapter: Omit<SignalAdapter, "id">) => void;
   mockAddRequestor: (address: string) => void;
   mockCompleteSetup: () => void;
-  mockCheckIn: () => void;
-  mockRequestExtension: () => void;
-  mockBlock: () => void;
-  mockResurrect: () => void;
-  mockRequestEvaluation: () => void;
+  mockCheckIn: (verification?: PulseWorldIdVerification) => void;
+  mockRequestExtension: (verification?: PulseWorldIdVerification) => void;
+  mockBlock: (verification?: PulseWorldIdVerification) => void;
+  mockResurrect: (verification?: PulseWorldIdVerification) => void;
+  mockRequestEvaluation: (verification?: PulseWorldIdVerification) => void;
   mockRespondToAttempt: (attemptId: string) => void;
   mockForceOpenAttempt: () => void;
   appendSignal: (signal: Omit<ConsoleSignal, "id" | "timestamp"> & { timestamp?: string }) => void;
@@ -76,7 +80,9 @@ export const usePulseStore = create<PulseState>((set, get) => ({
   actingAs: "owner",
   profileId: null,
   deviceVerified: false,
+  deviceNullifierHash: null,
   orbBound: false,
+  orbNullifierHash: null,
   configSaved: false,
   accessListsSaved: false,
   setupComplete: false,
@@ -91,18 +97,31 @@ export const usePulseStore = create<PulseState>((set, get) => ({
 
   setActingAs: role => set({ actingAs: role }),
 
-  mockCreateProfile: profileId => {
+  mockCreateProfile: (profileId, verification) => {
     // TODO: wire to PulseOracle.createProfile(profileId, proof)
+    if (verification && !isMockWorldIdVerification(verification) && verification.level !== "device") {
+      throw new Error("createProfile requires Device-level World ID verification.");
+    }
+
     set({
       profileId,
       deviceVerified: true,
+      deviceNullifierHash:
+        verification && !isMockWorldIdVerification(verification) ? verification.nullifier : null,
       lifecycle: "CREATED",
     });
   },
 
-  mockBindOrb: () => {
+  mockBindOrb: verification => {
     // TODO: wire to PulseOracle.bindOrbIdentity(profileId, proof)
-    set({ orbBound: true });
+    if (verification && !isMockWorldIdVerification(verification) && verification.level !== "orb") {
+      throw new Error("bindOrbIdentity requires Orb-level World ID verification.");
+    }
+
+    set({
+      orbBound: true,
+      orbNullifierHash: verification && !isMockWorldIdVerification(verification) ? verification.nullifier : null,
+    });
   },
 
   mockSaveConfig: config => {
@@ -140,8 +159,9 @@ export const usePulseStore = create<PulseState>((set, get) => ({
     });
   },
 
-  mockCheckIn: () => {
+  mockCheckIn: verification => {
     // TODO: wire to PulseOracle.checkin(...)
+    assertStoredNullifier(verification ?? { mock: true, level: "device" }, get().deviceNullifierHash, "device");
     const state = get();
     set({
       accumulatedWeight: Math.max(0, state.accumulatedWeight - 20),
@@ -155,8 +175,9 @@ export const usePulseStore = create<PulseState>((set, get) => ({
     });
   },
 
-  mockRequestExtension: () => {
+  mockRequestExtension: verification => {
     // TODO: wire to PulseOracle.requestExtension(...)
+    assertStoredNullifier(verification ?? { mock: true, level: "device" }, get().deviceNullifierHash, "device");
     get().appendSignal({
       signalType: "Extension requested",
       direction: "positive",
@@ -165,18 +186,20 @@ export const usePulseStore = create<PulseState>((set, get) => ({
     });
   },
 
-  mockBlock: () => {
+  mockBlock: verification => {
     // TODO: wire to PulseOracle.block(...)
+    assertStoredNullifier(verification ?? { mock: true, level: "orb" }, get().orbNullifierHash, "orb");
     set({ lifecycle: "BLOCKED", accumulatedWeight: 0 });
   },
 
-  mockResurrect: () => {
+  mockResurrect: verification => {
     // TODO: wire to PulseOracle.resurrect(...)
+    assertStoredNullifier(verification ?? { mock: true, level: "orb" }, get().orbNullifierHash, "orb");
     set({ lifecycle: "ACTIVE", accumulatedWeight: 20, epoch: get().epoch + 1 });
   },
 
   mockRequestEvaluation: () => {
-    // TODO: wire to PulseOracle.requestEvaluation(...)
+    // TODO: wire to PulseOracle.requestEvaluation(...) with requestor nullifier from claimRequestorSlot
     set({ lifecycle: "EVALUATING" });
     get().appendSignal({
       signalType: "Evaluation requested",

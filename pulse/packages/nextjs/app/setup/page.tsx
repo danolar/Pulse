@@ -7,6 +7,18 @@ import { PageShell, PulseButton, SectionHeader } from "~~/components/pulse";
 import { PulseWorldIdButton } from "~~/components/pulse/world-id/PulseWorldIdButton";
 import { usePulseStore } from "~~/services/store/pulseStore";
 import type { ProfileConfig } from "~~/types/pulse";
+import { notification } from "~~/utils/scaffold-eth/notification";
+import type { PulseWorldIdVerification } from "~~/utils/worldIdProof";
+
+const runVerifiedAction = (action: (verification: PulseWorldIdVerification) => void) => {
+  return (verification: PulseWorldIdVerification) => {
+    try {
+      action(verification);
+    } catch (error) {
+      notification.error(error instanceof Error ? error.message : "Action rejected.");
+    }
+  };
+};
 
 const SetupWizard = () => {
   const router = useRouter();
@@ -61,10 +73,10 @@ const SetupWizard = () => {
             signal={generatedProfileId}
             label="Verify & Create Profile"
             disabled={deviceVerified}
-            onVerified={() => {
+            onVerified={runVerifiedAction(verification => {
               // TODO: wire to PulseOracle.createProfile(profileId, proof)
-              mockCreateProfile(generatedProfileId);
-            }}
+              mockCreateProfile(generatedProfileId, verification);
+            })}
           />
         </section>
 
@@ -82,10 +94,10 @@ const SetupWizard = () => {
             signal={generatedProfileId}
             label="Bind Orb Identity"
             disabled={!deviceVerified || orbBound}
-            onVerified={() => {
+            onVerified={runVerifiedAction(verification => {
               // TODO: wire to PulseOracle.bindOrbIdentity(profileId, proof)
-              mockBindOrb();
-            }}
+              mockBindOrb(verification);
+            })}
           />
         </section>
 
