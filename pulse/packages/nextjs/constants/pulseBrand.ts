@@ -5,7 +5,7 @@ export const PULSE_TAGLINE = "Configurable onchain attestation oracle";
 
 /** Landing note: Explorer is dev console, not the consumer app. */
 export const PULSE_EXPLORER_NOTE =
-  "This explorer is a developer console and live state viewer for Pulse profiles — not the end-user application consumers deploy.";
+  "Developer console and live state viewer for Pulse profiles — not the end-user application your consumers deploy.";
 
 export const PULSE_COLORS = {
   accent: "#4C66FF",

@@ -28,7 +28,7 @@ const StagePulseIndicator = () => (
 );
 
 export const StageRail = ({ currentStage, progress, onSelectStage }: StageRailProps) => (
-  <ol className="flex items-center justify-center gap-4 sm:gap-8" aria-label="Setup stages">
+  <ol className="flex items-center justify-center gap-2 sm:gap-6" aria-label="Setup stages">
     {SETUP_STAGES.map(stage => {
       const unlocked = isStageUnlocked(stage.id, progress);
       const done = isStageComplete(stage.id, progress);
@@ -41,7 +41,7 @@ export const StageRail = ({ currentStage, progress, onSelectStage }: StageRailPr
             disabled={!unlocked}
             onClick={() => unlocked && onSelectStage(stage.id)}
             aria-current={isCurrent ? "step" : undefined}
-            className={`flex items-center gap-2 rounded-xl px-2 py-1 text-sm font-medium transition-colors sm:px-3 ${
+            className={`flex items-center gap-1.5 rounded-xl px-1.5 py-1 text-xs font-medium transition-colors sm:gap-2 sm:px-2 sm:text-sm ${
               isCurrent
                 ? "text-base-content"
                 : done

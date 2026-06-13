@@ -7,6 +7,8 @@ export { ConnectVacant } from "./layout/ConnectVacant";
 export { ActingAsProvider, useActingAs } from "./layout/ActingAsContext";
 export { ConnectionKitPanel } from "./layout/ConnectionKitPanel";
 export { SlideOver } from "./layout/SlideOver";
+export { CopyRow } from "./layout/CopyRow";
+export { CopySnippet } from "./layout/CopySnippet";
 export { DevFloatingBar } from "./layout/DevFloatingBar";
 export { MetricCard } from "./cards/MetricCard";
 export { AddCard } from "./cards/AddCard";

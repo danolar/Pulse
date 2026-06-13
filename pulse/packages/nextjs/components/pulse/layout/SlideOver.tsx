@@ -8,9 +8,10 @@ type SlideOverProps = {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  size?: "md" | "lg";
 };
 
-export const SlideOver = ({ open, title, onClose, children }: SlideOverProps) => {
+export const SlideOver = ({ open, title, onClose, children, size = "md" }: SlideOverProps) => {
   useEffect(() => {
     if (!open) return;
 
@@ -37,7 +38,11 @@ export const SlideOver = ({ open, title, onClose, children }: SlideOverProps) =>
         aria-label="Close panel"
         onClick={onClose}
       />
-      <aside className="relative z-10 flex h-full w-full max-w-md flex-col border-l border-base-content/10 bg-base-100 shadow-pulse-lg">
+      <aside
+        className={`relative z-10 flex h-full w-full flex-col border-l border-base-content/10 bg-base-100 shadow-pulse-lg ${
+          size === "lg" ? "max-w-xl" : "max-w-md"
+        }`}
+      >
         <div className="flex items-start justify-between gap-4 border-b border-base-content/10 px-5 py-4">
           <h2 className="pulse-section-title text-lg">{title}</h2>
           <button type="button" className="btn btn-ghost btn-sm btn-circle" aria-label="Close" onClick={onClose}>

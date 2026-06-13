@@ -82,11 +82,14 @@ export const SetupWizard = () => {
     router.push("/console");
   };
 
-  const footerPadding = SHOW_SCAFFOLD_DEV_UI ? "pb-64 sm:pb-72" : "pb-52 sm:pb-56";
+  // Clearance for fixed WizardFooter (+ DevFloatingBar when dev UI is on).
+  const scrollClearance = SHOW_SCAFFOLD_DEV_UI
+    ? "pb-[28rem] sm:pb-[32rem]"
+    : "pb-[20rem] sm:pb-[24rem]";
 
   return (
     <>
-      <PageShell className={footerPadding}>
+      <PageShell className={scrollClearance}>
         <SectionHeader
           title="profile setup"
           eyebrow="pulse explorer"
@@ -102,6 +105,11 @@ export const SetupWizard = () => {
             onSave={savedConfig => mockSaveConfig(savedConfig)}
           />
         ) : null}
+
+        <div
+          aria-hidden
+          className={SHOW_SCAFFOLD_DEV_UI ? "h-40 sm:h-48" : "h-32 sm:h-40"}
+        />
       </PageShell>
 
       <WizardFooter

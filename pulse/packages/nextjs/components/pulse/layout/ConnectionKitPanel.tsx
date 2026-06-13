@@ -1,127 +1,147 @@
 "use client";
 
-import { useCallback } from "react";
-import { Copy } from "lucide-react";
 import deployedContracts from "~~/contracts/deployedContracts";
-import { worldIdActions } from "~~/constants/pulseProtocol";
+import {
+  CONNECTION_KIT_CONSUME_EXTEND_NOTE,
+  CONNECTION_KIT_DEPLOYMENT_NOTE,
+  CONNECTION_KIT_DOC_LINKS,
+  CONNECTION_KIT_INTEGRATION_STEPS,
+  CONNECTION_KIT_PANEL_INTRO,
+  CONNECTION_KIT_PANEL_TITLE,
+  WORLD_ID_ACTION_PATTERNS,
+  buildConnectionKitSnippets,
+} from "~~/constants/connectionKitContent";
+import { CopyRow } from "~~/components/pulse/layout/CopyRow";
+import { CopySnippet } from "~~/components/pulse/layout/CopySnippet";
 import { SlideOver } from "~~/components/pulse/layout/SlideOver";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
-import { notification } from "~~/utils/scaffold-eth/notification";
 
 type ConnectionKitPanelProps = {
   open: boolean;
   onClose: () => void;
 };
 
-const CopyRow = ({ label, value }: { label: string; value: string }) => {
-  const handleCopy = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(value);
-      notification.success(`${label} copied`);
-    } catch {
-      notification.error("Could not copy to clipboard");
-    }
-  }, [label, value]);
+const PanelIntro = () => (
+  <p className="text-sm leading-relaxed text-pulse-muted">{CONNECTION_KIT_PANEL_INTRO}</p>
+);
 
-  return (
-    <div className="flex items-start justify-between gap-3 rounded-xl bg-base-200/60 px-3 py-2">
-      <div className="min-w-0">
-        <p className="text-xs font-medium text-pulse-muted">{label}</p>
-        <p className="break-all font-mono text-xs">{value || "—"}</p>
+const DeploymentValues = ({
+  networkName,
+  contractAddress,
+  appId,
+}: {
+  networkName: string;
+  contractAddress: string;
+  appId: string;
+}) => (
+  <section className="space-y-2">
+    <h3 className="pulse-label text-pulse-muted">Deployment values</h3>
+    <CopyRow label="Network" value={networkName} />
+    <CopyRow label="PulseOracle contract" value={contractAddress} />
+    <CopyRow label="World ID app_id" value={appId} />
+    <p className="text-xs leading-relaxed text-pulse-muted">{CONNECTION_KIT_DEPLOYMENT_NOTE}</p>
+  </section>
+);
+
+const ActionNamingTable = () => (
+  <div className="overflow-x-auto rounded-xl border border-base-content/10">
+    <table className="table table-xs">
+      <thead>
+        <tr>
+          <th>Action</th>
+          <th>String</th>
+          <th>Level</th>
+        </tr>
+      </thead>
+      <tbody>
+        {WORLD_ID_ACTION_PATTERNS.map(row => (
+          <tr key={row.flow}>
+            <td>{row.flow}</td>
+            <td className="font-mono text-[11px]">{row.pattern}</td>
+            <td className="capitalize">{row.level}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+const IntegrationStep = ({
+  index,
+  title,
+  explanation,
+  snippet,
+  showActionTable,
+}: {
+  index: number;
+  title: string;
+  explanation: string;
+  snippet?: string;
+  showActionTable?: boolean;
+}) => (
+  <li className="space-y-2">
+    <div className="flex gap-3">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+        {index}
+      </span>
+      <div className="min-w-0 space-y-1">
+        <h4 className="text-sm font-medium">{title}</h4>
+        <p className="text-xs leading-relaxed text-pulse-muted">{explanation}</p>
       </div>
-      <button
-        type="button"
-        className="btn btn-ghost btn-xs btn-square shrink-0"
-        aria-label={`Copy ${label}`}
-        disabled={!value}
-        onClick={handleCopy}
-      >
-        <Copy className="h-3.5 w-3.5" />
-      </button>
     </div>
-  );
-};
+    {snippet ? <CopySnippet code={snippet} label={title} /> : null}
+    {showActionTable ? <ActionNamingTable /> : null}
+  </li>
+);
 
-const ACTION_ROWS = [
-  { action: "createProfile", example: worldIdActions.createProfile("{address}") },
-  { action: "bindOrb", example: worldIdActions.bindOrb("{address}") },
-  { action: "checkin", example: worldIdActions.checkin("{address}") },
-  { action: "block", example: worldIdActions.block("{address}") },
-  { action: "resurrect", example: worldIdActions.resurrect("{address}") },
-  { action: "requestEvaluation", example: worldIdActions.requestEvaluation("{owner}") },
-] as const;
+const IntegrationSteps = ({ snippets }: { snippets: ReturnType<typeof buildConnectionKitSnippets> }) => (
+  <section className="space-y-4">
+    <h3 className="pulse-label text-pulse-muted">Integration steps</h3>
+    <ol className="space-y-5">
+      {CONNECTION_KIT_INTEGRATION_STEPS.map((step, index) => (
+        <IntegrationStep
+          key={step.title}
+          index={index + 1}
+          title={step.title}
+          explanation={step.explanation}
+          snippet={snippets[step.snippetKey]}
+          showActionTable={"includeActionTable" in step ? step.includeActionTable : false}
+        />
+      ))}
+    </ol>
+  </section>
+);
+
+const DocsLinks = () => (
+  <section className="space-y-2">
+    <h3 className="pulse-label text-pulse-muted">Docs</h3>
+    <ul className="space-y-1.5 text-sm">
+      {CONNECTION_KIT_DOC_LINKS.map(link => (
+        <li key={link.href}>
+          <a href={link.href} className="link link-primary" target="_blank" rel="noreferrer">
+            {link.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+);
 
 export const ConnectionKitPanel = ({ open, onClose }: ConnectionKitPanelProps) => {
   const { targetNetwork } = useTargetNetwork();
   const contractAddress =
     deployedContracts[targetNetwork.id as keyof typeof deployedContracts]?.PulseOracle?.address ?? "";
   const appId = process.env.NEXT_PUBLIC_WORLD_APP_ID ?? "";
-
-  const snippet = `<IDKitWidget
-  app_id="${appId || "app_..."}"
-  action="${worldIdActions.checkin("{ownerAddress}")}"
-  signal="{ownerAddress}"
-  onSuccess={async (proof) => {
-    await pulseOracle.write.checkin([/* proof fields */]);
-  }}
-/>`;
+  const snippets = buildConnectionKitSnippets({ appId, contractAddress });
 
   return (
-    <SlideOver open={open} title="Connection kit" onClose={onClose}>
+    <SlideOver open={open} title={CONNECTION_KIT_PANEL_TITLE} onClose={onClose} size="lg">
       <div className="space-y-6 text-sm">
-        <section className="space-y-2">
-          <h3 className="pulse-label text-pulse-muted">Onchain & World ID</h3>
-          <CopyRow label="PulseOracle contract" value={contractAddress} />
-          <CopyRow label="World ID app_id" value={appId} />
-          <CopyRow label="Network" value={targetNetwork.name} />
-        </section>
-
-        <section className="space-y-2">
-          <h3 className="pulse-label text-pulse-muted">Action naming</h3>
-          <div className="overflow-x-auto rounded-xl border border-base-content/10">
-            <table className="table table-xs">
-              <thead>
-                <tr>
-                  <th>Flow</th>
-                  <th>Action string</th>
-                </tr>
-              </thead>
-              <tbody>
-                {ACTION_ROWS.map(row => (
-                  <tr key={row.action}>
-                    <td className="capitalize">{row.action}</td>
-                    <td className="font-mono text-[11px]">{row.example}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section className="space-y-2">
-          <h3 className="pulse-label text-pulse-muted">Integration snippet</h3>
-          <pre className="overflow-x-auto rounded-xl bg-base-200/80 p-3 font-mono text-[11px] leading-relaxed">
-            {snippet}
-          </pre>
-        </section>
-
-        <section className="space-y-2">
-          <h3 className="pulse-label text-pulse-muted">Docs</h3>
-          <ul className="list-inside list-disc space-y-1 text-pulse-muted">
-            <li>
-              <a href="https://github.com/danolar/Pulse" className="link link-primary" target="_blank" rel="noreferrer">
-                Repository & README
-              </a>
-            </li>
-            <li>ABI: exported from deployedContracts in the Next.js package</li>
-          </ul>
-        </section>
-
-        <p className="text-xs leading-relaxed text-pulse-muted">
-          Pulse uses an implicit connection model: World ID actions and contract calls are keyed by profile address.
-          No separate pairing step — connect a wallet, use the owner address as the profile key, and match action
-          strings to the tables above.
-        </p>
+        <PanelIntro />
+        <DeploymentValues networkName={targetNetwork.name} contractAddress={contractAddress} appId={appId} />
+        <IntegrationSteps snippets={snippets} />
+        <DocsLinks />
+        <p className="text-xs leading-relaxed text-pulse-muted">{CONNECTION_KIT_CONSUME_EXTEND_NOTE}</p>
       </div>
     </SlideOver>
   );
