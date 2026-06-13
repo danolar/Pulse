@@ -17,6 +17,7 @@ export const VERIFICATION_TYPE_LABELS: Record<VerificationType, string> = {
   WORLD_ID: "World ID",
   ONCHAIN_TX: "Onchain activity (CRE)",
   AI_AGENT: "AI agent (Confidential AI)",
+  VOICE_AGENT: "Voice check-in (Twilio)",
 };
 
 export const LIFECYCLE_DESCRIPTIONS: Record<LifecycleState, string> = {

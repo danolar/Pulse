@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
 import { GoogleActivityConnect } from "~~/components/pulse/modules/GoogleActivityConnect";
+import { VoiceAgentConnect } from "~~/components/pulse/modules/VoiceAgentConnect";
 import { usePulseStore } from "~~/services/store/pulseStore";
 import {
   PULSE_MODULE_CATEGORY_LABELS,
@@ -32,7 +33,9 @@ type ModuleCardProps = {
   onAdapterChange: (patch: { address?: string; weight?: number }) => void;
   googleRefreshToken: number;
   googleLinked: boolean;
+  voiceLinked: boolean;
   onGoogleLinkedChange: (linked: boolean) => void;
+  onVoiceLinkedChange: (linked: boolean) => void;
 };
 
 const ModuleCard = ({
@@ -45,17 +48,21 @@ const ModuleCard = ({
   onAdapterChange,
   googleRefreshToken,
   googleLinked,
+  voiceLinked,
   onGoogleLinkedChange,
+  onVoiceLinkedChange,
 }: ModuleCardProps) => {
   const isGoogleModule = pulseModule.id === "google-activity";
-  const isActive = enabled || (isGoogleModule && googleLinked);
+  const isTwilioVoiceModule = pulseModule.id === "twilio-voice";
+  const isActive = enabled || (isGoogleModule && googleLinked) || (isTwilioVoiceModule && voiceLinked);
   const showSoon = !isModuleReadyForSetup(pulseModule);
   const showAdapterFields =
     enabled &&
     pulseModule.setupKind === "adapter" &&
     isModuleReadyForSetup(pulseModule) &&
     pulseModule.id !== "google-activity";
-  const showIntegrationPlaceholder = enabled && pulseModule.setupKind === "integration";
+  const showIntegrationPlaceholder =
+    enabled && pulseModule.setupKind === "integration" && !isTwilioVoiceModule;
   const showIdentityNote = enabled && pulseModule.setupKind === "none";
   const showPlannedPlaceholder =
     enabled && pulseModule.setupKind === "adapter" && !isModuleReadyForSetup(pulseModule);
@@ -108,6 +115,10 @@ const ModuleCard = ({
           refreshToken={googleRefreshToken}
           onLinkedChange={onGoogleLinkedChange}
         />
+      ) : null}
+
+      {isTwilioVoiceModule ? (
+        <VoiceAgentConnect moduleEnabled={enabled} onLinkedChange={onVoiceLinkedChange} />
       ) : null}
 
       {showIntegrationPlaceholder ? (
@@ -167,6 +178,7 @@ export const VerificationPackagePanel = ({ googleRefreshToken = 0 }: { googleRef
     usePulseStore();
   const [requestorAddress, setRequestorAddress] = useState("");
   const [googleLinked, setGoogleLinked] = useState(false);
+  const [voiceLinked, setVoiceLinked] = useState(false);
   const selectableIds = new Set(getSelectablePulseModules().map(module => module.id));
   const byCategory = getPulseModulesByCategory();
 
@@ -209,10 +221,17 @@ export const VerificationPackagePanel = ({ googleRefreshToken = 0 }: { googleRef
                         onAdapterChange={patch => setModuleAdapter(pulseModule.id, patch)}
                         googleRefreshToken={googleRefreshToken}
                         googleLinked={googleLinked}
+                        voiceLinked={voiceLinked}
                         onGoogleLinkedChange={linked => {
                           setGoogleLinked(linked);
                           if (linked) {
                             usePulseStore.getState().ensureModuleEnabled("google-activity");
+                          }
+                        }}
+                        onVoiceLinkedChange={linked => {
+                          setVoiceLinked(linked);
+                          if (linked) {
+                            usePulseStore.getState().ensureModuleEnabled("twilio-voice");
                           }
                         }}
                       />

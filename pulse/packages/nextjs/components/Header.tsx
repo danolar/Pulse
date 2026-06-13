@@ -139,7 +139,7 @@ export const Header = () => {
           </div>
 
           <Link href="/" passHref className="flex min-w-0 items-center py-1">
-            <PulseLogo className="h-11 w-auto min-w-[6.75rem] sm:h-12 sm:min-w-[8rem]" />
+            <PulseLogo height={48} />
           </Link>
         </div>
 

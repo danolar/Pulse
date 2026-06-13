@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     "googleapis",
     "@neondatabase/serverless",
     "drizzle-orm",
+    "twilio",
   ],
   typescript: {
     ignoreBuildErrors: process.env.NEXT_PUBLIC_IGNORE_BUILD_ERROR === "true",

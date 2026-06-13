@@ -1,5 +1,5 @@
 import { aiAgentModule } from "./ai-agent/module";
-import { elevenlabsVoiceModule } from "./elevenlabs-voice/module";
+import { twilioVoiceModule } from "./twilio-voice/module";
 import { googleActivityModule } from "./google-activity/module";
 import { onchainActivityModule } from "./onchain-activity/module";
 import type { PulseModuleCategory, PulseVerificationModule } from "./types";
@@ -10,7 +10,7 @@ export const PULSE_VERIFICATION_MODULES: PulseVerificationModule[] = [
   worldIdModule,
   onchainActivityModule,
   googleActivityModule,
-  elevenlabsVoiceModule,
+  twilioVoiceModule,
   aiAgentModule,
 ];
 
