@@ -1,5 +1,5 @@
 import type { AuthorizedRequestor, SignalAdapter } from "~~/types/pulse";
-import { isSignalsStageReady } from "~~/components/pulse/modules/VerificationPackagePanel";
+import { isSignalsStageReady } from "~~/components/pulse/setup/signals/signalsValidation";
 
 export type SetupStageId = "signals" | "identity" | "rhythm";
 

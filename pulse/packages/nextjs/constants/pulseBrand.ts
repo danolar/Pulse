@@ -3,9 +3,9 @@ export const PULSE_LOGO_ON_LIGHT = "/brand/pulse-logo-on-light.svg";
 /** Single source for landing hero tagline (Pulse Explorer). */
 export const PULSE_TAGLINE = "Configurable onchain attestation oracle";
 
-/** Landing note: Explorer is dev console, not the consumer app. */
+/** Landing note: Explorer is dev console for one profile, not the consumer app. */
 export const PULSE_EXPLORER_NOTE =
-  "Developer console and live state viewer for Pulse profiles — not the end-user application your consumers deploy.";
+  "Developer console and live state viewer for one profile — the connected wallet. Not the end-user app, and not where end users connect accounts. Real end users live inside consumer apps like Legacy Ledger; per-user account connections (Google, phone, and similar) happen there, not here.";
 
 export const PULSE_COLORS = {
   accent: "#4C66FF",

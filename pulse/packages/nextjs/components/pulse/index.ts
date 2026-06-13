@@ -23,9 +23,16 @@ export type { VerificationStep } from "./stepper/VerificationStepper";
 export { PulseModal, KeyValuePreview, ModalFooterActions } from "./modals/PulseModal";
 export { PulseButton } from "./ui/PulseButton";
 export { VerifiedCheck } from "./ui/VerifiedCheck";
+export { NumberField } from "./ui/NumberField";
+export { StatusTag } from "./ui/StatusTag";
 export { PulseWorldIdButton } from "./world-id/PulseWorldIdButton";
 export { PulseConsoleGauge } from "./console/PulseConsoleGauge";
-export { VerificationPackagePanel, validateEnabledModulesForActivation } from "./modules/VerificationPackagePanel";
+export {
+  validateEnabledModulesForActivation,
+  isSignalsStageReady,
+} from "~~/components/pulse/setup/signals/signalsValidation";
+/** @deprecated Use StageSignals */
+export { StageSignals as VerificationPackagePanel } from "~~/components/pulse/setup/StageSignals";
 export { OwnerRequestorActions } from "./console/OwnerRequestorActions";
 export { AttemptSequence } from "./console/AttemptSequence";
 export { ConsoleSignalTimeline } from "./console/ConsoleSignalTimeline";

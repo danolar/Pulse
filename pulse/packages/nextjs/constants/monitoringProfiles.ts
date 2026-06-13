@@ -64,6 +64,15 @@ export const inferMonitoringPresetId = (config: ProfileConfig): MonitoringProfil
   return match?.id ?? "custom";
 };
 
+/** Compressed cadence for Explorer demos — valid onchain values, not production timing. */
+export const DEMO_RHYTHM_CONFIG: ProfileConfig = {
+  windowDuration: 1,
+  attemptsPerWindow: 2,
+  responseWindow: 1,
+  missedAttemptWeight: 10,
+  threshold: 25,
+};
+
 export const describeMonitoringRhythm = (config: ProfileConfig): string => {
   const maxMissedWeight = config.attemptsPerWindow * config.missedAttemptWeight;
   const reachesThresholdOnMissesOnly =

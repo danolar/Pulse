@@ -51,6 +51,12 @@ const IdentityStep = ({
   </section>
 );
 
+const UnlockNote = () => (
+  <p className="mb-4 text-xs text-pulse-muted">
+    Unlocks freeze evaluation and reverse alarm controls in the console (Orb-gated owner actions).
+  </p>
+);
+
 const OrbBindStep = ({
   profileKey,
   deviceVerified,
@@ -70,9 +76,7 @@ const OrbBindStep = ({
     <p className="mb-2 text-sm text-pulse-muted">
       Separate Orb proof for the highest-assurance owner actions.
     </p>
-    <p className="mb-4 text-xs text-pulse-muted">
-      Unlock note: Orb binding unlocks freeze evaluation and reverse alarm controls in the console.
-    </p>
+    <UnlockNote />
     <WorldIDButton
       level="orb"
       action={worldIdActions.bindOrb(profileKey)}

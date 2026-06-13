@@ -64,6 +64,7 @@ type PulseState = {
   accessListsSaved: boolean;
   setupComplete: boolean;
   config: ProfileConfig;
+  notificationTarget: string | null;
   adapters: SignalAdapter[];
   requestors: AuthorizedRequestor[];
   enabledModuleIds: string[];
@@ -74,7 +75,7 @@ type PulseState = {
   signals: ConsoleSignal[];
   mockCreateProfile: (profileId: string, verification?: PulseWorldIdVerification) => void;
   mockBindOrb: (verification?: PulseWorldIdVerification) => void;
-  mockSaveConfig: (config: ProfileConfig) => void;
+  mockSaveConfig: (config: ProfileConfig, notificationTarget?: string | null) => void;
   toggleModule: (moduleId: string) => void;
   ensureModuleEnabled: (moduleId: string) => void;
   setModuleAdapter: (moduleId: string, patch: { address?: string; weight?: number }) => void;
@@ -102,6 +103,7 @@ export type PersistedPulseProfile = Pick<
   | "accessListsSaved"
   | "setupComplete"
   | "config"
+  | "notificationTarget"
   | "adapters"
   | "requestors"
   | "enabledModuleIds"
@@ -125,6 +127,7 @@ export const getInitialPulseState = (): Omit<
   accessListsSaved: false,
   setupComplete: false,
   config: DEFAULT_PROFILE_CONFIG,
+  notificationTarget: null,
   adapters: buildInitialAdapters(),
   requestors: [],
   enabledModuleIds: [...DEFAULT_ENABLED_MODULE_IDS],
@@ -145,6 +148,7 @@ export const toPersistedProfile = (state: PulseState): PersistedPulseProfile => 
   accessListsSaved: state.accessListsSaved,
   setupComplete: state.setupComplete,
   config: state.config,
+  notificationTarget: state.notificationTarget,
   adapters: state.adapters,
   requestors: state.requestors,
   enabledModuleIds: state.enabledModuleIds,
@@ -183,9 +187,10 @@ export const usePulseStore = create<PulseState>((set, get) => ({
     });
   },
 
-  mockSaveConfig: config => {
+  mockSaveConfig: (config, notificationTarget = null) => {
     set({
       config,
+      notificationTarget,
       configSaved: true,
       attempts: buildAttempts(config.attemptsPerWindow),
     });

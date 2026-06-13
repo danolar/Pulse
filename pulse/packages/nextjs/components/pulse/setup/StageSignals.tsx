@@ -1,11 +1,10 @@
 "use client";
 
-import { VerificationPackagePanel } from "~~/components/pulse/modules/VerificationPackagePanel";
+import { SignalAdaptersSection, TrustedRequestorsSection } from "~~/components/pulse/setup/signals/SignalAdaptersSection";
 
-type StageSignalsProps = {
-  googleRefreshToken: number;
-};
-
-export const StageSignals = ({ googleRefreshToken }: StageSignalsProps) => (
-  <VerificationPackagePanel googleRefreshToken={googleRefreshToken} />
+export const StageSignals = () => (
+  <div className="space-y-6">
+    <SignalAdaptersSection />
+    <TrustedRequestorsSection />
+  </div>
 );
