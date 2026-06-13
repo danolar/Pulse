@@ -5,7 +5,7 @@ export const twilioVoiceModule: PulseVerificationModule = {
   name: "Voice agent",
   category: "active",
   status: "implemented",
-  summary: "Random check-in calls — link your phone here and enter the code when Pulse calls.",
+  summary: "Random check-in calls — link your phone (verify in Twilio Console on trial) and enter the code when Pulse calls.",
   provider: "Twilio",
   signalDirection: "both",
   complements: ["world-id"],

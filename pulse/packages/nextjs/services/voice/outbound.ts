@@ -44,8 +44,8 @@ export const initiateOutboundCall = async (input: {
     throw new Error("Voice calls are disabled. Set VOICE_CALLS_ENABLED=true in .env.local.");
   }
 
-  if (countCallsToday(input.profileOwnerAddress) >= env.maxCallsPerDay) {
-    throw new Error(`Daily call limit reached (${env.maxCallsPerDay} calls per day on demo).`);
+  if (env.maxCallsPerDay > 0 && countCallsToday(input.profileOwnerAddress) >= env.maxCallsPerDay) {
+    throw new Error(`Daily call limit reached (${env.maxCallsPerDay} calls per day). Set VOICE_MAX_CALLS_PER_DAY higher in .env.local.`);
   }
 
   const checkInCode = generateCheckInCode();

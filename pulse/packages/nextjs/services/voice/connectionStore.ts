@@ -131,7 +131,7 @@ export const getVerifiedPhoneNumber = (profileOwnerAddress: string): string | nu
 export const upsertPendingVoiceConnection = (input: {
   profileOwnerAddress: string;
   phoneNumber: string;
-  validationCode: string;
+  validationCode?: string | null;
 }): VoiceConnectionPublic => {
   const { encryptionKeyHex } = getTwilioVoiceEnv();
   const db = getDb();
@@ -150,7 +150,7 @@ export const upsertPendingVoiceConnection = (input: {
       id, profile_owner_address, phone_encrypted, status, validation_code, connected_at, revoked_at
     ) VALUES (?, ?, ?, 'pending', ?, NULL, NULL)
   `,
-  ).run(id, owner, encryptSecret(input.phoneNumber, encryptionKeyHex), input.validationCode);
+  ).run(id, owner, encryptSecret(input.phoneNumber, encryptionKeyHex), input.validationCode ?? null);
 
   return getVoiceConnection(owner);
 };

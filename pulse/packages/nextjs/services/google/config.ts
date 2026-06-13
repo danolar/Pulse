@@ -1,3 +1,4 @@
+import { getGoogleOAuthRedirectUri } from "~~/services/appUrl";
 import type { GoogleSurfacesConfig } from "./types";
 import { DEFAULT_GOOGLE_SURFACES } from "./types";
 
@@ -20,12 +21,12 @@ export type GoogleOAuthEnv = {
 export const getGoogleOAuthEnv = (): GoogleOAuthEnv => {
   const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID?.trim();
   const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET?.trim();
-  const redirectUri = process.env.GOOGLE_OAUTH_REDIRECT_URI?.trim();
+  const redirectUri = getGoogleOAuthRedirectUri();
   const encryptionKeyHex = process.env.GOOGLE_TOKEN_ENCRYPTION_KEY?.trim();
 
-  if (!clientId || !clientSecret || !redirectUri || !encryptionKeyHex) {
+  if (!clientId || !clientSecret || !encryptionKeyHex) {
     throw new Error(
-      "Missing Google OAuth env. Set GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, GOOGLE_OAUTH_REDIRECT_URI, and GOOGLE_TOKEN_ENCRYPTION_KEY in .env.local",
+      "Missing Google OAuth env. Set GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, APP_BASE_URL (or GOOGLE_OAUTH_REDIRECT_URI), and GOOGLE_TOKEN_ENCRYPTION_KEY in .env.local",
     );
   }
 

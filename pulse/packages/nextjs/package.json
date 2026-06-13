@@ -18,6 +18,8 @@
     "verify:google-oauth-env": "node --env-file=.env.local scripts/verify-google-oauth-env.mjs",
     "verify:postgres-env": "node --env-file=.env.local scripts/verify-postgres-env.mjs",
     "verify:twilio-voice-env": "node --env-file=.env.local scripts/verify-twilio-voice-env.mjs",
+    "tunnel:ngrok": "node scripts/start-ngrok-tunnel.mjs",
+    "tunnel:ngrok:sync": "node scripts/sync-ngrok-url.mjs",
     "verify:walrus": "node scripts/verify-walrus.mjs",
     "test:walrus-roundtrip": "node scripts/test-walrus-roundtrip.mjs",
     "simulate:onchain-activity": "node scripts/simulate-onchain-activity.mjs",

@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
   const pendingPhone = getPendingPhoneNumber(profileOwner);
   if (!pendingPhone) {
-    return NextResponse.json({ error: "No pending phone verification. Send a verification call first." }, { status: 400 });
+    return NextResponse.json({ error: "No pending phone link. Save your phone number first." }, { status: 400 });
   }
 
   try {
@@ -40,7 +40,8 @@ export async function POST(request: Request) {
     if (!verified) {
       return NextResponse.json({
         verified: false,
-        message: "Not verified yet. Answer Twilio's call and enter the validation code on your keypad.",
+        message:
+          "Not verified yet. In Twilio Console → Verified Caller IDs, add this exact number and complete Twilio's verification, then try again.",
       });
     }
 

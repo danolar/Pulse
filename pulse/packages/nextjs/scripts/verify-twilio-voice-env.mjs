@@ -1,3 +1,5 @@
+import { getTwilioWebhookBaseUrl } from "./lib/appUrl.mjs";
+
 const required = ["TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_FROM_NUMBER"];
 
 const missing = required.filter(key => !process.env[key]?.trim());
@@ -17,9 +19,14 @@ if (!/^[0-9a-fA-F]{64}$/.test(encryptionKey)) {
   process.exit(1);
 }
 
-if (process.env.VOICE_CALLS_ENABLED?.trim().toLowerCase() === "true" && !process.env.TWILIO_WEBHOOK_BASE_URL?.trim()) {
-  console.error("TWILIO_WEBHOOK_BASE_URL is required when VOICE_CALLS_ENABLED=true");
+if (process.env.VOICE_CALLS_ENABLED?.trim().toLowerCase() === "true" && !getTwilioWebhookBaseUrl(process.env)) {
+  console.error(
+    "Set TWILIO_WEBHOOK_BASE_URL (dev/ngrok) or APP_BASE_URL to a public HTTPS URL (production) when VOICE_CALLS_ENABLED=true",
+  );
   process.exit(1);
 }
 
 console.log("Twilio voice env OK");
+if (getTwilioWebhookBaseUrl(process.env)) {
+  console.log("Webhook base:", getTwilioWebhookBaseUrl(process.env));
+}

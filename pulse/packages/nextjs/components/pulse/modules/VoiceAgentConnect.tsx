@@ -7,6 +7,9 @@ import type { VoiceConnectionPublic } from "~~/services/voice";
 import { usePulseStore } from "~~/services/store/pulseStore";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
+const TWILIO_VERIFIED_CALLER_IDS_URL =
+  "https://console.twilio.com/us1/develop/phone-numbers/manage/verified";
+
 type VoiceAgentConnectProps = {
   moduleEnabled: boolean;
   onLinkedChange?: (linked: boolean) => void;
@@ -60,7 +63,7 @@ export const VoiceAgentConnect = ({ moduleEnabled, onLinkedChange }: VoiceAgentC
     void loadConnection();
   }, [loadConnection]);
 
-  const handleStartVerification = async () => {
+  const handleSavePhone = async () => {
     if (!moduleEnabled) {
       notification.error("Enable Voice agent first, then link your phone.");
       return;
@@ -82,12 +85,12 @@ export const VoiceAgentConnect = ({ moduleEnabled, onLinkedChange }: VoiceAgentC
         body: JSON.stringify({ profileOwner: address, phoneNumber: phoneInput.trim() }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Failed to start verification.");
+      if (!response.ok) throw new Error(data.error ?? "Failed to save phone number.");
 
       setConnection(data);
-      notification.success(data.message ?? "Verification call started.");
+      notification.success(data.message ?? "Phone saved.");
     } catch (error) {
-      notification.error(error instanceof Error ? error.message : "Failed to start verification.");
+      notification.error(error instanceof Error ? error.message : "Failed to save phone number.");
     } finally {
       setLoading(false);
     }
@@ -196,24 +199,43 @@ export const VoiceAgentConnect = ({ moduleEnabled, onLinkedChange }: VoiceAgentC
       ) : connection?.verificationPending ? (
         <>
           <p className="text-xs text-pulse-muted">
-            Answer Twilio&apos;s call and enter this code on your keypad, then check verification.
+            Twilio trial: verify {connection.phoneMasked ?? "your number"} in the console, then check here.
           </p>
-          {connection.validationCode ? (
-            <p className="font-mono text-lg tracking-widest text-base-content">{connection.validationCode}</p>
-          ) : null}
+          <ol className="list-decimal space-y-1 pl-4 text-xs text-pulse-muted">
+            <li>
+              Open{" "}
+              <a
+                href={TWILIO_VERIFIED_CALLER_IDS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="link link-primary"
+              >
+                Twilio Verified Caller IDs
+              </a>
+            </li>
+            <li>Add a new Caller ID with the same number you saved below</li>
+            <li>Complete Twilio&apos;s SMS or call verification</li>
+            <li>Return here and click Check verification</li>
+          </ol>
+          <input
+            className="input input-bordered input-sm w-full rounded-2xl"
+            placeholder="+1 415 555 2671"
+            value={phoneInput}
+            onChange={event => setPhoneInput(event.target.value)}
+          />
           <div className="flex flex-wrap gap-2">
             <PulseButton variant="primary" disabled={loading} onClick={() => void handleCheckVerification()}>
               Check verification
             </PulseButton>
-            <PulseButton variant="secondary" disabled={loading} onClick={() => void handleStartVerification()}>
-              Resend call
+            <PulseButton variant="secondary" disabled={loading || !phoneInput.trim()} onClick={() => void handleSavePhone()}>
+              Update number
             </PulseButton>
           </div>
         </>
       ) : (
         <>
           <p className="text-xs text-pulse-muted">
-            On Twilio trial, Pulse can call verified numbers only. We&apos;ll verify ownership with a short call.
+            On Twilio trial, verify your number in the Twilio Console first, then link it here for voice check-ins.
           </p>
           <input
             className="input input-bordered input-sm w-full rounded-2xl"
@@ -221,8 +243,8 @@ export const VoiceAgentConnect = ({ moduleEnabled, onLinkedChange }: VoiceAgentC
             value={phoneInput}
             onChange={event => setPhoneInput(event.target.value)}
           />
-          <PulseButton variant="primary" disabled={loading || !moduleEnabled} onClick={() => void handleStartVerification()}>
-            Send verification call
+          <PulseButton variant="primary" disabled={loading || !moduleEnabled} onClick={() => void handleSavePhone()}>
+            Save phone number
           </PulseButton>
         </>
       )}
