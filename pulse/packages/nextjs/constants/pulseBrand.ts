@@ -1,3 +1,5 @@
+export const PULSE_LOGO_ON_LIGHT = "/brand/pulse-logo-on-light.svg";
+
 export const PULSE_COLORS = {
   accent: "#4C66FF",
   primary: "#4C66FF",
