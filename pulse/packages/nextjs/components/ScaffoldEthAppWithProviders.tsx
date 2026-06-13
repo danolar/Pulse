@@ -8,6 +8,7 @@ import { WagmiProvider } from "wagmi";
 import { Footer } from "~~/components/Footer";
 import { Header } from "~~/components/Header";
 import { DevFloatingBar } from "~~/components/pulse";
+import { PulseProfileSync } from "~~/components/pulse/PulseProfileSync";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
 import { SHOW_SCAFFOLD_DEV_UI } from "~~/constants/pulseAppConfig";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
@@ -16,6 +17,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <div className={`flex flex-col min-h-screen `}>
+        <PulseProfileSync />
         <Header />
         <main className={`relative flex flex-1 flex-col ${SHOW_SCAFFOLD_DEV_UI ? "pb-24" : "pb-6"}`}>
           {children}

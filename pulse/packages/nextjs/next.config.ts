@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   devIndicators: false,
-  serverExternalPackages: ["better-sqlite3", "googleapis"],
+  serverExternalPackages: ["better-sqlite3", "googleapis", "pg"],
   typescript: {
     ignoreBuildErrors: process.env.NEXT_PUBLIC_IGNORE_BUILD_ERROR === "true",
   },

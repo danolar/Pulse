@@ -94,7 +94,32 @@ type PulseState = {
   appendSignal: (signal: Omit<ConsoleSignal, "id" | "timestamp"> & { timestamp?: string }) => void;
 };
 
-export const usePulseStore = create<PulseState>((set, get) => ({
+export type PersistedPulseProfile = Pick<
+  PulseState,
+  | "profileId"
+  | "deviceVerified"
+  | "deviceNullifierHash"
+  | "orbBound"
+  | "orbNullifierHash"
+  | "configSaved"
+  | "accessListsSaved"
+  | "setupComplete"
+  | "config"
+  | "adapters"
+  | "requestors"
+  | "enabledModuleIds"
+  | "actingAs"
+  | "lifecycle"
+  | "epoch"
+  | "accumulatedWeight"
+  | "attempts"
+  | "signals"
+>;
+
+export const getInitialPulseState = (): Omit<
+  PulseState,
+  keyof Pick<PulseState, "setActingAs" | "mockCreateProfile" | "mockBindOrb" | "mockSaveConfig" | "toggleModule" | "ensureModuleEnabled" | "setModuleAdapter" | "mockAddRequestor" | "mockClaimRequestorSlot" | "mockCompleteSetup" | "mockCheckIn" | "mockRequestExtension" | "mockBlock" | "mockResurrect" | "mockRequestEvaluation" | "mockRespondToAttempt" | "mockForceOpenAttempt" | "appendSignal">
+> => ({
   actingAs: "owner",
   profileId: null,
   deviceVerified: false,
@@ -113,6 +138,31 @@ export const usePulseStore = create<PulseState>((set, get) => ({
   accumulatedWeight: 0,
   attempts: [],
   signals: initialSignals,
+});
+
+export const toPersistedProfile = (state: PulseState): PersistedPulseProfile => ({
+  profileId: state.profileId,
+  deviceVerified: state.deviceVerified,
+  deviceNullifierHash: state.deviceNullifierHash,
+  orbBound: state.orbBound,
+  orbNullifierHash: state.orbNullifierHash,
+  configSaved: state.configSaved,
+  accessListsSaved: state.accessListsSaved,
+  setupComplete: state.setupComplete,
+  config: state.config,
+  adapters: state.adapters,
+  requestors: state.requestors,
+  enabledModuleIds: state.enabledModuleIds,
+  actingAs: state.actingAs,
+  lifecycle: state.lifecycle,
+  epoch: state.epoch,
+  accumulatedWeight: state.accumulatedWeight,
+  attempts: state.attempts,
+  signals: state.signals,
+});
+
+export const usePulseStore = create<PulseState>((set, get) => ({
+  ...getInitialPulseState(),
 
   setActingAs: role => set({ actingAs: role }),
 

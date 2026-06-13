@@ -52,11 +52,16 @@ export const Header = () => {
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
 
-  const navLinks: NavLink[] = useMemo(() => {
-    const links: NavLink[] = [
+  const appNavLinks: NavLink[] = useMemo(
+    () => [
       { label: "Console", href: "/" },
       { label: "Setup", href: "/setup", icon: <Settings className="h-4 w-4 shrink-0" /> },
-    ];
+    ],
+    [],
+  );
+
+  const devNavLinks: NavLink[] = useMemo(() => {
+    const links: NavLink[] = [];
 
     if (SHOW_SCAFFOLD_DEV_UI) {
       links.push({ label: "Debug Contracts", href: "/debug", icon: <Bug className="h-4 w-4 shrink-0" /> });
@@ -67,6 +72,8 @@ export const Header = () => {
 
     return links;
   }, [isLocalNetwork]);
+
+  const mobileNavLinks = useMemo(() => [...appNavLinks, ...devNavLinks], [appNavLinks, devNavLinks]);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -119,7 +126,7 @@ export const Header = () => {
                     />
                   </li>
                 ) : null}
-                {navLinks.map(({ label, href, icon }) => (
+                {mobileNavLinks.map(({ label, href, icon }) => (
                   <li key={href}>
                     <Link href={href} className={navLinkClassName(href)} onClick={closeMobileMenu}>
                       {icon}
@@ -134,15 +141,6 @@ export const Header = () => {
           <Link href="/" passHref className="flex min-w-0 items-center py-1">
             <PulseLogo className="h-11 w-auto min-w-[6.75rem] sm:h-12 sm:min-w-[8rem]" />
           </Link>
-
-          <nav className="ml-2 hidden items-center gap-0.5 lg:flex" aria-label="Main navigation">
-            {navLinks.map(({ label, href, icon }) => (
-              <Link key={href} href={href} className={navLinkClassName(href)}>
-                {icon}
-                {label}
-              </Link>
-            ))}
-          </nav>
         </div>
 
         <div className="flex h-9 shrink-0 flex-nowrap items-center gap-1 sm:gap-2">
@@ -154,6 +152,15 @@ export const Header = () => {
               selectClassName="w-auto min-w-[6.75rem] border-none bg-base-200/80 shadow-none"
             />
           ) : null}
+
+          <nav className="hidden items-center gap-0.5 sm:flex" aria-label="App navigation">
+            {appNavLinks.map(({ label, href, icon }) => (
+              <Link key={href} href={href} className={navLinkClassName(href)}>
+                {icon}
+                {label}
+              </Link>
+            ))}
+          </nav>
 
           <div className="flex h-8 min-w-[5.5rem] items-center justify-end sm:min-w-[7.25rem] md:min-w-[12rem]">
             <RainbowKitCustomConnectButton />
