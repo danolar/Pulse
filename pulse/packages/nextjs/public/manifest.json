@@ -1,5 +1,9 @@
 {
-  "name": "Scaffold-ETH 2 DApp",
-  "description": "A DApp built with Scaffold-ETH",
-  "iconPath": "logo.svg"
+  "name": "Pulse",
+  "description": "Open weighted verification protocol for onchain liveness and behavioral attestations.",
+  "iconPath": "logo.svg",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f2ec",
+  "theme_color": "#1e405c"
 }

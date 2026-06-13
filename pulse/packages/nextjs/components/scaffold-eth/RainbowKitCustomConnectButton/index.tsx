@@ -32,8 +32,8 @@ export const RainbowKitCustomConnectButton = () => {
             {(() => {
               if (!connected) {
                 return (
-                  <button className="btn btn-primary btn-sm" onClick={openConnectModal} type="button">
-                    Connect Wallet
+                  <button className="btn btn-primary btn-sm whitespace-nowrap" onClick={openConnectModal} type="button">
+                    Connect
                   </button>
                 );
               }
@@ -43,17 +43,25 @@ export const RainbowKitCustomConnectButton = () => {
               }
 
               return (
-                <>
-                  <div className="flex flex-col items-center mr-2">
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <div className="flex items-center gap-1.5 whitespace-nowrap sm:gap-2">
                     <Balance
                       address={account.address as Address}
                       style={{
                         minHeight: "0",
                         height: "auto",
-                        fontSize: "0.8em",
+                        fontSize: "0.75rem",
+                        lineHeight: "1",
                       }}
                     />
-                    <span className="text-xs" style={{ color: networkColor }}>
+                    <span
+                      className="badge badge-sm max-w-[4.5rem] shrink-0 truncate border-none px-1.5 font-medium normal-case sm:max-w-[5.5rem] sm:px-2"
+                      style={{
+                        color: networkColor,
+                        backgroundColor: `color-mix(in srgb, ${networkColor} 18%, transparent)`,
+                      }}
+                      title={chain.name}
+                    >
                       {chain.name}
                     </span>
                   </div>
@@ -65,7 +73,7 @@ export const RainbowKitCustomConnectButton = () => {
                   />
                   <AddressQRCodeModal address={account.address as Address} modalId="qrcode-modal" />
                   <RevealBurnerPKModal />
-                </>
+                </div>
               );
             })()}
           </>
