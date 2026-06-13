@@ -307,7 +307,8 @@ export const usePulseStore = create<PulseState>((set, get) => ({
   },
 
   mockRespondToAttempt: (attemptId, verificationType = "WORLD_ID") => {
-    const isLifeProof = verificationType === "WORLD_ID" || verificationType === "ONCHAIN_TX";
+    const isLifeProof =
+      verificationType === "WORLD_ID" || verificationType === "ONCHAIN_TX" || verificationType === "VOICE_AGENT";
 
     set(state => ({
       attempts: state.attempts.map(attempt =>

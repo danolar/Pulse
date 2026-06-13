@@ -2,7 +2,7 @@ export type LifecycleState = "CREATED" | "ACTIVE" | "EVALUATING" | "THRESHOLD_RE
 
 export type ActingRole = "owner" | "requestor";
 
-export type VerificationType = "WORLD_ID" | "ONCHAIN_TX" | "AI_AGENT";
+export type VerificationType = "WORLD_ID" | "ONCHAIN_TX" | "AI_AGENT" | "VOICE_AGENT";
 
 export type ProfileConfig = {
   /** Evaluation window length in days (spec §5.1). */
