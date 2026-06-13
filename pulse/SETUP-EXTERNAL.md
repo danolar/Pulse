@@ -50,9 +50,28 @@ cd packages/nextjs && yarn verify:world-id-env
 
 Track progress in [`.local/SETUP_NOTES.md`](.local/SETUP_NOTES.md) (gitignored).
 
-1. Create a Sui wallet for Walrus testnet
-2. Request WAL from the Walrus testnet faucet (may be slow)
+1. Create a Sui wallet for Walrus testnet (optional for read-only demo; public testnet publisher needs no wallet)
+2. Request WAL from the Walrus testnet faucet if you plan to run your own publisher
 3. Record address, network, and balance in `SETUP_NOTES.md`
+
+Verify aggregator + demo blobs:
+
+```bash
+cd pulse && yarn verify:walrus
+```
+
+Upload/read roundtrip (seeds a new blob on testnet):
+
+```bash
+cd pulse && yarn test:walrus-roundtrip
+```
+
+In the app: complete setup, open `/`, click **View evidence** on signal timeline items.
+
+Optional env in `packages/nextjs/.env.local`:
+
+- `NEXT_PUBLIC_WALRUS_AGGREGATOR_URL` (default: testnet public aggregator)
+- `WALRUS_PUBLISHER_URL` (for upload scripts only)
 
 ## Phase 4 — Chainlink CRE
 
@@ -64,5 +83,11 @@ cre version
 ```
 
 Create a Chainlink account and run `cre login` when ready. Use **Chainlink MCP** in Cursor to explore workflow docs before deploying (requires `PulseOracle` later).
+
+Verify CLI + login:
+
+```bash
+cd pulse && yarn verify:cre
+```
 
 Optional for TypeScript workflows later: install [Bun](https://bun.sh) (`bun` warning from CRE installer).

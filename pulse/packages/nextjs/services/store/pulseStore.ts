@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { toWalrusBlobRef, WALRUS_DEMO_BLOBS } from "~~/constants/walrusDemoBlobs";
 import {
   type ActingRole,
   type AuthorizedRequestor,
@@ -26,7 +27,7 @@ const initialSignals: ConsoleSignal[] = [
     direction: "positive",
     weight: -8,
     timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
-    walrusBlobId: "walrus://pulse/evidence/bundle-0x8f3a",
+    walrusBlobId: toWalrusBlobRef(WALRUS_DEMO_BLOBS.onchainActivity),
   },
   {
     id: "sig-2",
@@ -34,7 +35,7 @@ const initialSignals: ConsoleSignal[] = [
     direction: "negative",
     weight: 15,
     timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
-    walrusBlobId: "walrus://pulse/evidence/bundle-0x91bc",
+    walrusBlobId: toWalrusBlobRef(WALRUS_DEMO_BLOBS.missedCheckin),
   },
 ];
 
@@ -150,7 +151,7 @@ export const usePulseStore = create<PulseState>((set, get) => ({
       signalType: "Owner check-in",
       direction: "positive",
       weight: -20,
-      walrusBlobId: "walrus://pulse/evidence/checkin-latest",
+      walrusBlobId: toWalrusBlobRef(WALRUS_DEMO_BLOBS.checkin),
     });
   },
 
@@ -160,7 +161,7 @@ export const usePulseStore = create<PulseState>((set, get) => ({
       signalType: "Extension requested",
       direction: "positive",
       weight: 0,
-      walrusBlobId: "walrus://pulse/evidence/extension-request",
+      walrusBlobId: toWalrusBlobRef(WALRUS_DEMO_BLOBS.checkin),
     });
   },
 
@@ -181,7 +182,7 @@ export const usePulseStore = create<PulseState>((set, get) => ({
       signalType: "Evaluation requested",
       direction: "negative",
       weight: 5,
-      walrusBlobId: "walrus://pulse/evidence/eval-request",
+      walrusBlobId: toWalrusBlobRef(WALRUS_DEMO_BLOBS.checkin),
     });
   },
 
@@ -199,7 +200,7 @@ export const usePulseStore = create<PulseState>((set, get) => ({
       signalType: "Attempt response",
       direction: "positive",
       weight: -10,
-      walrusBlobId: "walrus://pulse/evidence/attempt-response",
+      walrusBlobId: toWalrusBlobRef(WALRUS_DEMO_BLOBS.checkin),
     });
   },
 

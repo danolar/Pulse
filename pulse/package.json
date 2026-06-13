@@ -50,7 +50,10 @@
     "vercel:login": "yarn workspace @se-2/nextjs vercel:login",
     "vercel:yolo": "yarn workspace @se-2/nextjs vercel:yolo",
     "verify": "yarn hardhat:verify",
-    "verify:world-id-env": "yarn workspace @se-2/nextjs verify:world-id-env"
+    "verify:world-id-env": "yarn workspace @se-2/nextjs verify:world-id-env",
+    "verify:walrus": "yarn workspace @se-2/nextjs verify:walrus",
+    "test:walrus-roundtrip": "yarn workspace @se-2/nextjs test:walrus-roundtrip",
+    "verify:cre": "node scripts/verify-cre.mjs"
   },
   "devDependencies": {
     "husky": "~9.1.6",
