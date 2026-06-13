@@ -16,6 +16,8 @@ export type ProfileConfig = {
 
 export type SignalAdapter = {
   id: string;
+  /** Links adapter row to a pulse module when configured via setup. */
+  moduleId?: string;
   address: string;
   weight: number;
   label: string;

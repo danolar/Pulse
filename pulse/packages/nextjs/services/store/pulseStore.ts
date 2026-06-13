@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { toWalrusBlobRef, WALRUS_DEMO_BLOBS } from "~~/constants/walrusDemoBlobs";
+import { DEFAULT_ENABLED_MODULE_IDS, getPulseModule } from "~~/modules/pulse";
 import {
   type ActingRole,
   type AuthorizedRequestor,
@@ -13,6 +14,18 @@ import {
 } from "~~/types/pulse";
 import type { PulseWorldIdVerification } from "~~/utils/worldIdProof";
 import { assertStoredNullifier, isMockWorldIdVerification } from "~~/utils/worldIdProof";
+
+const buildInitialAdapters = (): SignalAdapter[] =>
+  DEFAULT_ENABLED_MODULE_IDS.map(id => getPulseModule(id))
+    .filter((module): module is NonNullable<ReturnType<typeof getPulseModule>> => Boolean(module))
+    .filter(module => module.setupKind === "adapter")
+    .map(module => ({
+      id: crypto.randomUUID(),
+      moduleId: module.id,
+      address: "",
+      weight: module.suggestedWeight ?? 10,
+      label: module.adapterLabel ?? module.name,
+    }));
 
 const buildAttempts = (count: number): VerificationAttempt[] =>
   Array.from({ length: count }, (_, index) => ({
@@ -55,6 +68,7 @@ type PulseState = {
   config: ProfileConfig;
   adapters: SignalAdapter[];
   requestors: AuthorizedRequestor[];
+  enabledModuleIds: string[];
   lifecycle: LifecycleState;
   epoch: number;
   accumulatedWeight: number;
@@ -64,7 +78,8 @@ type PulseState = {
   mockCreateProfile: (profileId: string, verification?: PulseWorldIdVerification) => void;
   mockBindOrb: (verification?: PulseWorldIdVerification) => void;
   mockSaveConfig: (config: ProfileConfig) => void;
-  mockAddAdapter: (adapter: Omit<SignalAdapter, "id">) => void;
+  toggleModule: (moduleId: string) => void;
+  setModuleAdapter: (moduleId: string, patch: { address?: string; weight?: number }) => void;
   mockAddRequestor: (address: string) => void;
   mockClaimRequestorSlot: (requestorAddress: string, verification?: PulseWorldIdVerification) => void;
   mockCompleteSetup: () => void;
@@ -89,8 +104,9 @@ export const usePulseStore = create<PulseState>((set, get) => ({
   accessListsSaved: false,
   setupComplete: false,
   config: DEFAULT_PROFILE_CONFIG,
-  adapters: [],
+  adapters: buildInitialAdapters(),
   requestors: [],
+  enabledModuleIds: [...DEFAULT_ENABLED_MODULE_IDS],
   lifecycle: "CREATED",
   epoch: 0,
   accumulatedWeight: 0,
@@ -132,9 +148,51 @@ export const usePulseStore = create<PulseState>((set, get) => ({
     });
   },
 
-  mockAddAdapter: adapter => {
+  toggleModule: moduleId => {
+    const pulseModule = getPulseModule(moduleId);
+    if (!pulseModule || pulseModule.required) return;
+
+    set(state => {
+      const isEnabled = state.enabledModuleIds.includes(moduleId);
+      const enabledModuleIds = isEnabled
+        ? state.enabledModuleIds.filter(id => id !== moduleId)
+        : [...state.enabledModuleIds, moduleId];
+
+      let adapters = state.adapters;
+
+      if (isEnabled) {
+        adapters = adapters.filter(adapter => adapter.moduleId !== moduleId);
+      } else if (pulseModule.setupKind === "adapter") {
+        const exists = adapters.some(adapter => adapter.moduleId === moduleId);
+        if (!exists) {
+          adapters = [
+            ...adapters,
+            {
+              id: crypto.randomUUID(),
+              moduleId,
+              address: "",
+              weight: pulseModule.suggestedWeight ?? 10,
+              label: pulseModule.adapterLabel ?? pulseModule.name,
+            },
+          ];
+        }
+      }
+
+      return { enabledModuleIds, adapters };
+    });
+  },
+
+  setModuleAdapter: (moduleId, patch) => {
     set(state => ({
-      adapters: [...state.adapters, { ...adapter, id: crypto.randomUUID() }],
+      adapters: state.adapters.map(adapter =>
+        adapter.moduleId === moduleId
+          ? {
+              ...adapter,
+              ...(patch.address !== undefined ? { address: patch.address } : {}),
+              ...(patch.weight !== undefined ? { weight: patch.weight } : {}),
+            }
+          : adapter,
+      ),
     }));
   },
 

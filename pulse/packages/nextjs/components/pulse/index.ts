@@ -15,6 +15,7 @@ export { PulseModal, KeyValuePreview, ModalFooterActions } from "./modals/PulseM
 export { PulseButton } from "./ui/PulseButton";
 export { PulseWorldIdButton } from "./world-id/PulseWorldIdButton";
 export { PulseConsoleGauge } from "./console/PulseConsoleGauge";
+export { VerificationPackagePanel, validateEnabledModulesForActivation } from "./modules/VerificationPackagePanel";
 export { OwnerRequestorActions } from "./console/OwnerRequestorActions";
 export { AttemptSequence } from "./console/AttemptSequence";
 export { ConsoleSignalTimeline } from "./console/ConsoleSignalTimeline";

@@ -11,6 +11,7 @@ import { Footer } from "~~/components/Footer";
 import { Header } from "~~/components/Header";
 import { DevFloatingBar } from "~~/components/pulse";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
+import { SHOW_SCAFFOLD_DEV_UI } from "~~/constants/pulseAppConfig";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
@@ -18,7 +19,9 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
     <>
       <div className={`flex flex-col min-h-screen `}>
         <Header />
-        <main className="relative flex flex-1 flex-col pb-24">{children}</main>
+        <main className={`relative flex flex-1 flex-col ${SHOW_SCAFFOLD_DEV_UI ? "pb-24" : "pb-6"}`}>
+          {children}
+        </main>
         <Footer />
         <DevFloatingBar />
       </div>

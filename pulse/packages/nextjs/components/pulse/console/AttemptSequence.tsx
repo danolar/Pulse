@@ -3,6 +3,7 @@
 import { Check, HelpCircle, Lock, X } from "lucide-react";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
 import { VERIFICATION_TYPE_LABELS } from "~~/constants/pulseProtocol";
+import { useResolvedActingRole } from "~~/hooks/pulse/useResolvedActingRole";
 import { usePulseStore } from "~~/services/store/pulseStore";
 import type { VerificationAttempt } from "~~/types/pulse";
 
@@ -11,7 +12,8 @@ type AttemptSequenceProps = {
 };
 
 export const AttemptSequence = ({ attempts }: AttemptSequenceProps) => {
-  const { mockRespondToAttempt, mockForceOpenAttempt, actingAs } = usePulseStore();
+  const { mockRespondToAttempt, mockForceOpenAttempt } = usePulseStore();
+  const actingAs = useResolvedActingRole();
   const hasExpiredUnopened = attempts.some(attempt => attempt.expiredUnopened);
 
   return (

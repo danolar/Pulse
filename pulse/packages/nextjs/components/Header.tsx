@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
 import { Activity, Bug, Menu, Search, Settings } from "lucide-react";
 import { SwitchTheme } from "~~/components/SwitchTheme";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { SHOW_SCAFFOLD_DEV_UI } from "~~/constants/pulseAppConfig";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { usePulseStore } from "~~/services/store/pulseStore";
@@ -49,14 +50,21 @@ export const Header = () => {
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
 
-  const navLinks: NavLink[] = [
-    { label: "Console", href: "/" },
-    { label: "Setup", href: "/setup", icon: <Settings className="h-4 w-4 shrink-0" /> },
-    { label: "Debug Contracts", href: "/debug", icon: <Bug className="h-4 w-4 shrink-0" /> },
-    ...(isLocalNetwork
-      ? [{ label: "Block Explorer", href: "/blockexplorer", icon: <Search className="h-4 w-4 shrink-0" /> }]
-      : []),
-  ];
+  const navLinks: NavLink[] = useMemo(() => {
+    const links: NavLink[] = [
+      { label: "Console", href: "/" },
+      { label: "Setup", href: "/setup", icon: <Settings className="h-4 w-4 shrink-0" /> },
+    ];
+
+    if (SHOW_SCAFFOLD_DEV_UI) {
+      links.push({ label: "Debug Contracts", href: "/debug", icon: <Bug className="h-4 w-4 shrink-0" /> });
+      if (isLocalNetwork) {
+        links.push({ label: "Block Explorer", href: "/blockexplorer", icon: <Search className="h-4 w-4 shrink-0" /> });
+      }
+    }
+
+    return links;
+  }, [isLocalNetwork]);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
@@ -97,14 +105,16 @@ export const Header = () => {
 
             {mobileMenuOpen ? (
               <ul className="menu absolute left-0 top-full z-50 mt-2 w-56 rounded-2xl border border-base-content/5 bg-base-100 p-2 shadow-pulse-md">
-                <li className="px-1 py-1 md:hidden">
-                  <ActingAsSelect
-                    actingAs={actingAs}
-                    onChange={handleActingChange}
-                    className="w-full"
-                    selectClassName="min-w-0 flex-1"
-                  />
-                </li>
+                {SHOW_SCAFFOLD_DEV_UI ? (
+                  <li className="px-1 py-1 md:hidden">
+                    <ActingAsSelect
+                      actingAs={actingAs}
+                      onChange={handleActingChange}
+                      className="w-full"
+                      selectClassName="min-w-0 flex-1"
+                    />
+                  </li>
+                ) : null}
                 {navLinks.map(({ label, href, icon }) => (
                   <li key={href}>
                     <Link href={href} className={navLinkClassName(href)} onClick={closeMobileMenu}>
@@ -138,12 +148,14 @@ export const Header = () => {
         </div>
 
         <div className="flex h-9 shrink-0 flex-nowrap items-center gap-1 sm:gap-2">
-          <ActingAsSelect
-            actingAs={actingAs}
-            onChange={handleActingChange}
-            className="hidden min-w-[11rem] md:flex"
-            selectClassName="w-auto min-w-[6.75rem] border-none bg-base-200/80 shadow-none"
-          />
+          {SHOW_SCAFFOLD_DEV_UI ? (
+            <ActingAsSelect
+              actingAs={actingAs}
+              onChange={handleActingChange}
+              className="hidden min-w-[11rem] md:flex"
+              selectClassName="w-auto min-w-[6.75rem] border-none bg-base-200/80 shadow-none"
+            />
+          ) : null}
 
           <SwitchTheme />
           <div className="flex h-8 min-w-[5.5rem] items-center justify-end sm:min-w-[7.25rem] md:min-w-[12rem]">

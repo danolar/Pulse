@@ -8,10 +8,12 @@ import { ChainlinkActivityPanel } from "~~/components/pulse/chainlink/ChainlinkA
 import { ConsoleSignalTimeline } from "~~/components/pulse/console/ConsoleSignalTimeline";
 import { OwnerRequestorActions } from "~~/components/pulse/console/OwnerRequestorActions";
 import { PulseConsoleGauge } from "~~/components/pulse/console/PulseConsoleGauge";
+import { useResolvedActingRole } from "~~/hooks/pulse/useResolvedActingRole";
 import { usePulseStore } from "~~/services/store/pulseStore";
 
 const ConsolePage = () => {
   const { address } = useAccount();
+  const actingAs = useResolvedActingRole();
   const {
     setupComplete,
     profileId,
@@ -22,7 +24,6 @@ const ConsolePage = () => {
     config,
     attempts,
     signals,
-    actingAs,
   } = usePulseStore();
 
   if (!setupComplete) {

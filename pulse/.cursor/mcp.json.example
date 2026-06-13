@@ -5,7 +5,10 @@
     },
     "chainlink": {
       "command": "npx",
-      "args": ["-y", "@chainlink/mcp-server"]
+      "args": ["-y", "@chainlink/mcp-server"],
+      "env": {
+        "OPENAI_API_KEY": "${env:OPENAI_API_KEY}"
+      }
     },
     "worldcoin-developer-portal": {
       "url": "https://developer.world.org/api/mcp",

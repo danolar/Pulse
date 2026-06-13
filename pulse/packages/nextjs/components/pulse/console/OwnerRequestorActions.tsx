@@ -132,7 +132,7 @@ export const OwnerRequestorActions = ({ actingAs, lifecycle, orbBound, profileId
 
           {!requestorSlot ? (
             <p className="text-sm text-pulse-muted">
-              No authorized slot for this wallet. Add your address in setup (Step 4).
+              No authorized slot for this wallet. Add your address in setup.
             </p>
           ) : null}
 

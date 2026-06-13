@@ -25,8 +25,13 @@ Verify: `http://localhost:3000`, `/setup`, `/debug` return 200.
 
 1. Copy `pulse/.cursor/mcp.json.example` → `pulse/.cursor/mcp.json`
 2. Replace `YOUR_WORLD_ID_MCP_API_KEY` with your rotated Developer Portal MCP token
-3. Restart MCP in Cursor (Settings → MCP)
-4. Confirm **context7**, **chainlink**, **worldcoin-developer-portal** connect
+3. **Chainlink MCP** needs an **OpenAI API key** (not Cursor) for doc search. Add to your shell profile:
+   ```bash
+   export OPENAI_API_KEY=sk-...
+   ```
+   Or set it in Cursor → Settings → MCP → chainlink → env. The config uses `"${env:OPENAI_API_KEY}"`.
+4. Restart MCP in Cursor (Settings → MCP)
+5. Confirm **context7**, **chainlink**, **worldcoin-developer-portal** connect (chainlink should no longer log `OpenAI API key not found`)
 
 Validate JSON:
 

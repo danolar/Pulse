@@ -5,12 +5,15 @@ import { useFetchNativeCurrencyPrice } from "@scaffold-ui/hooks";
 import { hardhat } from "viem/chains";
 import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Faucet } from "~~/components/scaffold-eth";
+import { SHOW_SCAFFOLD_DEV_UI } from "~~/constants/pulseAppConfig";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 
 export const DevFloatingBar = () => {
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
   const { price: nativeCurrencyPrice } = useFetchNativeCurrencyPrice();
+
+  if (!SHOW_SCAFFOLD_DEV_UI) return null;
 
   const showPrice = nativeCurrencyPrice > 0;
 
