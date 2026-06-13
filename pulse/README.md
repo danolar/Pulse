@@ -29,6 +29,10 @@ yarn start      # terminal 3
 - Console: [http://localhost:3000](http://localhost:3000)
 - Setup wizard: [http://localhost:3000/setup](http://localhost:3000/setup)
 
+## External integrations (paused setup)
+
+Follow [SETUP-EXTERNAL.md](./SETUP-EXTERNAL.md) for World ID, Walrus, MCP, and CRE CLI — one phase at a time.
+
 Optional env vars in `packages/nextjs/.env.local`:
 
 ```bash
