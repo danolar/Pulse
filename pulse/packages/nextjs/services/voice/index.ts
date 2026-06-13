@@ -19,8 +19,8 @@ export {
 export {
   getTwilioClient,
   validateTwilioRequest,
-  startOutgoingCallerIdValidation,
   isPhoneVerifiedOnTwilio,
+  TWILIO_VERIFIED_CALLER_IDS_URL,
 } from "./twilioClient";
 export {
   initiateOutboundCall,

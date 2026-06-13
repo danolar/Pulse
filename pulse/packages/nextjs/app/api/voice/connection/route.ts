@@ -5,7 +5,6 @@ import {
   getVoiceConnection,
   normalizePhoneNumber,
   revokeVoiceConnection,
-  startOutgoingCallerIdValidation,
   upsertPendingVoiceConnection,
 } from "~~/services/voice";
 
@@ -61,17 +60,15 @@ export async function POST(request: Request) {
   }
 
   try {
-    const validation = await startOutgoingCallerIdValidation(phoneNumber);
     const connection = upsertPendingVoiceConnection({
       profileOwnerAddress: profileOwner,
       phoneNumber,
-      validationCode: validation.validationCode,
     });
 
     return NextResponse.json({
       ...connection,
       message:
-        "Twilio is calling your phone now. When prompted, enter the validation code on your keypad, then click Check verification.",
+        "Phone saved. Verify this number in Twilio Console (Verified Caller IDs), then click Check verification here.",
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to start phone verification.";
