@@ -37,14 +37,18 @@ python3 -m json.tool pulse/.cursor/mcp.json
 ## Phase 2 — World ID Developer Portal
 
 1. Register at https://developer.world.org
-2. Copy `packages/nextjs/.env.local.example` → `packages/nextjs/.env.local`
-3. Set env vars (they are **not** the same value):
+2. Open your app → click **Enable World ID 4.0** (RP migration banner) if present
+3. Copy `packages/nextjs/.env.local.example` → `packages/nextjs/.env.local`
+4. Set env vars (they are **not** the same value):
    - `NEXT_PUBLIC_WORLD_APP_ID` → `app_...`
    - `NEXT_PUBLIC_WORLD_RP_ID` → `rp_...` (public relying party id)
    - `WORLD_RP_SIGNING_KEY` → **signing key** from the same RP section (private hex key, usually `0x` + 64 hex chars — never put `rp_` here)
-4. Optional: `NEXT_PUBLIC_WORLD_ID_ENVIRONMENT=production` when testing on a **real phone** with World App (use `staging` only with [simulator.worldcoin.org](https://simulator.worldcoin.org))
-5. Restart `yarn start`
-6. On `/setup`, Step 1 (Device) then Step 2 (Orb). **Bind Orb requires an Orb-verified World App identity** — Device-only accounts will fail verify on Step 2.
+5. **World ID dev setup (two separate knobs):**
+   - `NEXT_PUBLIC_WORLD_ID_ENVIRONMENT=staging` → IDKit + [simulator.worldcoin.org](https://simulator.worldcoin.org) (modo prueba)
+   - Verify en servidor → `developer.world.org` por defecto (app migrada a 4.0). **No hace falta poner production** solo para verify.
+   - Solo activa `NEXT_PUBLIC_WORLD_ID_USE_STAGING_VERIFY=true` si tu app también está migrada en `staging-developer.worldcoin.org`.
+6. Restart `yarn start`
+7. On `/setup`: Step 1 Device, then Step 2 Orb. World ID is independent of wallet connect.
 
 ```bash
 cd packages/nextjs && yarn verify:world-id-env

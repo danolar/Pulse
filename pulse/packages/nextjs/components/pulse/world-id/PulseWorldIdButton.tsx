@@ -43,7 +43,9 @@ const WORLD_ID_ERROR_MESSAGES: Record<string, string> = {
   duplicate_nonce: "Verification session expired — try again.",
   user_rejected: "Verification cancelled in World App.",
   verification_rejected: "World App rejected the verification.",
-  world_id_4_not_available: "World ID 4.0 is not available for this device — try legacy Orb flow or update World App.",
+  world_id_4_not_available: "World ID 4.0 is not available on this device — update World App or use the simulator.",
+  app_not_migrated:
+    "Staging verify portal rejected the app — Pulse verifies on developer.world.org by default. Do not set NEXT_PUBLIC_WORLD_ID_USE_STAGING_VERIFY unless your app is migrated on staging too.",
 };
 
 const getAppId = (): `app_${string}` | null => {
@@ -100,8 +102,10 @@ const verifyWithWorldApi = async (result: IDKitResult) => {
       );
     }
 
-    if (getWorldIdEnvironment() === "staging") {
-      parts.push("Using staging: test with simulator.worldcoin.org, or set NEXT_PUBLIC_WORLD_ID_ENVIRONMENT=production for a real phone.");
+    if (body.code === "app_not_migrated") {
+      parts.push(
+        "Keep NEXT_PUBLIC_WORLD_ID_ENVIRONMENT=staging for simulator; verify runs on production portal automatically.",
+      );
     }
 
     throw new Error(parts.join(" — ") || "World ID verify API rejected the proof.");
