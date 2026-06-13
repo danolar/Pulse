@@ -7,6 +7,7 @@ import { AdapterList } from "~~/components/pulse/adapters/AdapterList";
 import { AdapterSetupFlow } from "~~/components/pulse/adapters/AdapterSetupFlow";
 import { ApiKeyModal } from "~~/components/pulse/adapters/ApiKeyModal";
 import { DecisionLayerSection } from "~~/components/pulse/adapters/DecisionLayerSection";
+import { ChainlinkActivityPanel } from "~~/components/pulse/chainlink/ChainlinkActivityPanel";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
 import { ADAPTER_CATALOG, AI_DECISION_CATALOG_ENTRY, type AdapterCatalogEntry } from "~~/constants/adapterCatalog";
 import { usePulseStore } from "~~/services/store/pulseStore";
@@ -75,6 +76,17 @@ export const AdaptersPage = () => {
         </section>
 
         <DecisionLayerSection onSetup={openDecisionSetup} />
+
+        <section className="space-y-4">
+          <div>
+            <h2 className="pulse-section-title">Adapter dev tools</h2>
+            <p className="mt-1 text-sm text-pulse-muted">
+              Simulate passive onchain activity reporting (CRE) — for adapter integration testing, not profile
+              browsing.
+            </p>
+          </div>
+          <ChainlinkActivityPanel />
+        </section>
       </div>
 
       <AdapterCatalogModal

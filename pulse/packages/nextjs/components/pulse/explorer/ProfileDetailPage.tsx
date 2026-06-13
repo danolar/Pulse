@@ -5,8 +5,9 @@ import { useParams } from "next/navigation";
 import { useAccount } from "wagmi";
 import { PageShell, SectionHeader } from "~~/components/pulse";
 import { AttemptSequence } from "~~/components/pulse/console/AttemptSequence";
-import { ChainlinkActivityPanel } from "~~/components/pulse/chainlink/ChainlinkActivityPanel";
+import { ExplorerBrowseNote } from "~~/components/pulse/explorer/ExplorerBrowseNote";
 import { ProfileActions } from "~~/components/pulse/explorer/ProfileActions";
+import { ProfileRequestorActions } from "~~/components/pulse/explorer/ProfileRequestorActions";
 import { PulseHeader } from "~~/components/pulse/explorer/PulseHeader";
 import { ProfileNotFound, ViewingBanner } from "~~/components/pulse/explorer/ProfileBanners";
 import { SignalTimeline } from "~~/components/pulse/explorer/SignalTimeline";
@@ -21,6 +22,10 @@ export const ProfileDetailPage = () => {
 
   const profile = useProfileByAddress(profileAddress);
   const role = useProfileRole(profileAddress, profile.requestors);
+  const profileKey = profile.profileId ?? profileAddress;
+  const hasActiveAttempt = profile.attempts.some(
+    attempt => attempt.isActive && attempt.status === "revealed",
+  );
 
   useEffect(() => {
     if (profileAddress) pushRecentSearch(profileAddress);
@@ -43,8 +48,9 @@ export const ProfileDetailPage = () => {
     );
   }
 
-  const showViewingBanner =
-    connected && connected.toLowerCase() !== profileAddress.toLowerCase() && role !== "requestor";
+  const isOwner = role === "owner";
+  const isRequestor = role === "requestor";
+  const showViewingBanner = Boolean(connected) && !isOwner && !isRequestor;
 
   return (
     <PageShell>
@@ -64,19 +70,31 @@ export const ProfileDetailPage = () => {
           epoch={profile.epoch}
         />
 
-        <ProfileActions
-          profileAddress={profileAddress}
-          role={role}
+        <AttemptSequence
+          attempts={profile.attempts}
+          profileRole={role}
           lifecycle={profile.lifecycle}
-          orbBound={profile.orbBound}
-          profileId={profile.profileId}
+          epoch={profile.epoch}
+          responseWindowHours={profile.config.responseWindow}
+          profileKey={profileKey}
         />
 
-        <AttemptSequence attempts={profile.attempts} profileRole={role} />
-
-        <ChainlinkActivityPanel />
-
         <SignalTimeline signals={profile.signals} lifecycle={profile.lifecycle} />
+
+        {isOwner ? (
+          <ProfileActions
+            profileKey={profileKey}
+            lifecycle={profile.lifecycle}
+            orbBound={profile.orbBound}
+            hasActiveAttempt={hasActiveAttempt}
+          />
+        ) : null}
+
+        {isRequestor ? (
+          <ProfileRequestorActions profileKey={profileKey} lifecycle={profile.lifecycle} />
+        ) : null}
+
+        {role === "none" ? <ExplorerBrowseNote /> : null}
       </div>
     </PageShell>
   );

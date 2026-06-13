@@ -25,6 +25,18 @@ export const VIEWING_BANNER = (address: string) =>
 export const CONNECT_TO_ACT_NOTE =
   "Connect the profile owner's wallet or a verified requestor wallet to enable actions.";
 
+export const EXPLORER_BROWSE_NOTE =
+  "You are viewing this profile in read-only mode. Connect the owner wallet to respond to verification attempts or run owner actions.";
+
+export const VERIFICATION_WINDOW_OWNER_NOTE =
+  "Respond to the active attempt here when its window opens. Proactive check-ins and Orb-gated controls are below.";
+
+export const VERIFICATION_WINDOW_READ_ONLY_NOTE =
+  "Verification attempts are visible onchain. Only the profile owner can respond during an open window.";
+
+export const REQUESTOR_ACTIONS_NOTE =
+  "Verified requestor actions for this profile. Requestors are authorized per user in the consumer app.";
+
 export const KEY_STORAGE_NOTE =
   "Your credentials are sent directly to the adapter service and stored encrypted on their end. Pulse never sees or stores them.";
 

@@ -362,7 +362,23 @@ export const usePulseStore = create<PulseState>((set, get) => ({
 
   mockCheckIn: verification => {
     assertStoredNullifier(verification ?? { mock: true, level: "device" }, get().deviceNullifierHash, "device");
-    set({ accumulatedWeight: 0, lifecycle: "ACTIVE" });
+    set(state => {
+      const activeAttempt = state.attempts.find(
+        attempt => attempt.isActive && attempt.status === "revealed",
+      );
+
+      return {
+        accumulatedWeight: 0,
+        lifecycle: "ACTIVE",
+        attempts: activeAttempt
+          ? state.attempts.map(attempt =>
+              attempt.id === activeAttempt.id
+                ? { ...attempt, status: "completed" as const, result: "success" as const, isActive: false }
+                : attempt,
+            )
+          : state.attempts,
+      };
+    });
     get().appendSignal({
       signalType: "WORLD_ID check-in",
       direction: "positive",

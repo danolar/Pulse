@@ -15,7 +15,7 @@ export const ProfileNotFound = ({ address }: { address: string }) => {
       <p className="text-sm text-pulse-muted">{PROFILE_NOT_FOUND(address)}</p>
       {isOwn ? (
         <Link href="/setup" className="mt-4 inline-block">
-          <PulseButton>Create profile in setup</PulseButton>
+          <PulseButton>Configure your profile</PulseButton>
         </Link>
       ) : null}
     </div>
