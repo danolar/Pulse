@@ -77,9 +77,34 @@ const verifyWithWorldApi = async (result: IDKitResult) => {
     body: JSON.stringify({ idkitResponse: result }),
   });
 
-  const body = (await response.json()) as { error?: string; detail?: string };
+  const body = (await response.json()) as {
+    error?: string;
+    code?: string;
+    detail?: string;
+    results?: Array<{ identifier?: string; code?: string; detail?: string }>;
+  };
+
   if (!response.ok) {
-    throw new Error(body.detail ?? body.error ?? "World ID verify API rejected the proof.");
+    const parts = [body.error, body.code, body.detail].filter(Boolean);
+    const resultHints =
+      body.results
+        ?.filter(r => r.code || r.detail)
+        .map(r => [r.identifier, r.code, r.detail].filter(Boolean).join(": "))
+        .join(" · ") ?? "";
+
+    if (resultHints) parts.push(resultHints);
+
+    if (body.code === "all_verifications_failed" || resultHints.includes("orb")) {
+      parts.push(
+        "Orb bind requires an Orb-verified World App account. Device-only accounts cannot complete Step 2.",
+      );
+    }
+
+    if (getWorldIdEnvironment() === "staging") {
+      parts.push("Using staging: test with simulator.worldcoin.org, or set NEXT_PUBLIC_WORLD_ID_ENVIRONMENT=production for a real phone.");
+    }
+
+    throw new Error(parts.join(" — ") || "World ID verify API rejected the proof.");
   }
 };
 

@@ -23,8 +23,15 @@ for (const { key, prefix, optionalPrefix } of required) {
     ok = false;
     continue;
   }
-  if (optionalPrefix && !value.startsWith("0x") && value.length < 32) {
-    console.error(`${key} looks too short — paste the full RP signing key from the Developer Portal.`);
+  if (key === "WORLD_RP_SIGNING_KEY" && value.startsWith("rp_")) {
+    console.error(
+      `${key} must be the RP signing key (hex private key), NOT the RP ID. You pasted rp_... — use NEXT_PUBLIC_WORLD_RP_ID for that.`,
+    );
+    ok = false;
+    continue;
+  }
+  if (key === "WORLD_RP_SIGNING_KEY" && value.length < 64) {
+    console.error(`${key} looks too short — paste the full 32-byte signing key (usually starts with 0x).`);
     ok = false;
     continue;
   }

@@ -38,10 +38,13 @@ python3 -m json.tool pulse/.cursor/mcp.json
 
 1. Register at https://developer.world.org
 2. Copy `packages/nextjs/.env.local.example` → `packages/nextjs/.env.local`
-3. Set `NEXT_PUBLIC_WORLD_APP_ID`, `NEXT_PUBLIC_WORLD_RP_ID`, and `WORLD_RP_SIGNING_KEY` (RP signing key — server only, from the portal)
-4. Optional: `NEXT_PUBLIC_WORLD_ID_ENVIRONMENT=production` when testing Orb on a real World App account (default `staging` for simulator)
+3. Set env vars (they are **not** the same value):
+   - `NEXT_PUBLIC_WORLD_APP_ID` → `app_...`
+   - `NEXT_PUBLIC_WORLD_RP_ID` → `rp_...` (public relying party id)
+   - `WORLD_RP_SIGNING_KEY` → **signing key** from the same RP section (private hex key, usually `0x` + 64 hex chars — never put `rp_` here)
+4. Optional: `NEXT_PUBLIC_WORLD_ID_ENVIRONMENT=production` when testing on a **real phone** with World App (use `staging` only with [simulator.worldcoin.org](https://simulator.worldcoin.org))
 5. Restart `yarn start`
-6. On `/setup`, click **Verify & create profile** (real widget, not mock). Step 2 **Bind Orb** requires an Orb-verified World App identity.
+6. On `/setup`, Step 1 (Device) then Step 2 (Orb). **Bind Orb requires an Orb-verified World App identity** — Device-only accounts will fail verify on Step 2.
 
 ```bash
 cd packages/nextjs && yarn verify:world-id-env

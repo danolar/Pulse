@@ -27,11 +27,36 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "action is required." }, { status: 400 });
   }
 
-  const { sig, nonce, createdAt, expiresAt } = signRequest({
-    signingKeyHex,
-    action,
-    ttl: 300,
-  });
+  if (signingKeyHex.startsWith("rp_")) {
+    return NextResponse.json(
+      {
+        error:
+          "WORLD_RP_SIGNING_KEY must be the RP signing key (hex private key from Developer Portal), not the RP ID. NEXT_PUBLIC_WORLD_RP_ID is already set separately.",
+      },
+      { status: 500 },
+    );
+  }
+
+  let sig: string;
+  let nonce: string;
+  let createdAt: number;
+  let expiresAt: number;
+
+  try {
+    ({ sig, nonce, createdAt, expiresAt } = signRequest({
+      signingKeyHex,
+      action,
+      ttl: 300,
+    }));
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : "signRequest failed";
+    return NextResponse.json(
+      {
+        error: `Invalid WORLD_RP_SIGNING_KEY: ${detail}. Copy the signing key from Developer Portal → Apps → your app → Relying Party — not the rp_ ID.`,
+      },
+      { status: 500 },
+    );
+  }
 
   return NextResponse.json({
     rp_id: rpId,
