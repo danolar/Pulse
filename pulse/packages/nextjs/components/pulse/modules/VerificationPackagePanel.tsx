@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
+import { GoogleActivityConnect } from "~~/components/pulse/modules/GoogleActivityConnect";
+import { usePulseStore } from "~~/services/store/pulseStore";
 import {
   PULSE_MODULE_CATEGORY_LABELS,
   PULSE_MODULE_STATUS_LABELS,
@@ -11,7 +13,6 @@ import {
   isModuleReadyForSetup,
 } from "~~/modules/pulse";
 import type { PulseModuleStatus, PulseVerificationModule } from "~~/modules/pulse";
-import { usePulseStore } from "~~/services/store/pulseStore";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
 const STATUS_BADGE_CLASS: Record<PulseModuleStatus, string> = {
@@ -29,6 +30,9 @@ type ModuleCardProps = {
   adapterAddress: string;
   adapterWeight: number;
   onAdapterChange: (patch: { address?: string; weight?: number }) => void;
+  googleRefreshToken: number;
+  googleLinked: boolean;
+  onGoogleLinkedChange: (linked: boolean) => void;
 };
 
 const ModuleCard = ({
@@ -39,10 +43,18 @@ const ModuleCard = ({
   adapterAddress,
   adapterWeight,
   onAdapterChange,
+  googleRefreshToken,
+  googleLinked,
+  onGoogleLinkedChange,
 }: ModuleCardProps) => {
+  const isGoogleModule = pulseModule.id === "google-activity";
+  const isActive = enabled || (isGoogleModule && googleLinked);
   const showSoon = !isModuleReadyForSetup(pulseModule);
   const showAdapterFields =
-    enabled && pulseModule.setupKind === "adapter" && isModuleReadyForSetup(pulseModule);
+    enabled &&
+    pulseModule.setupKind === "adapter" &&
+    isModuleReadyForSetup(pulseModule) &&
+    pulseModule.id !== "google-activity";
   const showIntegrationPlaceholder = enabled && pulseModule.setupKind === "integration";
   const showIdentityNote = enabled && pulseModule.setupKind === "none";
   const showPlannedPlaceholder =
@@ -51,14 +63,14 @@ const ModuleCard = ({
   return (
     <div
       className={`rounded-2xl border p-4 transition-colors ${
-        enabled ? "border-primary/40 bg-primary/5" : "border-base-content/10 bg-base-200/40"
+        isActive ? "border-primary/40 bg-primary/5" : "border-base-content/10 bg-base-200/40"
       }`}
     >
       <div className="flex gap-3">
         <input
           type="checkbox"
           className="checkbox checkbox-primary checkbox-sm mt-0.5 shrink-0"
-          checked={enabled}
+          checked={isActive}
           disabled={locked}
           onChange={onToggle}
         />
@@ -88,6 +100,14 @@ const ModuleCard = ({
         <p className="mt-3 border-t border-base-content/10 pt-3 text-xs text-pulse-muted">
           Selected — connection unlocks when this source ships.
         </p>
+      ) : null}
+
+      {isGoogleModule ? (
+        <GoogleActivityConnect
+          moduleEnabled={enabled}
+          refreshToken={googleRefreshToken}
+          onLinkedChange={onGoogleLinkedChange}
+        />
       ) : null}
 
       {showIntegrationPlaceholder ? (
@@ -131,6 +151,7 @@ export const validateEnabledModulesForActivation = (): boolean => {
   for (const moduleId of enabledModuleIds) {
     const module = getPulseModule(moduleId);
     if (!module || module.setupKind !== "adapter" || !isModuleReadyForSetup(module)) continue;
+    if (moduleId === "google-activity") continue;
     const adapter = adapters.find(row => row.moduleId === moduleId);
     if (!adapter?.address?.trim()) {
       notification.error(`Connect a signer for ${module.name} or disable it below.`);
@@ -141,10 +162,11 @@ export const validateEnabledModulesForActivation = (): boolean => {
   return true;
 };
 
-export const VerificationPackagePanel = () => {
+export const VerificationPackagePanel = ({ googleRefreshToken = 0 }: { googleRefreshToken?: number }) => {
   const { enabledModuleIds, adapters, requestors, toggleModule, setModuleAdapter, mockAddRequestor } =
     usePulseStore();
   const [requestorAddress, setRequestorAddress] = useState("");
+  const [googleLinked, setGoogleLinked] = useState(false);
   const selectableIds = new Set(getSelectablePulseModules().map(module => module.id));
   const byCategory = getPulseModulesByCategory();
 
@@ -187,6 +209,14 @@ export const VerificationPackagePanel = () => {
                           if (canToggle && !locked) toggleModule(pulseModule.id);
                         }}
                         onAdapterChange={patch => setModuleAdapter(pulseModule.id, patch)}
+                        googleRefreshToken={googleRefreshToken}
+                        googleLinked={googleLinked}
+                        onGoogleLinkedChange={linked => {
+                          setGoogleLinked(linked);
+                          if (linked) {
+                            usePulseStore.getState().ensureModuleEnabled("google-activity");
+                          }
+                        }}
                       />
                     );
                   })}

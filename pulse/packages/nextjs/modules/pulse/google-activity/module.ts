@@ -4,7 +4,7 @@ export const googleActivityModule: PulseVerificationModule = {
   id: "google-activity",
   name: "Google activity",
   category: "passive",
-  status: "planned",
+  status: "implemented",
   summary: "Optional Gmail, Calendar, or Drive signals when you grant OAuth access.",
   provider: "Google APIs",
   signalDirection: "negative",

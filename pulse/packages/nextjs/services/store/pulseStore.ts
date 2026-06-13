@@ -79,6 +79,7 @@ type PulseState = {
   mockBindOrb: (verification?: PulseWorldIdVerification) => void;
   mockSaveConfig: (config: ProfileConfig) => void;
   toggleModule: (moduleId: string) => void;
+  ensureModuleEnabled: (moduleId: string) => void;
   setModuleAdapter: (moduleId: string, patch: { address?: string; weight?: number }) => void;
   mockAddRequestor: (address: string) => void;
   mockClaimRequestorSlot: (requestorAddress: string, verification?: PulseWorldIdVerification) => void;
@@ -179,6 +180,33 @@ export const usePulseStore = create<PulseState>((set, get) => ({
       }
 
       return { enabledModuleIds, adapters };
+    });
+  },
+
+  ensureModuleEnabled: moduleId => {
+    const pulseModule = getPulseModule(moduleId);
+    if (!pulseModule || pulseModule.required) return;
+
+    set(state => {
+      if (state.enabledModuleIds.includes(moduleId)) {
+        return state;
+      }
+
+      let adapters = state.adapters;
+      if (pulseModule.setupKind === "adapter" && !adapters.some(adapter => adapter.moduleId === moduleId)) {
+        adapters = [
+          ...adapters,
+          {
+            id: crypto.randomUUID(),
+            moduleId,
+            address: "",
+            weight: pulseModule.suggestedWeight ?? 10,
+            label: pulseModule.adapterLabel ?? pulseModule.name,
+          },
+        ];
+      }
+
+      return { enabledModuleIds: [...state.enabledModuleIds, moduleId], adapters };
     });
   },
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAccount } from "wagmi";
 import { PageShell, PulseButton, SectionHeader } from "~~/components/pulse";
 import {
@@ -33,6 +33,7 @@ const SETUP_STEPS = [
 
 const SetupWizard = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { address } = useAccount();
   const {
     profileId,
@@ -47,11 +48,28 @@ const SetupWizard = () => {
   } = usePulseStore();
 
   const [fallbackProfileKey, setFallbackProfileKey] = useState<string | null>(null);
+  const [googleRefreshToken, setGoogleRefreshToken] = useState(0);
 
   useEffect(() => {
     if (profileId || address) return;
     setFallbackProfileKey(`profile-${crypto.randomUUID().slice(0, 8)}`);
   }, [profileId, address]);
+
+  useEffect(() => {
+    const googleStatus = searchParams.get("google");
+    if (!googleStatus) return;
+
+    if (googleStatus === "connected") {
+      usePulseStore.getState().ensureModuleEnabled("google-activity");
+      setGoogleRefreshToken(current => current + 1);
+      notification.success("Google account linked.");
+    } else if (googleStatus === "error") {
+      const reason = searchParams.get("reason") ?? "unknown";
+      notification.error(`Google connection failed: ${decodeURIComponent(reason)}`);
+    }
+
+    router.replace("/setup");
+  }, [router, searchParams]);
 
   const profileKey = profileId ?? address ?? fallbackProfileKey;
   const profileKeyLabel = profileKey ?? "Assigning profile key…";
@@ -83,7 +101,7 @@ const SetupWizard = () => {
       </div>
 
       <div className="space-y-6">
-        <VerificationPackagePanel />
+        <VerificationPackagePanel googleRefreshToken={googleRefreshToken} />
 
         <section className="pulse-card p-5 sm:p-6">
           <div className="mb-4 flex items-center justify-between gap-3">
