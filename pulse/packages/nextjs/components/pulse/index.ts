@@ -20,6 +20,7 @@ export { VerificationStepper } from "./stepper/VerificationStepper";
 export type { VerificationStep } from "./stepper/VerificationStepper";
 export { PulseModal, KeyValuePreview, ModalFooterActions } from "./modals/PulseModal";
 export { PulseButton } from "./ui/PulseButton";
+export { VerifiedCheck } from "./ui/VerifiedCheck";
 export { PulseWorldIdButton } from "./world-id/PulseWorldIdButton";
 export { PulseConsoleGauge } from "./console/PulseConsoleGauge";
 export { VerificationPackagePanel, validateEnabledModulesForActivation } from "./modules/VerificationPackagePanel";

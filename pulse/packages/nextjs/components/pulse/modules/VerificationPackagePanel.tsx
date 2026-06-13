@@ -156,7 +156,25 @@ const ModuleCard = ({
   );
 };
 
+const isSignalsStageReady = (): boolean => {
+  const { enabledModuleIds, adapters } = usePulseStore.getState();
+
+  for (const moduleId of enabledModuleIds) {
+    const module = getPulseModule(moduleId);
+    if (!module || module.setupKind !== "adapter" || !isModuleReadyForSetup(module)) continue;
+    if (moduleId === "google-activity") continue;
+    const adapter = adapters.find(row => row.moduleId === moduleId);
+    if (!adapter?.address?.trim()) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 export const validateEnabledModulesForActivation = (): boolean => {
+  if (isSignalsStageReady()) return true;
+
   const { enabledModuleIds, adapters } = usePulseStore.getState();
 
   for (const moduleId of enabledModuleIds) {
@@ -172,6 +190,8 @@ export const validateEnabledModulesForActivation = (): boolean => {
 
   return true;
 };
+
+export { isSignalsStageReady };
 
 export const VerificationPackagePanel = ({ googleRefreshToken = 0 }: { googleRefreshToken?: number }) => {
   const { enabledModuleIds, adapters, requestors, toggleModule, setModuleAdapter, mockAddRequestor } =
