@@ -82,7 +82,7 @@ export const MonitoringWindowSetup = ({ disabled, initialConfig, onSave }: Monit
               } ${disabled ? "cursor-not-allowed opacity-60" : ""}`}
             >
               <span className="mb-1 flex flex-wrap items-center gap-2">
-                <span className="text-sm font-semibold text-base-content">{preset.name}</span>
+                <span className="pulse-item-title">{preset.name}</span>
                 {preset.recommended ? (
                   <span className="badge badge-sm border-none bg-primary/15 text-primary">Recommended</span>
                 ) : null}
@@ -106,14 +106,14 @@ export const MonitoringWindowSetup = ({ disabled, initialConfig, onSave }: Monit
               : "border-base-content/10 bg-base-200/40 hover:border-primary/30"
           } ${disabled ? "cursor-not-allowed opacity-60" : ""}`}
         >
-          <span className="mb-1 block text-sm font-semibold text-base-content">{CUSTOM_MONITORING_PROFILE.name}</span>
+          <span className="pulse-item-title mb-1 block">{CUSTOM_MONITORING_PROFILE.name}</span>
           <span className="block text-xs leading-relaxed text-pulse-muted">{CUSTOM_MONITORING_PROFILE.tagline}</span>
         </button>
       </div>
 
       {!isCustom && activePreset ? (
         <div className="rounded-2xl border border-base-content/10 bg-base-200/40 p-4">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-pulse-muted">Profile summary</p>
+          <p className="pulse-label mb-3">Profile summary</p>
           <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
             {CONFIG_FIELDS.map(({ field, label, unit }) => (
               <div key={field}>
@@ -147,7 +147,7 @@ export const MonitoringWindowSetup = ({ disabled, initialConfig, onSave }: Monit
       )}
 
       <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
-        <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-primary">How this works</p>
+        <p className="pulse-label mb-1">How this works</p>
         <p className="text-sm leading-relaxed text-pulse-muted">{describeMonitoringRhythm(draftConfig)}</p>
         <p className="mt-2 text-xs text-pulse-muted">
           Responding in time with World ID or onchain activity resets accumulated weight for the current window.

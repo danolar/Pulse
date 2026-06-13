@@ -48,7 +48,7 @@ export const PulseModal = ({ open, title, onClose, children, footer, size = "md"
       />
       <div className={`relative z-10 w-full ${maxWidth} rounded-2xl bg-base-100 p-6 shadow-pulse-lg`}>
         <div className="mb-4 flex items-start justify-between gap-4">
-          <h2 className="min-w-0 flex-1 pr-2 text-lg font-semibold leading-snug text-base-content">{title}</h2>
+          <h2 className="pulse-section-title min-w-0 flex-1 pr-2 text-lg leading-snug">{title}</h2>
           <button type="button" className="btn btn-ghost btn-sm btn-circle" aria-label="Close" onClick={onClose}>
             <X className="h-4 w-4" />
           </button>

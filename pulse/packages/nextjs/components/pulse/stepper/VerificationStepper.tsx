@@ -17,7 +17,7 @@ type VerificationStepperProps = {
 export const VerificationStepper = ({ steps, title = "Verification window" }: VerificationStepperProps) => {
   return (
     <div className="pulse-card flex h-full flex-col p-5">
-      <h3 className="mb-5 shrink-0 text-base font-semibold text-base-content">{title}</h3>
+      <h3 className="pulse-section-title mb-5 shrink-0">{title}</h3>
       <ol className="min-h-0 flex-1 space-y-0">
         {steps.map((step, index) => {
           const isLast = index === steps.length - 1;

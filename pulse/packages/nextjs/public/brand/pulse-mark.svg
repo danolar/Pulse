@@ -1,7 +1,6 @@
-<svg width="160" height="48" viewBox="0 0 160 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
   <circle cx="24" cy="24" r="14.75" stroke="#4C66FF" stroke-width="1.15" stroke-opacity="0.2"/>
   <circle cx="24" cy="24" r="10.75" stroke="#4C66FF" stroke-width="1.15" stroke-opacity="0.34"/>
   <circle cx="24" cy="24" r="6.75" stroke="#4C66FF" stroke-width="1.15" stroke-opacity="0.52"/>
   <circle cx="24" cy="24" r="2.75" fill="#4C66FF"/>
-  <text x="52" y="31" fill="#0B0B1E" font-family="Comfortaa, ui-sans-serif, sans-serif" font-size="22" font-weight="600">pulse</text>
 </svg>

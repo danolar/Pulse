@@ -28,7 +28,7 @@ export const ConsoleSignalTimeline = ({ signals }: ConsoleSignalTimelineProps) =
   return (
     <>
       <section className="pulse-card p-5 sm:p-6">
-        <h2 className="mb-1 text-base font-semibold text-base-content">Signal audit trail</h2>
+        <h2 className="pulse-section-title mb-1">Signal audit trail</h2>
         <p className="mb-4 text-sm text-pulse-muted">
           Each signal references Walrus evidence (Seal-encrypted in production). Only current-epoch window signals count.
         </p>

@@ -27,8 +27,8 @@ export const DevFloatingBar = () => {
       <div className="pointer-events-auto flex max-w-[calc(100vw-2rem)] items-center divide-x divide-base-content/10 overflow-hidden rounded-2xl border border-base-content/5 bg-base-100/95 shadow-pulse-md backdrop-blur-md">
         {showPrice ? (
           <div className="flex shrink-0 items-center gap-1.5 px-3 py-2 sm:px-4">
-            <span className="text-xs font-semibold uppercase tracking-wide text-pulse-muted">ETH</span>
-            <span className="whitespace-nowrap text-sm font-semibold text-base-content">
+            <span className="pulse-label text-pulse-muted">ETH</span>
+            <span className="pulse-item-title whitespace-nowrap">
               ${nativeCurrencyPrice.toFixed(2)}
             </span>
           </div>

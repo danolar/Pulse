@@ -4,8 +4,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
-import { Activity, Bug, Menu, Search, Settings } from "lucide-react";
-import { SwitchTheme } from "~~/components/SwitchTheme";
+import { Bug, Menu, Search, Settings } from "lucide-react";
+import { PulseLogo } from "~~/components/pulse/brand/PulseLogo";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { SHOW_SCAFFOLD_DEV_UI } from "~~/constants/pulseAppConfig";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
@@ -31,7 +31,9 @@ const ActingAsSelect = ({
   selectClassName?: string;
 }) => (
   <label className={`flex min-w-0 items-center gap-2 ${className}`}>
-    <span className="shrink-0 whitespace-nowrap text-xs text-pulse-muted">Acting as</span>
+    <span className="shrink-0 whitespace-nowrap pulse-label normal-case tracking-normal text-pulse-muted">
+      Acting as
+    </span>
     <select
       className={`select select-bordered select-sm h-9 min-h-9 rounded-2xl ${selectClassName}`}
       value={actingAs}
@@ -82,7 +84,9 @@ export const Header = () => {
 
   const navLinkClassName = (href: string) =>
     `flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
-      pathname === href ? "bg-base-300 text-base-content" : "text-base-content/80 hover:bg-base-200"
+      pathname === href
+        ? "bg-primary/10 text-primary"
+        : "text-base-content/75 hover:bg-base-300/60 hover:text-base-content"
     }`;
 
   return (
@@ -127,14 +131,8 @@ export const Header = () => {
             ) : null}
           </div>
 
-          <Link href="/" passHref className="flex min-w-0 items-center gap-2">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-content">
-              <Activity className="h-5 w-5" />
-            </span>
-            <div className="hidden min-w-0 flex-col sm:flex">
-              <span className="truncate font-bold leading-tight text-base-content">Pulse</span>
-              <span className="hidden truncate text-xs text-pulse-muted sm:block">Console</span>
-            </div>
+          <Link href="/" passHref className="flex min-w-0 items-center">
+            <PulseLogo />
           </Link>
 
           <nav className="ml-2 hidden items-center gap-0.5 lg:flex" aria-label="Main navigation">
@@ -157,7 +155,6 @@ export const Header = () => {
             />
           ) : null}
 
-          <SwitchTheme />
           <div className="flex h-8 min-w-[5.5rem] items-center justify-end sm:min-w-[7.25rem] md:min-w-[12rem]">
             <RainbowKitCustomConnectButton />
           </div>

@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CONSOLE_GAUGE_SIZE, ThresholdGauge } from "~~/components/pulse/gauge/ThresholdGauge";
+import { PulseMark } from "~~/components/pulse/brand/PulseMark";
+import {
+  CONSOLE_GAUGE_SIZE,
+  ThresholdGauge,
+  getGaugeStateForPercentage,
+} from "~~/components/pulse/gauge/ThresholdGauge";
+import { PULSE_GAUGE_STATES } from "~~/constants/pulseBrand";
 import { LIFECYCLE_DESCRIPTIONS } from "~~/constants/pulseProtocol";
 import { LIFECYCLE_LABELS, type LifecycleState } from "~~/types/pulse";
 
@@ -27,6 +33,7 @@ export const PulseConsoleGauge = ({ accumulatedWeight, threshold, lifecycle, epo
   }, []);
 
   const percentage = threshold > 0 ? Math.round((accumulatedWeight / threshold) * 100) : 0;
+  const gaugeState = getGaugeStateForPercentage(percentage);
   const pulseDuration =
     lifecycle === "ACTIVE" || lifecycle === "EVALUATING" ? Math.max(0.8, 2.4 - percentage / 100) : 3.6;
   const pulseOpacity =
@@ -35,22 +42,33 @@ export const PulseConsoleGauge = ({ accumulatedWeight, threshold, lifecycle, epo
   return (
     <section className="pulse-card overflow-hidden p-4 sm:p-8">
       <div className="flex flex-col items-center gap-6 sm:gap-8 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex w-full justify-center">
+        <div className="flex w-full flex-col items-center gap-4">
           <ThresholdGauge
             value={accumulatedWeight}
             max={threshold}
             label="Unresponsiveness / threshold"
             size={gaugeSize}
             showPulseLine
+            showStateLabel
             pulseActive={lifecycle === "ACTIVE" || lifecycle === "EVALUATING"}
             pulseDuration={pulseDuration}
             pulseOpacity={pulseOpacity}
           />
+
+          <div className="pulse-gauge-legend text-pulse-muted">
+            {PULSE_GAUGE_STATES.map(state => (
+              <span key={state.id} className="pulse-gauge-legend-item">
+                <PulseMark size={14} color={state.color} tone="solid" />
+                {state.label}
+              </span>
+            ))}
+          </div>
         </div>
 
         <div className="flex w-full flex-col items-center gap-3 text-center lg:items-start lg:text-left">
           <div className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
-            <span className="badge badge-lg border-none bg-primary/10 text-primary">{LIFECYCLE_LABELS[lifecycle]}</span>
+            <span className={`pulse-state-badge pulse-state-${gaugeState.id}`}>{gaugeState.label}</span>
+            <span className="badge badge-lg border-none bg-base-300 text-base-content">{LIFECYCLE_LABELS[lifecycle]}</span>
             <span className="badge badge-lg border-none bg-base-300 text-base-content">Epoch {epoch}</span>
           </div>
           <p className="max-w-md text-sm leading-relaxed text-pulse-muted">{LIFECYCLE_DESCRIPTIONS[lifecycle]}</p>

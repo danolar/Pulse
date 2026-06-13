@@ -3,29 +3,33 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme {
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-comfortaa), var(--font-sans);
 
-  --color-pulse-cream: #f5f2ec;
-  --color-pulse-surface: #faf9f5;
-  --color-pulse-surface-muted: #ede9e1;
-  --color-pulse-ink: #0d0d0d;
-  --color-pulse-secondary: #3a3a3a;
-  --color-pulse-muted: #888888;
-  --color-pulse-navy: #1e405c;
-  --color-pulse-gold: #b8975a;
-  --color-pulse-steel: #4a7c99;
-  --color-pulse-carbon: #16191e;
-  --color-pulse-card-dark: #232a32;
-  --color-pulse-steel-light: #6dadde;
-  --color-pulse-gold-light: #c9a86a;
-  --color-pulse-warm: #f2efe8;
+  /* Pulse brand — light application (dark mode deferred) */
+  --color-pulse-accent: #4c66ff;
+  --color-pulse-primary: #4c66ff;
+  --color-pulse-galaxy: #0b0b1e;
+  --color-pulse-purple: #6f4cff;
+  --color-pulse-blue: #4c66ff;
+  --color-pulse-white: #f8f6ff;
+  --color-pulse-safe: #4c66ff;
+  --color-pulse-monitoring: #6f4cff;
+  --color-pulse-accumulating: #7d4490;
+  --color-pulse-unresponsive: #9b3a6b;
+  /* legacy aliases */
+  --color-pulse-mauve-mid: #7d4490;
+  --color-pulse-mauve-muted: #9b3a6b;
+  --color-pulse-ink: #0b0b1e;
+  --color-pulse-secondary: #3d3854;
+  --color-pulse-muted: #6b6580;
 
-  --shadow-pulse-sm: 0 1px 2px rgb(13 13 13 / 0.04), 0 4px 12px rgb(13 13 13 / 0.06);
-  --shadow-pulse-md: 0 2px 4px rgb(13 13 13 / 0.04), 0 8px 24px rgb(13 13 13 / 0.08);
-  --shadow-pulse-lg: 0 4px 8px rgb(13 13 13 / 0.06), 0 16px 40px rgb(13 13 13 / 0.1);
+  --shadow-pulse-sm: 0 1px 2px rgb(11 11 30 / 0.04), 0 4px 16px rgb(76 102 255 / 0.08);
+  --shadow-pulse-md: 0 2px 4px rgb(11 11 30 / 0.05), 0 8px 28px rgb(76 102 255 / 0.1);
+  --shadow-pulse-lg: 0 4px 8px rgb(11 11 30 / 0.06), 0 16px 40px rgb(76 102 255 / 0.12);
 
-  --animate-pulse-soft: pulse-soft 2s ease-in-out infinite;
+  --animate-pulse-soft: pulse-soft 2.4s ease-in-out infinite;
+  --animate-pulse-rings: pulse-rings 3s ease-in-out infinite;
 }
 
 @keyframes pulse-soft {
@@ -38,6 +42,18 @@
   }
 }
 
+@keyframes pulse-rings {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+
 @plugin "daisyui" {
   themes:
     light --default,
@@ -47,49 +63,49 @@
 @plugin "daisyui/theme" {
   name: "light";
 
-  --color-primary: #1e405c;
-  --color-primary-content: #faf9f5;
-  --color-secondary: #ede9e1;
-  --color-secondary-content: #3a3a3a;
-  --color-accent: #b8975a;
-  --color-accent-content: #0d0d0d;
-  --color-neutral: #0d0d0d;
-  --color-neutral-content: #f5f2ec;
-  --color-base-100: #faf9f5;
-  --color-base-200: #f5f2ec;
-  --color-base-300: #ede9e1;
-  --color-base-content: #0d0d0d;
-  --color-info: #2563eb;
-  --color-success: #4a7c99;
-  --color-warning: #d97706;
-  --color-error: #dc2626;
+  --color-primary: #4c66ff;
+  --color-primary-content: #f8f6ff;
+  --color-secondary: #0b0b1e;
+  --color-secondary-content: #f8f6ff;
+  --color-accent: #6f4cff;
+  --color-accent-content: #f8f6ff;
+  --color-neutral: #0b0b1e;
+  --color-neutral-content: #f8f6ff;
+  --color-base-100: #f8f6ff;
+  --color-base-200: #f2f4ff;
+  --color-base-300: #e8ecff;
+  --color-base-content: #0b0b1e;
+  --color-info: #4c66ff;
+  --color-success: #4c66ff;
+  --color-warning: #7d4490;
+  --color-error: #9b3a6b;
 
   --radius-field: 1rem;
-  --radius-box: 1rem;
+  --radius-box: 1.25rem;
 }
 
 @plugin "daisyui/theme" {
   name: "dark";
 
-  --color-primary: #6dadde;
-  --color-primary-content: #16191e;
-  --color-secondary: #2d363f;
-  --color-secondary-content: #f2efe8;
-  --color-accent: #c9a86a;
-  --color-accent-content: #16191e;
-  --color-neutral: #f2efe8;
-  --color-neutral-content: #232a32;
-  --color-base-100: #232a32;
-  --color-base-200: #16191e;
-  --color-base-300: #2d363f;
-  --color-base-content: #f2efe8;
-  --color-info: #60a5fa;
-  --color-success: #6dadde;
-  --color-warning: #fbbf24;
-  --color-error: #f87171;
+  --color-primary: #4c66ff;
+  --color-primary-content: #f8f6ff;
+  --color-secondary: #4c66ff;
+  --color-secondary-content: #f8f6ff;
+  --color-accent: #7d4490;
+  --color-accent-content: #f8f6ff;
+  --color-neutral: #f8f6ff;
+  --color-neutral-content: #0c0a1d;
+  --color-base-100: #12101f;
+  --color-base-200: #0c0a1d;
+  --color-base-300: #1e1835;
+  --color-base-content: #f8f6ff;
+  --color-info: #6f4cff;
+  --color-success: #4c66ff;
+  --color-warning: #7d4490;
+  --color-error: #9b3a6b;
 
   --radius-field: 1rem;
-  --radius-box: 1rem;
+  --radius-box: 1.25rem;
 }
 
 @layer base {
@@ -98,7 +114,7 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: color-mix(in srgb, var(--color-base-content) 12%, transparent);
+    border-color: color-mix(in srgb, var(--color-base-content) 10%, transparent);
   }
 
   html {
@@ -115,7 +131,8 @@
   body {
     min-height: 100vh;
     font-family: var(--font-sans);
-    color: var(--color-base-content);
+    font-weight: 400;
+    color: color-mix(in srgb, var(--color-base-content) 88%, transparent);
     background: var(--color-base-200);
     line-height: 1.6;
   }
@@ -124,18 +141,14 @@
   h2,
   h3,
   h4 {
-    line-height: 1.2;
+    font-family: var(--font-sans);
     font-weight: 600;
+    line-height: 1.15;
+    color: var(--color-base-content);
   }
 
   p {
     margin: 0.75rem 0;
-  }
-
-  code,
-  pre,
-  .font-mono {
-    font-family: var(--font-mono);
   }
 }
 
@@ -144,8 +157,52 @@
   background: var(--color-base-200);
 }
 
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+.pulse-page-title {
+  @apply m-0 text-2xl font-semibold tracking-tight text-base-content sm:text-3xl;
+}
+
+.pulse-section-title {
+  @apply text-base font-semibold text-base-content;
+}
+
+.pulse-item-title {
+  @apply text-sm font-semibold text-base-content;
+}
+
+.pulse-label {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-pulse-accent);
+}
+
+.pulse-wordmark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-transform: lowercase;
+  letter-spacing: -0.02em;
+  color: var(--color-pulse-ink);
+}
+
+.pulse-logo-tagline {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: 0.4375rem;
+  letter-spacing: 0.03em;
+  line-height: 1.1;
+  text-transform: lowercase;
+  color: var(--color-pulse-muted);
+}
+
 .btn {
-  @apply shadow-pulse-sm rounded-2xl min-h-11 transition-all duration-200;
+  @apply shadow-pulse-sm rounded-2xl min-h-11 font-medium transition-all duration-200;
 }
 
 .btn:focus-visible {
@@ -163,14 +220,15 @@
 
 .link {
   text-underline-offset: 2px;
+  color: var(--color-pulse-accent);
 }
 
 .link:hover {
-  opacity: 80%;
+  opacity: 85%;
 }
 
 .pulse-glass {
-  @apply backdrop-blur-md bg-base-100/80 border border-base-content/5;
+  @apply backdrop-blur-md bg-base-100/85 border border-base-content/5;
 }
 
 .pulse-page-x {
@@ -187,6 +245,54 @@
 
 .pulse-card-interactive:hover {
   @apply shadow-pulse-md -translate-y-0.5;
+}
+
+.btn-pulse-safe {
+  @apply border-none bg-pulse-safe text-pulse-white hover:brightness-110;
+}
+
+.btn-pulse-monitoring {
+  @apply border-none bg-pulse-monitoring text-pulse-white hover:brightness-110;
+}
+
+.btn-pulse-accumulating {
+  @apply border-none bg-pulse-accumulating text-pulse-white hover:brightness-110;
+}
+
+.btn-pulse-unresponsive {
+  @apply border-none bg-pulse-unresponsive text-pulse-white hover:brightness-110;
+}
+
+.pulse-state-badge {
+  @apply badge badge-lg border-none font-medium;
+}
+
+.pulse-state-safe {
+  background: color-mix(in srgb, var(--color-pulse-safe) 14%, transparent);
+  color: var(--color-pulse-safe);
+}
+
+.pulse-state-monitoring {
+  background: color-mix(in srgb, var(--color-pulse-monitoring) 14%, transparent);
+  color: var(--color-pulse-monitoring);
+}
+
+.pulse-state-accumulating {
+  background: color-mix(in srgb, var(--color-pulse-accumulating) 14%, transparent);
+  color: var(--color-pulse-accumulating);
+}
+
+.pulse-state-unresponsive {
+  background: color-mix(in srgb, var(--color-pulse-unresponsive) 14%, transparent);
+  color: var(--color-pulse-unresponsive);
+}
+
+.pulse-gauge-legend {
+  @apply flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[10px] font-light uppercase tracking-[0.14em];
+}
+
+.pulse-gauge-legend-item {
+  @apply inline-flex items-center gap-1.5;
 }
 
 @media (prefers-reduced-motion: reduce) {

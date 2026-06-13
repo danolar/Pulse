@@ -30,8 +30,9 @@ const ConsolePage = () => {
     return (
       <PageShell>
         <SectionHeader
-          title="Pulse console"
-          subtitle="Complete the setup wizard before monitoring a profile."
+          title="pulse console"
+          eyebrow="monitoring"
+          subtitle="complete setup before monitoring a profile."
         />
         <div className="pulse-card max-w-2xl p-6">
           <p className="text-sm text-pulse-muted">
@@ -50,8 +51,9 @@ const ConsolePage = () => {
   return (
     <PageShell>
       <SectionHeader
-        title="Pulse console"
-        subtitle={`Profile ${ownerRef} · local PulseOracle · mock lifecycle until full contract wiring`}
+        title="pulse console"
+        eyebrow={`profile ${ownerRef}`}
+        subtitle="local pulse oracle · mock lifecycle until full contract wiring"
       />
 
       <div className="space-y-6">

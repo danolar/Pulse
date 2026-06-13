@@ -29,7 +29,7 @@ export const SignalTimeline = ({ events }: SignalTimelineProps) => {
 
   return (
     <div className="pulse-card flex h-full flex-col p-5">
-      <h3 className="mb-4 shrink-0 text-base font-semibold text-base-content">Signal history</h3>
+      <h3 className="pulse-section-title mb-4 shrink-0">Signal history</h3>
       <ol className="relative min-h-0 flex-1 space-y-4 before:absolute before:bottom-2 before:left-5 before:top-2 before:w-px before:bg-base-content/10">
         {events.map((event, index) => {
           const Icon = event.icon;

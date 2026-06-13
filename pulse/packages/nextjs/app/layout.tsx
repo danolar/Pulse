@@ -1,22 +1,35 @@
 import "@rainbow-me/rainbowkit/styles.css";
 import "@scaffold-ui/components/styles.css";
-import { GeistMono } from "geist/font/mono";
-import { GeistSans } from "geist/font/sans";
+import { Comfortaa, DM_Sans } from "next/font/google";
 import { ScaffoldEthAppWithProviders } from "~~/components/ScaffoldEthAppWithProviders";
 import { ThemeProvider } from "~~/components/ThemeProvider";
 import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
+const comfortaa = Comfortaa({
+  subsets: ["latin"],
+  weight: ["600"],
+  variable: "--font-comfortaa",
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500"],
+  variable: "--font-dm-sans",
+  display: "swap",
+});
+
 export const metadata = getMetadata({
-  title: "Pulse",
-  description: "Open weighted verification protocol for onchain liveness and behavioral attestations.",
+  title: "pulse",
+  description: "onchain liveness oracle — is this human still here?",
 });
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html suppressHydrationWarning className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body className={GeistSans.className}>
-        <ThemeProvider attribute="data-theme" defaultTheme="light" enableSystem={false} storageKey="pulse-theme">
+    <html suppressHydrationWarning className={`${comfortaa.variable} ${dmSans.variable}`}>
+      <body suppressHydrationWarning className={dmSans.className}>
+        <ThemeProvider attribute="data-theme" defaultTheme="light" enableSystem={false} forcedTheme="light" storageKey="pulse-theme">
           <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
         </ThemeProvider>
       </body>

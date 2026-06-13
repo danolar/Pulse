@@ -19,7 +19,7 @@ export const AttemptSequence = ({ attempts }: AttemptSequenceProps) => {
   return (
     <section className="pulse-card p-5 sm:p-6">
       <div className="mb-4">
-        <h2 className="text-base font-semibold text-base-content">Verification window</h2>
+        <h2 className="pulse-section-title">Verification window</h2>
         <p className="mt-1 text-sm text-pulse-muted">
           Attempt types are commit-revealed onchain. You see each type only when its response window opens.
         </p>
@@ -31,7 +31,7 @@ export const AttemptSequence = ({ attempts }: AttemptSequenceProps) => {
             key={attempt.id}
             className="min-w-[11rem] flex-1 rounded-2xl border border-base-content/10 bg-base-200/60 p-4"
           >
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-pulse-muted">Attempt {index + 1}</p>
+            <p className="pulse-label mb-3">Attempt {index + 1}</p>
 
             {attempt.status === "locked" ? (
               <div className="flex flex-col items-center gap-2 py-4 text-center">

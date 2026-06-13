@@ -17,7 +17,7 @@ export const AddCard = ({ title, description, href }: AddCardProps) => {
         <Plus className="h-6 w-6" aria-hidden />
       </span>
       <div className="max-w-xs">
-        <p className="text-base font-semibold text-base-content">{title}</p>
+        <p className="pulse-section-title">{title}</p>
         <p className="mt-1 text-sm leading-relaxed text-pulse-muted">{description}</p>
       </div>
     </Link>

@@ -76,7 +76,7 @@ const ModuleCard = ({
         />
         <div className="min-w-0 flex-1">
           <span className="mb-1 flex flex-wrap items-center gap-2">
-            <span className="text-sm font-semibold text-base-content">{pulseModule.name}</span>
+            <span className="pulse-item-title">{pulseModule.name}</span>
             {showSoon && !enabled ? (
               <span className={`badge badge-sm border-none ${STATUS_BADGE_CLASS[pulseModule.status]}`}>
                 {PULSE_MODULE_STATUS_LABELS[pulseModule.status]}
@@ -175,7 +175,7 @@ export const VerificationPackagePanel = ({ googleRefreshToken = 0 }: { googleRef
   return (
     <section className="pulse-card p-5 sm:p-6">
       <div className="mb-5">
-        <h2 className="text-base font-semibold text-base-content">Stage 1 · Verification package</h2>
+        <h2 className="pulse-section-title">Stage 1 · Verification package</h2>
         <p className="mt-1 text-sm text-pulse-muted">
           Enable each signal source and connect it here. World ID is always included. Passive modules need a signer
           address before monitoring can start.
@@ -187,9 +187,7 @@ export const VerificationPackagePanel = ({ googleRefreshToken = 0 }: { googleRef
           ([category, modules]) =>
             modules.length > 0 ? (
               <div key={category}>
-                <h3 className="mb-3 text-xs font-semibold uppercase tracking-wide text-pulse-muted">
-                  {PULSE_MODULE_CATEGORY_LABELS[category]}
-                </h3>
+                <h3 className="pulse-label mb-3">{PULSE_MODULE_CATEGORY_LABELS[category]}</h3>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {modules.map(pulseModule => {
                     const enabled = enabledModuleIds.includes(pulseModule.id);
@@ -227,7 +225,7 @@ export const VerificationPackagePanel = ({ googleRefreshToken = 0 }: { googleRef
       </div>
 
       <div className="mt-8 border-t border-base-content/10 pt-6">
-        <h3 className="mb-1 text-sm font-semibold">Trusted requestors (optional)</h3>
+        <h3 className="pulse-item-title mb-1">Trusted requestors (optional)</h3>
         <p className="mb-3 text-xs text-pulse-muted">
           People who may request a formal evaluation — for example a beneficiary or emergency contact. They claim their
           slot with World ID Device verification.

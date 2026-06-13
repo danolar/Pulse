@@ -50,7 +50,7 @@ export const OwnerRequestorActions = ({ actingAs, lifecycle, orbBound, profileId
 
   return (
     <section className="pulse-card p-5 sm:p-6">
-      <h2 className="mb-1 text-base font-semibold text-base-content">
+      <h2 className="pulse-section-title mb-1">
         {actingAs === "owner" ? "Owner actions" : "Requestor actions"}
       </h2>
       <p className="mb-4 text-sm text-pulse-muted">

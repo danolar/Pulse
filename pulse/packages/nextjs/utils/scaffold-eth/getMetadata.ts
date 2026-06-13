@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 const baseUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   : `http://localhost:${process.env.PORT || 3000}`;
-const titleTemplate = "%s | Pulse";
+const titleTemplate = "%s | pulse";
 
 export const getMetadata = ({
   title,
@@ -46,11 +46,17 @@ export const getMetadata = ({
     icons: {
       icon: [
         {
-          url: "/favicon.png",
-          sizes: "32x32",
-          type: "image/png",
+          url: "/brand/pulse-icon.svg",
+          sizes: "512x512",
+          type: "image/svg+xml",
+        },
+        {
+          url: "/brand/pulse-mark.svg",
+          sizes: "48x48",
+          type: "image/svg+xml",
         },
       ],
+      apple: "/brand/pulse-icon.svg",
     },
   };
 };

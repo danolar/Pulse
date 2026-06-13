@@ -60,7 +60,7 @@ export const ChainlinkActivityPanel = () => {
     <section className="pulse-card p-5 sm:p-6">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-base font-semibold text-base-content">Passive · ONCHAIN_TX (CRE)</h2>
+          <h2 className="pulse-section-title">Passive · ONCHAIN_TX (CRE)</h2>
           <p className="text-sm text-pulse-muted">
             Chainlink CRE keeper workflow evaluates wallet activity and reports via authorized adapter. Silent by
             default — no owner action required.

@@ -83,8 +83,9 @@ const SetupWizard = () => {
   return (
     <PageShell>
       <SectionHeader
-        title="Profile setup"
-        subtitle="Configure your signal package, prove identity with World ID, then choose a monitoring rhythm."
+        title="profile setup"
+        eyebrow="verification package"
+        subtitle="configure signal sources, prove identity with World ID, then choose a monitoring rhythm."
       />
 
       <div className="mb-6 grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -93,8 +94,8 @@ const SetupWizard = () => {
             key={step.label}
             className="rounded-2xl border border-base-content/10 bg-base-200/30 px-3 py-2.5 text-center"
           >
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-pulse-muted">Stage {index + 1}</p>
-            <p className="text-sm font-semibold text-base-content">{step.label}</p>
+            <p className="pulse-label m-0 text-[10px]">Stage {index + 1}</p>
+            <p className="pulse-item-title m-0">{step.label}</p>
             <p className="text-[11px] text-pulse-muted">{step.detail}</p>
           </div>
         ))}
@@ -105,7 +106,7 @@ const SetupWizard = () => {
 
         <section className="pulse-card p-5 sm:p-6">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-base font-semibold">Stage 2a · Identity (Device)</h2>
+            <h2 className="pulse-section-title">Stage 2a · Identity (Device)</h2>
             {deviceVerified ? (
               <span className="badge badge-sm border-none bg-success/15 text-success">Device bound</span>
             ) : null}
@@ -136,7 +137,7 @@ const SetupWizard = () => {
 
         <section className={`pulse-card p-5 sm:p-6 ${deviceVerified ? "" : "opacity-60"}`}>
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-base font-semibold">Stage 2b · Identity (Orb)</h2>
+            <h2 className="pulse-section-title">Stage 2b · Identity (Orb)</h2>
             {orbBound ? <span className="badge badge-sm border-none bg-accent/15 text-accent">Orb bound</span> : null}
           </div>
           <p className="mb-4 text-sm text-pulse-muted">
@@ -157,7 +158,7 @@ const SetupWizard = () => {
 
         <section className={`pulse-card p-5 sm:p-6 ${deviceVerified ? "" : "opacity-60"}`}>
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-base font-semibold">Stage 3 · Monitoring profile</h2>
+            <h2 className="pulse-section-title">Stage 3 · Monitoring profile</h2>
             {configSaved ? <span className="badge badge-sm border-none bg-success/15 text-success">Saved</span> : null}
           </div>
 

@@ -1,9 +1,9 @@
 {
-  "name": "Pulse",
-  "description": "Open weighted verification protocol for onchain liveness and behavioral attestations.",
-  "iconPath": "logo.svg",
+  "name": "pulse",
+  "description": "onchain liveness oracle — is this human still here?",
+  "iconPath": "brand/pulse-icon.svg",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f5f2ec",
-  "theme_color": "#1e405c"
+  "background_color": "#f8f6ff",
+  "theme_color": "#4c66ff"
 }
