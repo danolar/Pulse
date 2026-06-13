@@ -10,6 +10,7 @@ import {
 } from "~~/components/pulse/modules/VerificationPackagePanel";
 import { MonitoringWindowSetup } from "~~/components/pulse/setup/MonitoringWindowSetup";
 import { SetupStageBar } from "~~/components/pulse/setup/SetupStageBar";
+import { RouteGuard } from "~~/components/pulse/layout/RouteGuard";
 import { PulseWorldIdButton } from "~~/components/pulse/world-id/PulseWorldIdButton";
 import { worldIdActions } from "~~/constants/pulseProtocol";
 import { SHOW_SCAFFOLD_DEV_UI } from "~~/constants/pulseAppConfig";
@@ -73,7 +74,7 @@ const SetupWizard = () => {
   const handleActivate = () => {
     if (!validateEnabledModulesForActivation()) return;
     mockCompleteSetup();
-    router.push("/");
+    router.push("/console");
   };
 
   return (
@@ -180,4 +181,10 @@ const SetupWizard = () => {
   );
 };
 
-export default SetupWizard;
+const SetupPage = () => (
+  <RouteGuard>
+    <SetupWizard />
+  </RouteGuard>
+);
+
+export default SetupPage;

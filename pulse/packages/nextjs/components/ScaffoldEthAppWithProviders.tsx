@@ -1,34 +1,12 @@
 "use client";
 
-import { RainbowKitProvider, lightTheme } from "@rainbow-me/rainbowkit";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppProgressBar as ProgressBar } from "next-nprogress-bar";
-import { Toaster } from "react-hot-toast";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { RainbowKitProvider, lightTheme } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
-import { Footer } from "~~/components/Footer";
-import { Header } from "~~/components/Header";
-import { DevFloatingBar } from "~~/components/pulse";
-import { PulseProfileSync } from "~~/components/pulse/PulseProfileSync";
+import { AppLayout } from "~~/components/pulse/layout/AppLayout";
 import { BlockieAvatar } from "~~/components/scaffold-eth";
-import { SHOW_SCAFFOLD_DEV_UI } from "~~/constants/pulseAppConfig";
 import { wagmiConfig } from "~~/services/web3/wagmiConfig";
-
-const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <>
-      <div className={`flex flex-col min-h-screen `}>
-        <PulseProfileSync />
-        <Header />
-        <main className={`relative flex flex-1 flex-col ${SHOW_SCAFFOLD_DEV_UI ? "pb-24" : "pb-6"}`}>
-          {children}
-        </main>
-        <Footer />
-        <DevFloatingBar />
-      </div>
-      <Toaster />
-    </>
-  );
-};
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,7 +30,7 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
           })}
         >
           <ProgressBar height="3px" color="#4C66FF" />
-          <ScaffoldEthApp>{children}</ScaffoldEthApp>
+          <AppLayout>{children}</AppLayout>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

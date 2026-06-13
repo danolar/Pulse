@@ -1,5 +1,12 @@
 export const PULSE_LOGO_ON_LIGHT = "/brand/pulse-logo-on-light.svg";
 
+/** Single source for landing hero tagline (Pulse Explorer). */
+export const PULSE_TAGLINE = "Configurable onchain attestation oracle";
+
+/** Landing note: Explorer is dev console, not the consumer app. */
+export const PULSE_EXPLORER_NOTE =
+  "This explorer is a developer console and live state viewer for Pulse profiles — not the end-user application consumers deploy.";
+
 export const PULSE_COLORS = {
   accent: "#4C66FF",
   primary: "#4C66FF",

@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { toWalrusBlobRef, WALRUS_DEMO_BLOBS } from "~~/constants/walrusDemoBlobs";
 import { DEFAULT_ENABLED_MODULE_IDS, getPulseModule } from "~~/modules/pulse";
 import {
-  type ActingRole,
   type AuthorizedRequestor,
   type ConsoleSignal,
   DEFAULT_PROFILE_CONFIG,
@@ -56,7 +55,6 @@ const initialSignals: ConsoleSignal[] = [
 ];
 
 type PulseState = {
-  actingAs: ActingRole;
   profileId: string | null;
   deviceVerified: boolean;
   deviceNullifierHash: string | null;
@@ -74,7 +72,6 @@ type PulseState = {
   accumulatedWeight: number;
   attempts: VerificationAttempt[];
   signals: ConsoleSignal[];
-  setActingAs: (role: ActingRole) => void;
   mockCreateProfile: (profileId: string, verification?: PulseWorldIdVerification) => void;
   mockBindOrb: (verification?: PulseWorldIdVerification) => void;
   mockSaveConfig: (config: ProfileConfig) => void;
@@ -108,7 +105,6 @@ export type PersistedPulseProfile = Pick<
   | "adapters"
   | "requestors"
   | "enabledModuleIds"
-  | "actingAs"
   | "lifecycle"
   | "epoch"
   | "accumulatedWeight"
@@ -118,9 +114,8 @@ export type PersistedPulseProfile = Pick<
 
 export const getInitialPulseState = (): Omit<
   PulseState,
-  keyof Pick<PulseState, "setActingAs" | "mockCreateProfile" | "mockBindOrb" | "mockSaveConfig" | "toggleModule" | "ensureModuleEnabled" | "setModuleAdapter" | "mockAddRequestor" | "mockClaimRequestorSlot" | "mockCompleteSetup" | "mockCheckIn" | "mockRequestExtension" | "mockBlock" | "mockResurrect" | "mockRequestEvaluation" | "mockRespondToAttempt" | "mockForceOpenAttempt" | "appendSignal">
+  keyof Pick<PulseState, "mockCreateProfile" | "mockBindOrb" | "mockSaveConfig" | "toggleModule" | "ensureModuleEnabled" | "setModuleAdapter" | "mockAddRequestor" | "mockClaimRequestorSlot" | "mockCompleteSetup" | "mockCheckIn" | "mockRequestExtension" | "mockBlock" | "mockResurrect" | "mockRequestEvaluation" | "mockRespondToAttempt" | "mockForceOpenAttempt" | "appendSignal">
 > => ({
-  actingAs: "owner",
   profileId: null,
   deviceVerified: false,
   deviceNullifierHash: null,
@@ -153,7 +148,6 @@ export const toPersistedProfile = (state: PulseState): PersistedPulseProfile => 
   adapters: state.adapters,
   requestors: state.requestors,
   enabledModuleIds: state.enabledModuleIds,
-  actingAs: state.actingAs,
   lifecycle: state.lifecycle,
   epoch: state.epoch,
   accumulatedWeight: state.accumulatedWeight,
@@ -163,8 +157,6 @@ export const toPersistedProfile = (state: PulseState): PersistedPulseProfile => 
 
 export const usePulseStore = create<PulseState>((set, get) => ({
   ...getInitialPulseState(),
-
-  setActingAs: role => set({ actingAs: role }),
 
   mockCreateProfile: (profileId, verification) => {
     if (verification && !isMockWorldIdVerification(verification) && verification.level !== "device") {

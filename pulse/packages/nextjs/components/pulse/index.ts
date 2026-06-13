@@ -1,5 +1,12 @@
 export { PageShell } from "./layout/PageShell";
 export { SectionHeader } from "./layout/SectionHeader";
+export { AppLayout } from "./layout/AppLayout";
+export { TopBar } from "./layout/TopBar";
+export { RouteGuard } from "./layout/RouteGuard";
+export { ConnectVacant } from "./layout/ConnectVacant";
+export { ActingAsProvider, useActingAs } from "./layout/ActingAsContext";
+export { ConnectionKitPanel } from "./layout/ConnectionKitPanel";
+export { SlideOver } from "./layout/SlideOver";
 export { DevFloatingBar } from "./layout/DevFloatingBar";
 export { MetricCard } from "./cards/MetricCard";
 export { AddCard } from "./cards/AddCard";
