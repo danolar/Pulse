@@ -1,5 +1,5 @@
 export type { VoiceConnectionPublic, VoiceCallAttemptPublic } from "./types";
-export { getTwilioVoiceEnv, isVoiceCallsEnabled, requireWebhookBaseUrl } from "./config";
+export { getTwilioVoiceEnv, isVoiceCallsEnabled, requireWebhookBaseUrl, getTwilioWebhookUrl, shouldValidateTwilioWebhooks } from "./config";
 export {
   getVoiceConnection,
   getVerifiedPhoneNumber,

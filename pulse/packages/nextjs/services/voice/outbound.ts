@@ -1,6 +1,6 @@
 import twilio from "twilio";
 import { requireWebhookBaseUrl } from "./config";
-import { attachCallSid, createCallAttempt, getCallAttempt, countCallsToday } from "./callStore";
+import { attachCallSid, createCallAttempt, countCallsToday } from "./callStore";
 import { getVerifiedPhoneNumber } from "./connectionStore";
 import { generateCheckInCode } from "./phone";
 import { getTwilioClient } from "./twilioClient";
@@ -8,17 +8,17 @@ import { getTwilioVoiceEnv } from "./config";
 
 const VoiceResponse = twilio.twiml.VoiceResponse;
 
-export const buildGatherTwiml = (attemptId: string, message: string): string => {
+export const buildGatherTwiml = (attemptId: string, message: string, tries = 0): string => {
   const baseUrl = requireWebhookBaseUrl();
   const response = new VoiceResponse();
   const gather = response.gather({
     numDigits: 4,
-    action: `${baseUrl}/api/voice/gather?attemptId=${encodeURIComponent(attemptId)}`,
+    action: `${baseUrl}/api/voice/gather?attemptId=${encodeURIComponent(attemptId)}&tries=${tries}`,
     method: "POST",
-    timeout: 10,
+    timeout: 30,
+    finishOnKey: "#",
   });
   gather.say({ voice: "Polly.Joanna" }, message);
-  response.say({ voice: "Polly.Joanna" }, "We did not receive a code. Goodbye.");
   return response.toString();
 };
 
@@ -72,10 +72,5 @@ export const initiateOutboundCall = async (input: {
   return { attemptId: attempt.id, checkInCode, callSid: call.sid };
 };
 
-export const getAttemptIntroMessage = (attemptId: string): string => {
-  const attempt = getCallAttempt(attemptId);
-  if (!attempt) {
-    return "This is Pulse. Enter your four digit check-in code on the keypad now.";
-  }
-  return "This is Pulse, your onchain liveness check-in. Enter the four digit code shown in your Pulse console on the keypad now.";
-};
+export const getAttemptIntroMessage = (): string =>
+  "This is Pulse. Enter the four digit code from your screen, then press pound.";

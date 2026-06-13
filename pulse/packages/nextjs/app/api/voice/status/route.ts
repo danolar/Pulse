@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import {
   completeCallAttempt,
   getCallAttempt,
-  requireWebhookBaseUrl,
+  getTwilioWebhookUrl,
+  shouldValidateTwilioWebhooks,
   validateTwilioRequest,
 } from "~~/services/voice";
 
@@ -39,9 +40,9 @@ export async function POST(request: Request) {
   const formData = await request.formData();
   const params = formDataToRecord(formData);
   const signature = request.headers.get("x-twilio-signature");
-  const url = `${requireWebhookBaseUrl()}/api/voice/status?attemptId=${encodeURIComponent(attemptId)}`;
+  const url = getTwilioWebhookUrl(request);
 
-  if (!validateTwilioRequest(url, params, signature)) {
+  if (shouldValidateTwilioWebhooks() && !validateTwilioRequest(url, params, signature)) {
     return new NextResponse("Invalid Twilio signature", { status: 403 });
   }
 

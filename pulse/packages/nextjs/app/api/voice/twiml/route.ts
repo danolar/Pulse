@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     return new NextResponse("Missing attemptId", { status: 400 });
   }
 
-  const twiml = buildGatherTwiml(attemptId, getAttemptIntroMessage(attemptId));
+  const twiml = buildGatherTwiml(attemptId, getAttemptIntroMessage(), 0);
   return new NextResponse(twiml, {
     status: 200,
     headers: { "Content-Type": "text/xml" },

@@ -184,7 +184,9 @@ export const VoiceAgentConnect = ({ moduleEnabled, onLinkedChange }: VoiceAgentC
             <div className="rounded-2xl border border-primary/20 bg-primary/5 px-3 py-2">
               <p className="pulse-label mb-1">Test check-in code</p>
               <p className="font-mono text-2xl tracking-[0.3em] text-base-content">{testCall.checkInCode}</p>
-              <p className="mt-1 text-xs text-pulse-muted">Enter this code on your phone keypad when Pulse calls.</p>
+              <p className="mt-1 text-xs text-pulse-muted">
+            Enter this code on your phone keypad when Pulse calls, then press #.
+          </p>
             </div>
           ) : null}
           <div className="flex flex-wrap gap-2">

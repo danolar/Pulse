@@ -60,3 +60,13 @@ export const requireWebhookBaseUrl = (): string => {
   }
   return webhookBaseUrl.replace(/\/$/, "");
 };
+
+/** Twilio signs the public ngrok URL — not localhost from request.url. */
+export const getTwilioWebhookUrl = (request: Request): string => {
+  const baseUrl = requireWebhookBaseUrl();
+  const { pathname, search } = new URL(request.url);
+  return `${baseUrl}${pathname}${search}`;
+};
+
+export const shouldValidateTwilioWebhooks = (): boolean =>
+  process.env.TWILIO_VALIDATE_WEBHOOKS?.trim().toLowerCase() !== "false";
