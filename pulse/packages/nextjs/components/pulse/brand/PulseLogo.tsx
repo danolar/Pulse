@@ -1,41 +1,10 @@
-import { PulseMark } from "~~/components/pulse/brand/PulseMark";
-import { PULSE_COLORS } from "~~/constants/pulseBrand";
-
 type PulseLogoProps = {
-  markSize?: number;
-  showTagline?: boolean;
   className?: string;
-  animateMark?: boolean;
 };
 
-const WORDMARK_HEIGHT = "1.375rem";
-
-export const PulseLogo = ({
-  markSize = 22,
-  showTagline = true,
-  className = "",
-  animateMark = true,
-}: PulseLogoProps) => {
+export const PulseLogo = ({ className = "h-11 w-auto sm:h-12" }: PulseLogoProps) => {
   return (
-    <div className={`flex min-w-0 gap-2 ${className}`}>
-      <div className="flex shrink-0 items-center" style={{ height: WORDMARK_HEIGHT }}>
-        <PulseMark
-          size={markSize}
-          color={PULSE_COLORS.blue}
-          tone="light"
-          className={animateMark ? "shrink-0 animate-pulse-rings" : "shrink-0"}
-        />
-      </div>
-
-      <div className="hidden min-w-0 flex-col sm:flex">
-        <span
-          className="pulse-wordmark flex items-center text-[1.375rem] leading-none"
-          style={{ height: WORDMARK_HEIGHT }}
-        >
-          pulse
-        </span>
-        {showTagline ? <span className="pulse-logo-tagline mt-[3px]">onchain liveness oracle</span> : null}
-      </div>
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src="/logo.svg" alt="Pulse" className={`block shrink-0 ${className}`} />
   );
 };

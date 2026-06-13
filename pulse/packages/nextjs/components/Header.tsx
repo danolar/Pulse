@@ -91,7 +91,7 @@ export const Header = () => {
 
   return (
     <header className="sticky top-0 z-20 shrink-0 border-b border-base-content/5 pulse-glass pt-[env(safe-area-inset-top)]">
-      <div className="pulse-page-x mx-auto flex h-14 max-w-7xl flex-nowrap items-center justify-between gap-2">
+      <div className="pulse-page-x mx-auto flex h-16 max-w-7xl flex-nowrap items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-1">
           <div className="relative shrink-0 lg:hidden" ref={mobileMenuRef}>
             <button
@@ -131,8 +131,8 @@ export const Header = () => {
             ) : null}
           </div>
 
-          <Link href="/" passHref className="flex min-w-0 items-center">
-            <PulseLogo />
+          <Link href="/" passHref className="flex min-w-0 items-center py-1">
+            <PulseLogo className="h-11 w-auto min-w-[6.75rem] sm:h-12 sm:min-w-[8rem]" />
           </Link>
 
           <nav className="ml-2 hidden items-center gap-0.5 lg:flex" aria-label="Main navigation">
