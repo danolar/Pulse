@@ -12,6 +12,7 @@ import { MonitoringWindowSetup } from "~~/components/pulse/setup/MonitoringWindo
 import { SetupStageBar } from "~~/components/pulse/setup/SetupStageBar";
 import { PulseWorldIdButton } from "~~/components/pulse/world-id/PulseWorldIdButton";
 import { worldIdActions } from "~~/constants/pulseProtocol";
+import { SHOW_SCAFFOLD_DEV_UI } from "~~/constants/pulseAppConfig";
 import { usePulseStore } from "~~/services/store/pulseStore";
 import { notification } from "~~/utils/scaffold-eth/notification";
 import type { PulseWorldIdVerification } from "~~/utils/worldIdProof";
@@ -77,7 +78,7 @@ const SetupWizard = () => {
 
   return (
     <>
-      <PageShell className="pb-32 sm:pb-36">
+      <PageShell className={SHOW_SCAFFOLD_DEV_UI ? "pb-64 sm:pb-72" : "pb-52 sm:pb-56"}>
         <SectionHeader
           title="profile setup"
           eyebrow="verification package"
@@ -166,6 +167,11 @@ const SetupWizard = () => {
               Activate profile & open console
             </PulseButton>
           </section>
+
+          <div
+            aria-hidden
+            className={SHOW_SCAFFOLD_DEV_UI ? "min-h-8 sm:min-h-10" : "min-h-4"}
+          />
         </div>
       </PageShell>
 

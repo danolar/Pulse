@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { FooterContent } from "~~/components/Footer";
 import { SHOW_SCAFFOLD_DEV_UI } from "~~/constants/pulseAppConfig";
 
 const SETUP_STAGES = [
@@ -10,6 +10,22 @@ const SETUP_STAGES = [
   { id: "setup-stage-identity", label: "Identity", detail: "World ID Device + Orb" },
   { id: "setup-stage-rhythm", label: "Rhythm", detail: "When Pulse checks on you" },
 ] as const;
+
+const StagePulseIndicator = () => (
+  <span className="relative flex h-5 w-5 shrink-0 items-center justify-center" aria-hidden>
+    <motion.span
+      className="absolute inset-0 rounded-full border border-primary/40"
+      animate={{ scale: [1, 2.2], opacity: [0.5, 0] }}
+      transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut" }}
+    />
+    <motion.span
+      className="absolute inset-0 rounded-full border border-primary/25"
+      animate={{ scale: [1, 1.7], opacity: [0.35, 0] }}
+      transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut", delay: 0.35 }}
+    />
+    <span className="relative h-2 w-2 rounded-full bg-primary" />
+  </span>
+);
 
 export const SetupStageBar = () => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -48,61 +64,51 @@ export const SetupStageBar = () => {
     return () => observer.disconnect();
   }, []);
 
-  const bottomOffset = SHOW_SCAFFOLD_DEV_UI ? "bottom-20 sm:bottom-24" : "bottom-4 sm:bottom-6";
+  const bottomOffset = SHOW_SCAFFOLD_DEV_UI ? "bottom-16 sm:bottom-[4.5rem]" : "bottom-0";
+  const activeStage = SETUP_STAGES[activeIndex];
 
   return (
-    <div
-      className={`pointer-events-none fixed inset-x-0 z-30 flex justify-center px-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] ${bottomOffset}`}
+    <nav
+      className={`fixed inset-x-0 z-30 border-t border-base-content/6 bg-base-100/80 pb-[max(0.625rem,env(safe-area-inset-bottom))] backdrop-blur-md ${bottomOffset}`}
       aria-label="Setup progress"
-      role="navigation"
     >
-      <div className="pointer-events-auto w-full max-w-2xl overflow-hidden rounded-2xl border border-base-content/8 bg-base-100/92 shadow-pulse-md backdrop-blur-md">
-        <div className="relative h-1 bg-base-200">
-          <motion.div
-            className="absolute inset-y-0 left-0 rounded-full bg-primary"
-            initial={false}
-            animate={{ width: `${((activeIndex + 1) / SETUP_STAGES.length) * 100}%` }}
-            transition={{ type: "spring", stiffness: 260, damping: 28 }}
-          />
-        </div>
-
-        <ol className="grid grid-cols-3 gap-0.5 p-2 sm:gap-1 sm:p-3">
+      <div className="pulse-page-x mx-auto max-w-3xl px-4 pt-3">
+        <ol className="flex items-center justify-center gap-6 sm:gap-10">
           {SETUP_STAGES.map((stage, index) => {
             const isActive = index === activeIndex;
-            const isComplete = index < activeIndex;
 
             return (
-              <li key={stage.id} className="min-w-0">
-                <motion.div
-                  animate={{
-                    scale: isActive ? 1.02 : 1,
-                    opacity: isActive || isComplete ? 1 : 0.5,
-                  }}
+              <li key={stage.id}>
+                <motion.span
+                  animate={{ opacity: isActive ? 1 : 0.3 }}
                   transition={{ duration: 0.25 }}
-                  className={`rounded-xl px-1 py-1.5 text-center sm:px-2 ${isActive ? "bg-primary/8" : ""}`}
+                  className={`flex items-center text-sm font-medium tracking-wide sm:text-[0.9375rem] ${
+                    isActive ? "gap-3 text-base-content" : "text-base-content/70"
+                  }`}
                   aria-current={isActive ? "step" : undefined}
                 >
-                  <p className="pulse-label m-0 text-[9px] sm:text-[10px]">Stage {index + 1}</p>
-                  <div className="flex items-center justify-center gap-1">
-                    {isComplete ? (
-                      <Check className="h-3 w-3 shrink-0 text-success" aria-hidden />
-                    ) : isActive ? (
-                      <motion.span
-                        className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
-                        animate={{ scale: [1, 1.4, 1], opacity: [1, 0.65, 1] }}
-                        transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-                        aria-hidden
-                      />
-                    ) : null}
-                    <p className="pulse-item-title m-0 truncate text-xs sm:text-sm">{stage.label}</p>
-                  </div>
-                  <p className="m-0 hidden truncate text-[10px] text-pulse-muted sm:block">{stage.detail}</p>
-                </motion.div>
+                  {isActive ? <StagePulseIndicator /> : null}
+                  {stage.label}
+                </motion.span>
               </li>
             );
           })}
         </ol>
+
+        <motion.p
+          key={activeStage.id}
+          initial={{ opacity: 0, y: 2 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className="m-0 pt-2 text-center text-xs text-pulse-muted"
+        >
+          {activeStage.detail}
+        </motion.p>
+
+        <div className="mt-3 border-t border-base-content/5 pt-3">
+          <FooterContent compact />
+        </div>
       </div>
-    </div>
+    </nav>
   );
 };
