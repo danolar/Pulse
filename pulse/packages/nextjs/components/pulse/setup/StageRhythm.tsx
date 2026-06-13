@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
 import { NumberField } from "~~/components/pulse/ui/NumberField";
+import { RandomnessBlock } from "~~/components/pulse/setup/rhythm/RandomnessBlock";
 import { CONFIG_FIELD_HINTS } from "~~/constants/pulseProtocol";
 import { DEMO_RHYTHM_CONFIG, describeMonitoringRhythm } from "~~/constants/monitoringProfiles";
 import type { ProfileConfig } from "~~/types/pulse";
@@ -134,6 +135,8 @@ export const StageRhythm = ({
       />
 
       <PlainLanguageSummary config={draftConfig} />
+
+      <RandomnessBlock />
 
       <div className="flex flex-wrap items-center gap-3">
         <PulseButton variant="secondary" disabled={disabled} onClick={applyDemoPreset}>

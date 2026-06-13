@@ -4,9 +4,9 @@ import { isSignalsStageReady } from "~~/components/pulse/setup/signals/signalsVa
 export type SetupStageId = "signals" | "identity" | "rhythm";
 
 export const SETUP_STAGES: { id: SetupStageId; label: string; detail: string }[] = [
-  { id: "signals", label: "Signals", detail: "Adapters & trusted requestors" },
-  { id: "identity", label: "Identity", detail: "World ID Device + Orb" },
-  { id: "rhythm", label: "Rhythm", detail: "Monitoring cadence" },
+  { id: "signals", label: "Signals", detail: "Active adapters & trusted requestors" },
+  { id: "identity", label: "Identity", detail: "World ID reference + dev test" },
+  { id: "rhythm", label: "Rhythm", detail: "Monitoring cadence & randomness" },
 ];
 
 export type SetupStageProgress = {
@@ -20,17 +20,11 @@ export const getSetupStageProgress = (state: {
   configSaved: boolean;
   adapters: SignalAdapter[];
   requestors: AuthorizedRequestor[];
-  enabledModuleIds: string[];
-}): SetupStageProgress => {
-  const hasAccessLists = state.adapters.length > 0 || state.requestors.length > 0;
-  const signalsDone = isSignalsStageReady() && (hasAccessLists || state.enabledModuleIds.length > 0);
-
-  return {
-    signalsDone,
-    identityDone: state.deviceVerified,
-    rhythmDone: state.configSaved,
-  };
-};
+}): SetupStageProgress => ({
+  signalsDone: isSignalsStageReady(),
+  identityDone: state.deviceVerified,
+  rhythmDone: state.configSaved,
+});
 
 export const isStageUnlocked = (stageId: SetupStageId, progress: SetupStageProgress): boolean => {
   if (stageId === "signals") return true;

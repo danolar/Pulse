@@ -3,6 +3,8 @@
 import { useAccount } from "wagmi";
 import { PulseWorldIdButton } from "~~/components/pulse/world-id/PulseWorldIdButton";
 import { VerifiedCheck } from "~~/components/pulse/ui/VerifiedCheck";
+import { WorldIDConfigStatus } from "~~/components/pulse/setup/identity/WorldIDConfigStatus";
+import { DEV_TEST_SECTION_TITLE } from "~~/constants/explorerCopy";
 import { worldIdActions } from "~~/constants/pulseProtocol";
 import { usePulseStore } from "~~/services/store/pulseStore";
 import { notification } from "~~/utils/scaffold-eth/notification";
@@ -18,103 +20,63 @@ const runVerifiedAction = (action: (verification: PulseWorldIdVerification) => v
   };
 };
 
-/** Spec alias — wraps IDKitWidget + contract write path via PulseWorldIdButton. */
 const WorldIDButton = PulseWorldIdButton;
 
-const IdentityStep = ({
-  profileKey,
-  deviceVerified,
-  onCreateProfile,
-}: {
-  profileKey: string;
-  deviceVerified: boolean;
-  onCreateProfile: (verification: PulseWorldIdVerification) => void;
-}) => (
-  <section className="pulse-card p-5 sm:p-6">
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-      <h2 className="pulse-section-title">Device identity</h2>
-      <VerifiedCheck verified={deviceVerified} label="Device bound" />
-    </div>
-    <p className="mb-2 text-sm text-pulse-muted">
-      Creates your profile and binds your Device identity. Profile key:{" "}
-      <span className="font-mono text-xs">{profileKey}</span>
-    </p>
-    <p className="mb-4 text-xs text-pulse-muted">Connected wallet is the onchain profile owner.</p>
-    <WorldIDButton
-      level="device"
-      action={worldIdActions.createProfile(profileKey)}
-      signal={profileKey}
-      label="Verify & create profile"
-      disabled={deviceVerified}
-      onVerified={runVerifiedAction(onCreateProfile)}
-    />
-  </section>
-);
-
-const UnlockNote = () => (
-  <p className="mb-4 text-xs text-pulse-muted">
-    Unlocks freeze evaluation and reverse alarm controls in the console (Orb-gated owner actions).
-  </p>
-);
-
-const OrbBindStep = ({
-  profileKey,
-  deviceVerified,
-  orbBound,
-  onBindOrb,
-}: {
-  profileKey: string;
-  deviceVerified: boolean;
-  orbBound: boolean;
-  onBindOrb: (verification: PulseWorldIdVerification) => void;
-}) => (
-  <section className={`pulse-card p-5 sm:p-6 ${deviceVerified ? "" : "opacity-60"}`}>
-    <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-      <h2 className="pulse-section-title">Orb identity</h2>
-      <VerifiedCheck verified={orbBound} label="Orb bound" />
-    </div>
-    <p className="mb-2 text-sm text-pulse-muted">
-      Separate Orb proof for the highest-assurance owner actions.
-    </p>
-    <UnlockNote />
-    <WorldIDButton
-      level="orb"
-      action={worldIdActions.bindOrb(profileKey)}
-      signal={profileKey}
-      label="Bind Orb identity"
-      disabled={!deviceVerified || orbBound}
-      onVerified={runVerifiedAction(onBindOrb)}
-    />
-  </section>
-);
-
-const TestingCallout = () => (
-  <p className="rounded-2xl border border-base-content/10 bg-base-200/40 px-4 py-3 text-xs leading-relaxed text-pulse-muted">
-    In production, the consumer app initiates identity steps. Pulse Explorer exposes create-profile and bind-orb here
-    for integration testing.
-  </p>
-);
-
-export const StageIdentity = () => {
+const DevTestStep = () => {
   const { address } = useAccount();
   const { deviceVerified, orbBound, mockCreateProfile, mockBindOrb } = usePulseStore();
-
   const profileKey = address ?? "pending";
 
   return (
-    <div className="space-y-6">
-      <IdentityStep
-        profileKey={profileKey}
-        deviceVerified={deviceVerified}
-        onCreateProfile={verification => mockCreateProfile(profileKey, verification)}
-      />
-      <OrbBindStep
-        profileKey={profileKey}
-        deviceVerified={deviceVerified}
-        orbBound={orbBound}
-        onBindOrb={mockBindOrb}
-      />
-      <TestingCallout />
-    </div>
+    <section className="pulse-card border-dashed border-primary/30 p-5 sm:p-6">
+      <p className="pulse-label mb-2 text-primary">{DEV_TEST_SECTION_TITLE}</p>
+      <h2 className="pulse-section-title mb-4">Contract lab · create profile & bind Orb</h2>
+
+      <div className="space-y-6">
+        <div>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <h3 className="text-sm font-medium">Device identity</h3>
+            <VerifiedCheck verified={deviceVerified} label="Device bound" />
+          </div>
+          <p className="mb-3 text-sm text-pulse-muted">
+            Creates your dev profile and binds Device identity. Profile key:{" "}
+            <span className="font-mono text-xs">{profileKey}</span>
+          </p>
+          <WorldIDButton
+            level="device"
+            action={worldIdActions.createProfile(profileKey)}
+            signal={profileKey}
+            label="Verify & create profile"
+            disabled={deviceVerified}
+            onVerified={runVerifiedAction(v => mockCreateProfile(profileKey, v))}
+          />
+        </div>
+
+        <div className={deviceVerified ? "" : "opacity-60"}>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <h3 className="text-sm font-medium">Orb identity</h3>
+            <VerifiedCheck verified={orbBound} label="Orb bound" />
+          </div>
+          <p className="mb-3 text-sm text-pulse-muted">
+            Orb proof for freeze evaluation and reverse alarm (owner-only, highest assurance).
+          </p>
+          <WorldIDButton
+            level="orb"
+            action={worldIdActions.bindOrb(profileKey)}
+            signal={profileKey}
+            label="Bind Orb identity"
+            disabled={!deviceVerified || orbBound}
+            onVerified={runVerifiedAction(mockBindOrb)}
+          />
+        </div>
+      </div>
+    </section>
   );
 };
+
+export const StageIdentity = () => (
+  <div className="space-y-6">
+    <WorldIDConfigStatus />
+    <DevTestStep />
+  </div>
+);

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAccount } from "wagmi";
 import { PageShell, SectionHeader } from "~~/components/pulse";
 import { validateEnabledModulesForActivation } from "~~/components/pulse/setup/signals/signalsValidation";
 import { StageIdentity } from "~~/components/pulse/setup/StageIdentity";
@@ -21,6 +22,7 @@ import { usePulseStore } from "~~/services/store/pulseStore";
 
 export const SetupWizard = () => {
   const router = useRouter();
+  const { address } = useAccount();
   const store = usePulseStore();
   const { deviceVerified, configSaved, config, notificationTarget, mockSaveConfig, mockCompleteSetup } = store;
 
@@ -31,9 +33,8 @@ export const SetupWizard = () => {
         configSaved: store.configSaved,
         adapters: store.adapters,
         requestors: store.requestors,
-        enabledModuleIds: store.enabledModuleIds,
       }),
-    [store.deviceVerified, store.configSaved, store.adapters, store.requestors, store.enabledModuleIds],
+    [store.deviceVerified, store.configSaved, store.adapters, store.requestors],
   );
 
   const [currentStage, setCurrentStage] = useState<SetupStageId>(() => getDefaultSetupStage(progress));
@@ -60,7 +61,11 @@ export const SetupWizard = () => {
     if (!configSaved) return;
     if (!validateEnabledModulesForActivation()) return;
     mockCompleteSetup();
-    router.push("/console");
+    if (address) {
+      router.push(`/explorer/${address}`);
+    } else {
+      router.push("/explorer");
+    }
   };
 
   const scrollClearance = SHOW_SCAFFOLD_DEV_UI

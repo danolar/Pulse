@@ -29,9 +29,9 @@ export const WORLD_ID_ACTION_PATTERNS = [
 
 export const CONNECTION_KIT_INTEGRATION_STEPS = [
   {
-    title: "Use Pulse's World ID app_id in your World setup",
+    title: "Use Pulse's World ID app_id in your consumer app (e.g. Legacy Ledger)",
     explanation:
-      "Embed the same World ID app_id Pulse uses so proofs your users generate verify against the Pulse contract.",
+      "Embed the same World ID app_id Pulse uses so proofs your users generate in your app verify against the Pulse contract — not inside Pulse Explorer.",
     snippetKey: "appId" as const,
   },
   {

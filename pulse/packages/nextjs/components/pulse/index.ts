@@ -4,7 +4,6 @@ export { AppLayout } from "./layout/AppLayout";
 export { TopBar } from "./layout/TopBar";
 export { RouteGuard } from "./layout/RouteGuard";
 export { ConnectVacant } from "./layout/ConnectVacant";
-export { ActingAsProvider, useActingAs } from "./layout/ActingAsContext";
 export { ConnectionKitPanel } from "./layout/ConnectionKitPanel";
 export { SlideOver } from "./layout/SlideOver";
 export { CopyRow } from "./layout/CopyRow";
@@ -33,6 +32,7 @@ export {
 } from "~~/components/pulse/setup/signals/signalsValidation";
 /** @deprecated Use StageSignals */
 export { StageSignals as VerificationPackagePanel } from "~~/components/pulse/setup/StageSignals";
-export { OwnerRequestorActions } from "./console/OwnerRequestorActions";
-export { AttemptSequence } from "./console/AttemptSequence";
+export { AttemptSequence, CommitRevealCaption } from "./console/AttemptSequence";
 export { ConsoleSignalTimeline } from "./console/ConsoleSignalTimeline";
+export { AdaptersPage } from "./adapters/AdaptersPage";
+export { ProfileActions } from "./explorer/ProfileActions";

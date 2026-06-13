@@ -15,17 +15,7 @@ import {
 import type { PulseWorldIdVerification } from "~~/utils/worldIdProof";
 import { assertStoredNullifier, isMockWorldIdVerification } from "~~/utils/worldIdProof";
 
-const buildInitialAdapters = (): SignalAdapter[] =>
-  DEFAULT_ENABLED_MODULE_IDS.map(id => getPulseModule(id))
-    .filter((module): module is NonNullable<ReturnType<typeof getPulseModule>> => Boolean(module))
-    .filter(module => module.setupKind === "adapter")
-    .map(module => ({
-      id: crypto.randomUUID(),
-      moduleId: module.id,
-      address: "",
-      weight: module.suggestedWeight ?? 10,
-      label: module.adapterLabel ?? module.name,
-    }));
+const buildInitialAdapters = (): SignalAdapter[] => [];
 
 const buildAttempts = (count: number): VerificationAttempt[] =>
   Array.from({ length: count }, (_, index) => ({

@@ -1,38 +1,25 @@
-import { getPulseModule, isModuleReadyForSetup } from "~~/modules/pulse";
 import { usePulseStore } from "~~/services/store/pulseStore";
 import { notification } from "~~/utils/scaffold-eth/notification";
 
+const hasActiveProfileAdapter = (): boolean => {
+  const { adapters } = usePulseStore.getState();
+  return adapters.some(
+    adapter =>
+      adapter.address?.trim() &&
+      (adapter.weight > 0 || adapter.moduleId === "ai-agent"),
+  );
+};
+
 export const isSignalsStageReady = (): boolean => {
-  const { enabledModuleIds, adapters } = usePulseStore.getState();
-
-  for (const moduleId of enabledModuleIds) {
-    const module = getPulseModule(moduleId);
-    if (!module || module.setupKind !== "adapter" || !isModuleReadyForSetup(module)) continue;
-    if (moduleId === "ai-agent") continue;
-    const adapter = adapters.find(row => row.moduleId === moduleId);
-    if (!adapter?.address?.trim()) {
-      return false;
-    }
-  }
-
-  return true;
+  const { requestors } = usePulseStore.getState();
+  return hasActiveProfileAdapter() || requestors.length > 0;
 };
 
 export const validateEnabledModulesForActivation = (): boolean => {
   if (isSignalsStageReady()) return true;
 
-  const { enabledModuleIds, adapters } = usePulseStore.getState();
-
-  for (const moduleId of enabledModuleIds) {
-    const module = getPulseModule(moduleId);
-    if (!module || module.setupKind !== "adapter" || !isModuleReadyForSetup(module)) continue;
-    if (moduleId === "ai-agent") continue;
-    const adapter = adapters.find(row => row.moduleId === moduleId);
-    if (!adapter?.address?.trim()) {
-      notification.error(`Set a signer address for ${module.name} or disable it below.`);
-      return false;
-    }
-  }
-
-  return true;
+  notification.error(
+    "Authorize at least one adapter on your profile (via Adapters) or add a trusted requestor.",
+  );
+  return false;
 };
