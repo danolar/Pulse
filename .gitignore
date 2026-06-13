@@ -1,0 +1,6 @@
+# Local IDE / MCP config (secrets stay on machine)
+pulse/.cursor/*
+!pulse/.cursor/mcp.json.example
+pulse/.mcp/
+pulse/.mcp.json
+pulse/.local/

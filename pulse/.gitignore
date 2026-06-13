@@ -29,9 +29,9 @@ dist
 .env.test.local
 .env.production.local
 
-# cursor
-.cursor
-/pulse/.cursor
-# mcp
-.mcp
-/pulse/.mcp
+# cursor / local MCP (paths relative to pulse/)
+.cursor/*
+!.cursor/mcp.json.example
+.mcp/
+.mcp.json
+.local/

@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "context7": {
+      "url": "https://mcp.context7.com/mcp"
+    },
+    "chainlink": {
+      "command": "npx",
+      "args": ["-y", "@chainlink/mcp-server"]
+    },
+    "worldcoin-developer-portal": {
+      "url": "https://developer.world.org/api/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_WORLD_ID_MCP_API_KEY"
+      }
+    }
+  }
+}
