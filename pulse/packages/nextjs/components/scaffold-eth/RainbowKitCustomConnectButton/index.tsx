@@ -30,6 +30,10 @@ export const RainbowKitCustomConnectButton = () => {
         return (
           <>
             {(() => {
+              if (!mounted) {
+                return <div className="btn btn-primary btn-sm h-8 min-h-8 w-[5.5rem] shrink-0 opacity-0" aria-hidden />;
+              }
+
               if (!connected) {
                 return (
                   <button className="btn btn-primary btn-sm whitespace-nowrap" onClick={openConnectModal} type="button">
@@ -43,8 +47,8 @@ export const RainbowKitCustomConnectButton = () => {
               }
 
               return (
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <div className="flex items-center gap-1.5 whitespace-nowrap sm:gap-2">
+                <div className="flex h-8 max-w-full items-center gap-1 sm:gap-2">
+                  <div className="hidden min-w-[9.5rem] items-center gap-1.5 whitespace-nowrap md:flex md:gap-2">
                     <Balance
                       address={account.address as Address}
                       style={{
@@ -55,7 +59,7 @@ export const RainbowKitCustomConnectButton = () => {
                       }}
                     />
                     <span
-                      className="badge badge-sm max-w-[4.5rem] shrink-0 truncate border-none px-1.5 font-medium normal-case sm:max-w-[5.5rem] sm:px-2"
+                      className="badge badge-sm max-w-[5.5rem] shrink-0 truncate border-none px-2 font-medium normal-case"
                       style={{
                         color: networkColor,
                         backgroundColor: `color-mix(in srgb, ${networkColor} 18%, transparent)`,

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useFetchNativeCurrencyPrice } from "@scaffold-ui/hooks";
 import { hardhat } from "viem/chains";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { Faucet } from "~~/components/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 
@@ -33,6 +33,13 @@ export const DevFloatingBar = () => {
 
         {isLocalNetwork ? (
           <>
+            <Link
+              href="/debug"
+              className="btn btn-ghost h-10 min-h-10 shrink-0 gap-1.5 rounded-none border-none px-3 font-normal shadow-none sm:px-4"
+            >
+              <BugAntIcon className="h-4 w-4 shrink-0" />
+              <span className="hidden whitespace-nowrap sm:inline">Debug</span>
+            </Link>
             <div className="[&_label.btn]:btn-ghost [&_label.btn]:h-10 [&_label.btn]:min-h-10 [&_label.btn]:rounded-none [&_label.btn]:border-none [&_label.btn]:px-3 [&_label.btn]:shadow-none sm:[&_label.btn]:px-4">
               <Faucet />
             </div>

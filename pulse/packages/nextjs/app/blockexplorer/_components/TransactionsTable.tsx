@@ -10,8 +10,7 @@ export const TransactionsTable = ({ blocks, transactionReceipts }: TransactionsT
   const hasTransactions = blocks.some(block => block.transactions.length > 0);
 
   return (
-    <div className="flex justify-center px-4 md:px-0">
-      <div className="overflow-x-auto w-full shadow-2xl rounded-xl">
+    <div className="w-full overflow-x-auto rounded-xl shadow-2xl">
         {!hasTransactions ? (
           <div className="bg-base-100 rounded-xl p-8 text-center text-base-content/70">
             No transactions found on this page.
@@ -77,7 +76,6 @@ export const TransactionsTable = ({ blocks, transactionReceipts }: TransactionsT
             </tbody>
           </table>
         )}
-      </div>
     </div>
   );
 };

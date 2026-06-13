@@ -7,7 +7,7 @@ import React, { useEffect } from "react";
  */
 export const useOutsideClick = (ref: React.RefObject<HTMLElement | null>, callback: { (): void }) => {
   useEffect(() => {
-    function handleOutsideClick(event: MouseEvent) {
+    function handleOutsideClick(event: PointerEvent) {
       if (!(event.target instanceof Element)) {
         return;
       }
@@ -17,7 +17,7 @@ export const useOutsideClick = (ref: React.RefObject<HTMLElement | null>, callba
       }
     }
 
-    document.addEventListener("click", handleOutsideClick);
-    return () => document.removeEventListener("click", handleOutsideClick);
+    document.addEventListener("pointerdown", handleOutsideClick);
+    return () => document.removeEventListener("pointerdown", handleOutsideClick);
   }, [ref, callback]);
 };

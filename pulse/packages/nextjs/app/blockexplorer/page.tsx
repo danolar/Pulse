@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { PaginationButton, SearchBar, TransactionsTable } from "./_components";
 import type { NextPage } from "next";
 import { hardhat } from "viem/chains";
+import { PageShell, SectionHeader } from "~~/components/pulse";
 import { useFetchBlocks } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
 import { notification } from "~~/utils/scaffold-eth";
@@ -72,11 +73,17 @@ const BlockExplorer: NextPage = () => {
   }, [hasError]);
 
   return (
-    <div className="container mx-auto my-10">
-      <SearchBar />
-      <TransactionsTable blocks={blocks} transactionReceipts={transactionReceipts} />
-      <PaginationButton currentPage={currentPage} totalItems={totalTransactions} setCurrentPage={setCurrentPage} />
-    </div>
+    <PageShell>
+      <SectionHeader
+        title="Block Explorer"
+        subtitle="Browse transactions and addresses on the local Hardhat chain."
+      />
+      <div className="space-y-6">
+        <SearchBar />
+        <TransactionsTable blocks={blocks} transactionReceipts={transactionReceipts} />
+        <PaginationButton currentPage={currentPage} totalItems={totalTransactions} setCurrentPage={setCurrentPage} />
+      </div>
+    </PageShell>
   );
 };
 

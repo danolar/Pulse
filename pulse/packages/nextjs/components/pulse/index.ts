@@ -13,3 +13,8 @@ export { VerificationStepper } from "./stepper/VerificationStepper";
 export type { VerificationStep } from "./stepper/VerificationStepper";
 export { PulseModal, KeyValuePreview, ModalFooterActions } from "./modals/PulseModal";
 export { PulseButton } from "./ui/PulseButton";
+export { PulseWorldIdButton } from "./world-id/PulseWorldIdButton";
+export { PulseConsoleGauge } from "./console/PulseConsoleGauge";
+export { OwnerRequestorActions } from "./console/OwnerRequestorActions";
+export { AttemptSequence } from "./console/AttemptSequence";
+export { ConsoleSignalTimeline } from "./console/ConsoleSignalTimeline";

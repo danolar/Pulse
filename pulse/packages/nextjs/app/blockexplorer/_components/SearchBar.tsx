@@ -33,9 +33,9 @@ export const SearchBar = () => {
   };
 
   return (
-    <form onSubmit={handleSearch} className="flex items-center justify-end mb-5 space-x-3 mx-5">
+    <form onSubmit={handleSearch} className="mb-5 flex w-full items-center gap-3">
       <input
-        className="border-primary bg-base-100 text-base-content placeholder:text-base-content/50 p-2 mr-2 w-full md:w-1/2 lg:w-1/3 rounded-md shadow-md focus:outline-hidden focus:ring-2 focus:ring-accent"
+        className="input input-bordered w-full min-w-0 flex-1 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
         type="text"
         value={searchInput}
         placeholder="Search by hash or address"

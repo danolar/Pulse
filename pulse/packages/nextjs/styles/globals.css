@@ -103,6 +103,7 @@
 
   html {
     scroll-behavior: smooth;
+    scrollbar-gutter: stable;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -170,6 +171,10 @@
 
 .pulse-glass {
   @apply backdrop-blur-md bg-base-100/80 border border-base-content/5;
+}
+
+.pulse-page-x {
+  @apply px-4 sm:px-6 lg:px-8;
 }
 
 .pulse-card {

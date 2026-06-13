@@ -11,6 +11,7 @@ export const SwitchTheme = ({ className }: { className?: string }) => {
   const isDarkMode = resolvedTheme === "dark";
 
   const handleToggle = () => {
+    if (!mounted) return;
     setTheme(isDarkMode ? "light" : "dark");
   };
 
@@ -18,16 +19,23 @@ export const SwitchTheme = ({ className }: { className?: string }) => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
-
   return (
     <button
       type="button"
-      className={`btn btn-ghost btn-circle btn-sm shrink-0 shadow-none ${className ?? ""}`}
+      className={`btn btn-ghost btn-circle btn-sm h-9 min-h-9 w-9 min-w-9 shrink-0 shadow-none ${className ?? ""}`}
       onClick={handleToggle}
-      aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+      disabled={!mounted}
+      aria-label={mounted ? (isDarkMode ? "Switch to light mode" : "Switch to dark mode") : "Theme toggle"}
     >
-      {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+      {mounted ? (
+        isDarkMode ? (
+          <Sun className="h-5 w-5" />
+        ) : (
+          <Moon className="h-5 w-5" />
+        )
+      ) : (
+        <Moon className="h-5 w-5 opacity-0" aria-hidden />
+      )}
     </button>
   );
 };

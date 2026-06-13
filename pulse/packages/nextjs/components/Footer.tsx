@@ -1,4 +1,4 @@
-import React from "react";
+import Link from "next/link";
 
 export const Footer = () => {
   return (
@@ -8,6 +8,14 @@ export const Footer = () => {
         <span aria-hidden className="hidden sm:inline">
           ·
         </span>
+        <Link href="/debug" className="link">
+          Debug
+        </Link>
+        <span aria-hidden>·</span>
+        <Link href="/blockexplorer" className="link">
+          Explorer
+        </Link>
+        <span aria-hidden>·</span>
         <a href="https://github.com/danolar/Pulse" target="_blank" rel="noreferrer" className="link">
           GitHub
         </a>

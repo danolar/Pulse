@@ -2680,7 +2680,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/hashes@npm:1.8.0, @noble/hashes@npm:^1.3.1, @noble/hashes@npm:^1.5.0, @noble/hashes@npm:^1.8.0, @noble/hashes@npm:~1.8.0":
+"@noble/hashes@npm:1.8.0, @noble/hashes@npm:^1.3.1, @noble/hashes@npm:^1.5.0, @noble/hashes@npm:^1.7.2, @noble/hashes@npm:^1.8.0, @noble/hashes@npm:~1.8.0":
   version: 1.8.0
   resolution: "@noble/hashes@npm:1.8.0"
   checksum: 10/474b7f56bc6fb2d5b3a42132561e221b0ea4f91e590f4655312ca13667840896b34195e2b53b7f097ec080a1fdd3b58d902c2a8d0fbdf51d2e238b53808a177e
@@ -2691,6 +2691,13 @@ __metadata:
   version: 2.2.0
   resolution: "@noble/hashes@npm:2.2.0"
   checksum: 10/b1b78bedc2a01394be047429f3d888905015fe8a09f1b7e43e0b5736b54133df62f73dcc73ede43af38e96e86156afb45b86973fdeaa95d9f0880333c3fc0907
+  languageName: node
+  linkType: hard
+
+"@noble/secp256k1@npm:^2.2.3":
+  version: 2.3.0
+  resolution: "@noble/secp256k1@npm:2.3.0"
+  checksum: 10/3e2669aae45612cebccdac466e584e9b35329cc3a28528100dc0bd17c16244336678a0ea663ccad6e32873ea15259ae57cf208f1ce03e475ae063b42e6561e3a
   languageName: node
   linkType: hard
 
@@ -4379,6 +4386,7 @@ __metadata:
     "@types/node": "npm:~18.19.130"
     "@types/react": "npm:~19.2.14"
     "@types/react-is": "npm:^19"
+    "@worldcoin/idkit": "npm:^4.1.8"
     abitype: "npm:1.0.6"
     bgipfs: "npm:~0.0.18"
     blo: "npm:~2.0.0"
@@ -7096,6 +7104,39 @@ __metadata:
     multiformats: "npm:^13.3.1"
     uint8arrays: "npm:^5.1.0"
   checksum: 10/9bf1b9b4e2e8535c69fbadbbbd23441b0ca09dd3330e1b8110d074520b9ac13741ab385b301241231286c52b2db4562d6c9e7a83b3418c5bd6e87c71e0981e05
+  languageName: node
+  linkType: hard
+
+"@worldcoin/idkit-core@npm:4.1.8":
+  version: 4.1.8
+  resolution: "@worldcoin/idkit-core@npm:4.1.8"
+  dependencies:
+    "@noble/hashes": "npm:^1.7.2"
+    "@worldcoin/idkit-server": "npm:1.1.1"
+  checksum: 10/2567bf5574fbc9901c906079bf78c29600a23214afb6e72dcc8e495700e06027e3b899fc8bd0fa2c3767cd57c0d2a551b3a1a982c2f02cae6fb2b4e70a2d0913
+  languageName: node
+  linkType: hard
+
+"@worldcoin/idkit-server@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@worldcoin/idkit-server@npm:1.1.1"
+  dependencies:
+    "@noble/hashes": "npm:^1.7.2"
+    "@noble/secp256k1": "npm:^2.2.3"
+  checksum: 10/cba9362977277758fecfd0bf4dd02cf08a88eca7ac5d7b3dbb92ca75fc241c0b1eece1346d7f288a44e5f5872ed708f9c1e5164e291be7fd8fbdc67f3cc06f83
+  languageName: node
+  linkType: hard
+
+"@worldcoin/idkit@npm:^4.1.8":
+  version: 4.1.8
+  resolution: "@worldcoin/idkit@npm:4.1.8"
+  dependencies:
+    "@worldcoin/idkit-core": "npm:4.1.8"
+    qrcode: "npm:^1.5.4"
+  peerDependencies:
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 10/2a43cfac8b6fb5092d50e42a356111ada8314bfc1f73ca306ceb6cd281e201dbe4d2e7cc8d851027271ee63a3592c8bcc34136876fdd2464cbc9694e47505691
   languageName: node
   linkType: hard
 
