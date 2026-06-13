@@ -3,6 +3,7 @@ import { toWalrusBlobRef, WALRUS_DEMO_BLOBS } from "~~/constants/walrusDemoBlobs
 import { DEFAULT_ENABLED_MODULE_IDS, getPulseModule } from "~~/modules/pulse";
 import {
   type AuthorizedRequestor,
+  type ConfiguredAdapter,
   type ConsoleSignal,
   DEFAULT_PROFILE_CONFIG,
   type LifecycleState,
@@ -66,6 +67,7 @@ type PulseState = {
   config: ProfileConfig;
   notificationTarget: string | null;
   adapters: SignalAdapter[];
+  configuredAdapters: ConfiguredAdapter[];
   requestors: AuthorizedRequestor[];
   enabledModuleIds: string[];
   lifecycle: LifecycleState;
@@ -79,6 +81,10 @@ type PulseState = {
   toggleModule: (moduleId: string) => void;
   ensureModuleEnabled: (moduleId: string) => void;
   setModuleAdapter: (moduleId: string, patch: { address?: string; weight?: number }) => void;
+  mockConfigureAdapter: (adapter: Omit<ConfiguredAdapter, "bindingStatus"> & { bindingStatus?: ConfiguredAdapter["bindingStatus"] }) => void;
+  mockRevokeConfiguredAdapter: (catalogId: string) => void;
+  mockAuthorizeProfileAdapter: (catalogId: string, weight?: number) => void;
+  mockRevokeProfileAdapter: (adapterId: string) => void;
   mockAddRequestor: (address: string) => void;
   mockClaimRequestorSlot: (requestorAddress: string, verification?: PulseWorldIdVerification) => void;
   mockCompleteSetup: () => void;
@@ -105,6 +111,7 @@ export type PersistedPulseProfile = Pick<
   | "config"
   | "notificationTarget"
   | "adapters"
+  | "configuredAdapters"
   | "requestors"
   | "enabledModuleIds"
   | "lifecycle"
@@ -116,7 +123,7 @@ export type PersistedPulseProfile = Pick<
 
 export const getInitialPulseState = (): Omit<
   PulseState,
-  keyof Pick<PulseState, "mockCreateProfile" | "mockBindOrb" | "mockSaveConfig" | "toggleModule" | "ensureModuleEnabled" | "setModuleAdapter" | "mockAddRequestor" | "mockClaimRequestorSlot" | "mockCompleteSetup" | "mockCheckIn" | "mockRequestExtension" | "mockBlock" | "mockResurrect" | "mockRequestEvaluation" | "mockRespondToAttempt" | "mockForceOpenAttempt" | "appendSignal">
+  keyof Pick<PulseState, "mockCreateProfile" | "mockBindOrb" | "mockSaveConfig" | "toggleModule" | "ensureModuleEnabled" | "setModuleAdapter" | "mockConfigureAdapter" | "mockRevokeConfiguredAdapter" | "mockAuthorizeProfileAdapter" | "mockRevokeProfileAdapter" | "mockAddRequestor" | "mockClaimRequestorSlot" | "mockCompleteSetup" | "mockCheckIn" | "mockRequestExtension" | "mockBlock" | "mockResurrect" | "mockRequestEvaluation" | "mockRespondToAttempt" | "mockForceOpenAttempt" | "appendSignal">
 > => ({
   profileId: null,
   deviceVerified: false,
@@ -129,6 +136,7 @@ export const getInitialPulseState = (): Omit<
   config: DEFAULT_PROFILE_CONFIG,
   notificationTarget: null,
   adapters: buildInitialAdapters(),
+  configuredAdapters: [],
   requestors: [],
   enabledModuleIds: [...DEFAULT_ENABLED_MODULE_IDS],
   lifecycle: "CREATED",
@@ -150,6 +158,7 @@ export const toPersistedProfile = (state: PulseState): PersistedPulseProfile => 
   config: state.config,
   notificationTarget: state.notificationTarget,
   adapters: state.adapters,
+  configuredAdapters: state.configuredAdapters,
   requestors: state.requestors,
   enabledModuleIds: state.enabledModuleIds,
   lifecycle: state.lifecycle,
@@ -268,6 +277,61 @@ export const usePulseStore = create<PulseState>((set, get) => ({
             }
           : adapter,
       ),
+    }));
+  },
+
+  mockConfigureAdapter: adapter => {
+    set(state => {
+      const bindingStatus = adapter.bindingStatus ?? "active";
+      const existing = state.configuredAdapters.filter(a => a.catalogId !== adapter.catalogId);
+      return {
+        configuredAdapters: [...existing, { ...adapter, bindingStatus }],
+      };
+    });
+  },
+
+  mockRevokeConfiguredAdapter: catalogId => {
+    set(state => ({
+      configuredAdapters: state.configuredAdapters.filter(a => a.catalogId !== catalogId),
+      adapters: state.adapters.filter(a => a.moduleId !== catalogId),
+    }));
+  },
+
+  mockAuthorizeProfileAdapter: (catalogId, weight) => {
+    set(state => {
+      const configured = state.configuredAdapters.find(a => a.catalogId === catalogId);
+      if (!configured) return state;
+
+      const w = weight ?? configured.weight;
+      const existing = state.adapters.find(a => a.moduleId === catalogId);
+      if (existing) {
+        return {
+          adapters: state.adapters.map(a =>
+            a.moduleId === catalogId ? { ...a, address: configured.adapterAddress, weight: w } : a,
+          ),
+        };
+      }
+
+      return {
+        adapters: [
+          ...state.adapters,
+          {
+            id: crypto.randomUUID(),
+            moduleId: catalogId,
+            address: configured.adapterAddress,
+            weight: w,
+            label: configured.name,
+            typeLabel: configured.typeLabel,
+            capabilities: configured.capabilities,
+          },
+        ],
+      };
+    });
+  },
+
+  mockRevokeProfileAdapter: adapterId => {
+    set(state => ({
+      adapters: state.adapters.map(a => (a.id === adapterId ? { ...a, address: "", weight: 0 } : a)),
     }));
   },
 

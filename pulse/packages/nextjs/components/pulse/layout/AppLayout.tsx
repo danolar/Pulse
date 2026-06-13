@@ -4,7 +4,6 @@ import { useState, type ReactNode } from "react";
 import { Toaster } from "react-hot-toast";
 import { Footer } from "~~/components/Footer";
 import { DevFloatingBar } from "~~/components/pulse";
-import { ActingAsProvider } from "~~/components/pulse/layout/ActingAsContext";
 import { ConnectionKitPanel } from "~~/components/pulse/layout/ConnectionKitPanel";
 import { TopBar } from "~~/components/pulse/layout/TopBar";
 import { PulseProfileSync } from "~~/components/pulse/PulseProfileSync";
@@ -18,7 +17,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   const [connectionKitOpen, setConnectionKitOpen] = useState(false);
 
   return (
-    <ActingAsProvider>
+    <>
       <div className="flex min-h-screen flex-col">
         <PulseProfileSync />
         <TopBar onOpenConnectionKit={() => setConnectionKitOpen(true)} />
@@ -30,6 +29,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         <ConnectionKitPanel open={connectionKitOpen} onClose={() => setConnectionKitOpen(false)} />
       </div>
       <Toaster />
-    </ActingAsProvider>
+    </>
   );
 };

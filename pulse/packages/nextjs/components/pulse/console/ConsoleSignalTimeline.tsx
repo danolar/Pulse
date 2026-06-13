@@ -11,6 +11,7 @@ import { parseWalrusBlobId } from "~~/utils/walrus";
 
 type ConsoleSignalTimelineProps = {
   signals: ConsoleSignal[];
+  onViewEvidence?: (blobId: string) => void;
 };
 
 const formatTimestamp = (iso: string) =>
@@ -21,9 +22,17 @@ const formatTimestamp = (iso: string) =>
     minute: "2-digit",
   }).format(new Date(iso));
 
-export const ConsoleSignalTimeline = ({ signals }: ConsoleSignalTimelineProps) => {
+export const ConsoleSignalTimeline = ({ signals, onViewEvidence }: ConsoleSignalTimelineProps) => {
   const reducedMotion = useReducedMotion();
   const [selectedSignal, setSelectedSignal] = useState<ConsoleSignal | null>(null);
+
+  const openEvidence = (signal: ConsoleSignal) => {
+    if (onViewEvidence && parseWalrusBlobId(signal.walrusBlobId)) {
+      onViewEvidence(signal.walrusBlobId);
+      return;
+    }
+    setSelectedSignal(signal);
+  };
 
   return (
     <>
@@ -56,7 +65,7 @@ export const ConsoleSignalTimeline = ({ signals }: ConsoleSignalTimelineProps) =
                   type="button"
                   className="mt-3 inline-flex items-center gap-1 text-sm link disabled:cursor-not-allowed disabled:opacity-50"
                   disabled={!hasBlob}
-                  onClick={() => setSelectedSignal(signal)}
+                  onClick={() => openEvidence(signal)}
                 >
                   View evidence
                   <ExternalLink className="h-3.5 w-3.5" />
@@ -70,12 +79,14 @@ export const ConsoleSignalTimeline = ({ signals }: ConsoleSignalTimelineProps) =
         </ol>
       </section>
 
-      <WalrusEvidenceModal
-        open={selectedSignal !== null}
-        blobRef={selectedSignal?.walrusBlobId ?? ""}
-        signalType={selectedSignal?.signalType ?? "Signal"}
-        onClose={() => setSelectedSignal(null)}
-      />
+      {!onViewEvidence ? (
+        <WalrusEvidenceModal
+          open={selectedSignal !== null}
+          blobRef={selectedSignal?.walrusBlobId ?? ""}
+          signalType={selectedSignal?.signalType ?? "Signal"}
+          onClose={() => setSelectedSignal(null)}
+        />
+      ) : null}
     </>
   );
 };

@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useAccount } from "wagmi";
 import { PulseMark } from "~~/components/pulse/brand/PulseMark";
-import { PageShell, PulseButton } from "~~/components/pulse";
-import { PULSE_EXPLORER_NOTE, PULSE_TAGLINE } from "~~/constants/pulseBrand";
-import { usePulseStore } from "~~/services/store/pulseStore";
+import { PageShell } from "~~/components/pulse";
+import { HeroSearchBar } from "~~/components/pulse/explorer/HeroSearchBar";
+import { RecentSearches } from "~~/components/pulse/explorer/RecentSearches";
+import { PULSE_TAGLINE } from "~~/constants/pulseBrand";
+import { PULSE_EXPLORER_TOOL_NOTE, PULSE_WHAT_IS } from "~~/constants/explorerCopy";
 
 const RadarHero = () => (
   <div className="relative mx-auto flex h-48 w-48 items-center justify-center sm:h-56 sm:w-56" aria-hidden>
@@ -36,36 +36,21 @@ const TagOneLiner = () => (
 );
 
 const WhatIsThisNote = () => (
-  <p className="mx-auto max-w-2xl text-center text-sm leading-relaxed text-pulse-muted">{PULSE_EXPLORER_NOTE}</p>
+  <div className="mx-auto max-w-2xl space-y-2 text-center text-sm leading-relaxed text-pulse-muted">
+    <p>{PULSE_WHAT_IS}</p>
+    <p>{PULSE_EXPLORER_TOOL_NOTE}</p>
+  </div>
 );
 
-export const LandingPage = () => {
-  const router = useRouter();
-  const { isConnected } = useAccount();
-  const setupComplete = usePulseStore(state => state.setupComplete);
-
-  const destination = setupComplete ? "/console" : "/setup";
-
-  return (
-    <PageShell className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center gap-8 py-12">
-      <RadarHero />
-      <TagOneLiner />
-      <WhatIsThisNote />
-      <div className="flex flex-col items-center gap-3">
-        <PulseButton
-          disabled={!isConnected}
-          onClick={() => router.push(destination)}
-          className="min-w-[12rem]"
-        >
-          {setupComplete ? "Open console" : "Start setup"}
-        </PulseButton>
-        {!isConnected ? (
-          <p className="text-xs text-pulse-muted">Connect your wallet in the header to continue.</p>
-        ) : null}
-      </div>
-      <Link href="/setup" className="link link-hover text-xs text-pulse-muted">
-        Go to setup wizard
-      </Link>
-    </PageShell>
-  );
-};
+export const LandingPage = () => (
+  <PageShell className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center gap-8 py-12">
+    <RadarHero />
+    <TagOneLiner />
+    <WhatIsThisNote />
+    <HeroSearchBar />
+    <RecentSearches />
+    <Link href="/explorer" className="link link-hover text-xs text-pulse-muted">
+      Open explorer
+    </Link>
+  </PageShell>
+);

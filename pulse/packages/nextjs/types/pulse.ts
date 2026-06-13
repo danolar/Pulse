@@ -21,6 +21,19 @@ export type SignalAdapter = {
   address: string;
   weight: number;
   label: string;
+  typeLabel?: string;
+  capabilities?: "life" | "inactivity" | "both";
+};
+
+export type ConfiguredAdapter = {
+  catalogId: string;
+  name: string;
+  typeLabel: string;
+  adapterAddress: string;
+  weight: number;
+  capabilities: "life" | "inactivity" | "both";
+  bindingStatus: "active" | "key-required" | "paused";
+  isDecisionLayer?: boolean;
 };
 
 export type AuthorizedRequestor = {

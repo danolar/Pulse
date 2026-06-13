@@ -4,52 +4,25 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
-import { Bug, Cable, Menu, Search, Settings } from "lucide-react";
+import { Bug, Cable, Menu, Plug, Search, Settings } from "lucide-react";
 import { PulseLogo } from "~~/components/pulse/brand/PulseLogo";
-import { useActingAs } from "~~/components/pulse/layout/ActingAsContext";
+import { AddressSearchBar } from "~~/components/pulse/explorer/AddressSearchBar";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
 import { SHOW_SCAFFOLD_DEV_UI } from "~~/constants/pulseAppConfig";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
-import type { ActingRole } from "~~/types/pulse";
 
 type NavLink = {
   label: string;
   href: string;
   icon?: React.ReactNode;
+  matchPrefix?: boolean;
 };
 
 const Wordmark = () => (
   <Link href="/" className="flex min-w-0 items-center py-1">
     <PulseLogo height={48} />
   </Link>
-);
-
-const ActingAsToggle = ({
-  actingAs,
-  onChange,
-  className = "",
-  selectClassName = "",
-}: {
-  actingAs: ActingRole;
-  onChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
-  className?: string;
-  selectClassName?: string;
-}) => (
-  <label className={`flex min-w-0 items-center gap-2 ${className}`}>
-    <span className="shrink-0 whitespace-nowrap pulse-label normal-case tracking-normal text-pulse-muted">
-      Acting as
-    </span>
-    <select
-      className={`select select-bordered select-sm h-9 min-h-9 rounded-2xl ${selectClassName}`}
-      value={actingAs}
-      onChange={onChange}
-      aria-label="Acting as"
-    >
-      <option value="owner">Owner</option>
-      <option value="requestor">Requestor</option>
-    </select>
-  </label>
 );
 
 const WalletConnectButton = () => (
@@ -75,13 +48,13 @@ type TopBarProps = {
 
 export const TopBar = ({ onOpenConnectionKit }: TopBarProps) => {
   const pathname = usePathname();
-  const { actingAs, setActingAs } = useActingAs();
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
 
   const appNavLinks: NavLink[] = useMemo(
     () => [
-      { label: "Console", href: "/console" },
+      { label: "Explorer", href: "/explorer", matchPrefix: true },
+      { label: "Adapters", href: "/adapters", icon: <Plug className="h-4 w-4 shrink-0" /> },
       { label: "Setup", href: "/setup", icon: <Settings className="h-4 w-4 shrink-0" /> },
     ],
     [],
@@ -89,14 +62,12 @@ export const TopBar = ({ onOpenConnectionKit }: TopBarProps) => {
 
   const devNavLinks: NavLink[] = useMemo(() => {
     const links: NavLink[] = [];
-
     if (SHOW_SCAFFOLD_DEV_UI) {
       links.push({ label: "Debug Contracts", href: "/debug", icon: <Bug className="h-4 w-4 shrink-0" /> });
       if (isLocalNetwork) {
         links.push({ label: "Block Explorer", href: "/blockexplorer", icon: <Search className="h-4 w-4 shrink-0" /> });
       }
     }
-
     return links;
   }, [isLocalNetwork]);
 
@@ -112,20 +83,21 @@ export const TopBar = ({ onOpenConnectionKit }: TopBarProps) => {
     setMobileMenuOpen(false);
   }, [pathname]);
 
-  const handleActingChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setActingAs(event.target.value as ActingRole);
+  const isNavActive = (href: string, matchPrefix?: boolean) => {
+    if (matchPrefix) return pathname === href || pathname.startsWith(`${href}/`);
+    return pathname === href;
   };
 
-  const navLinkClassName = (href: string) =>
+  const navLinkClassName = (href: string, matchPrefix?: boolean) =>
     `flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
-      pathname === href
+      isNavActive(href, matchPrefix)
         ? "bg-primary/10 text-primary"
         : "text-base-content/75 hover:bg-base-300/60 hover:text-base-content"
     }`;
 
   return (
     <header className="sticky top-0 z-20 shrink-0 border-b border-base-content/5 pulse-glass pt-[env(safe-area-inset-top)]">
-      <div className="pulse-page-x mx-auto flex h-16 max-w-7xl flex-nowrap items-center justify-between gap-2">
+      <div className="pulse-page-x mx-auto flex min-h-16 max-w-7xl flex-wrap items-center justify-between gap-3 py-2">
         <div className="flex min-w-0 items-center gap-1">
           <div className="relative shrink-0 lg:hidden" ref={mobileMenuRef}>
             <button
@@ -143,17 +115,9 @@ export const TopBar = ({ onOpenConnectionKit }: TopBarProps) => {
 
             {mobileMenuOpen ? (
               <ul className="menu absolute left-0 top-full z-50 mt-2 w-56 rounded-2xl border border-base-content/5 bg-base-100 p-2 shadow-pulse-md">
-                <li className="px-1 py-1 md:hidden">
-                  <ActingAsToggle
-                    actingAs={actingAs}
-                    onChange={handleActingChange}
-                    className="w-full"
-                    selectClassName="min-w-0 flex-1"
-                  />
-                </li>
-                {mobileNavLinks.map(({ label, href, icon }) => (
+                {mobileNavLinks.map(({ label, href, icon, matchPrefix }) => (
                   <li key={href}>
-                    <Link href={href} className={navLinkClassName(href)} onClick={closeMobileMenu}>
+                    <Link href={href} className={navLinkClassName(href, matchPrefix)} onClick={closeMobileMenu}>
                       {icon}
                       {label}
                     </Link>
@@ -166,17 +130,14 @@ export const TopBar = ({ onOpenConnectionKit }: TopBarProps) => {
           <Wordmark />
         </div>
 
-        <div className="flex h-9 shrink-0 flex-nowrap items-center gap-1 sm:gap-2">
-          <ActingAsToggle
-            actingAs={actingAs}
-            onChange={handleActingChange}
-            className="hidden min-w-[11rem] md:flex"
-            selectClassName="w-auto min-w-[6.75rem] border-none bg-base-200/80 shadow-none"
-          />
+        <div className="hidden min-w-0 flex-1 justify-center px-2 md:flex">
+          <AddressSearchBar className="w-full max-w-md" />
+        </div>
 
-          <nav className="hidden items-center gap-0.5 sm:flex" aria-label="App navigation">
-            {appNavLinks.map(({ label, href, icon }) => (
-              <Link key={href} href={href} className={navLinkClassName(href)}>
+        <div className="flex shrink-0 flex-nowrap items-center gap-1 sm:gap-2">
+          <nav className="hidden items-center gap-0.5 lg:flex" aria-label="App navigation">
+            {appNavLinks.map(({ label, href, icon, matchPrefix }) => (
+              <Link key={href} href={href} className={navLinkClassName(href, matchPrefix)}>
                 {icon}
                 {label}
               </Link>
@@ -186,6 +147,10 @@ export const TopBar = ({ onOpenConnectionKit }: TopBarProps) => {
           <ConnectionKitButton onOpen={onOpenConnectionKit} />
           <WalletConnectButton />
         </div>
+      </div>
+
+      <div className="pulse-page-x mx-auto flex pb-2 md:hidden">
+        <AddressSearchBar className="w-full" />
       </div>
     </header>
   );

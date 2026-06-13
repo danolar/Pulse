@@ -3,17 +3,23 @@
 import { Check, HelpCircle, Lock, X } from "lucide-react";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
 import { VERIFICATION_TYPE_LABELS } from "~~/constants/pulseProtocol";
-import { useResolvedActingRole } from "~~/hooks/pulse/useResolvedActingRole";
+import type { ProfileRole } from "~~/hooks/pulse/useProfileByAddress";
 import { usePulseStore } from "~~/services/store/pulseStore";
 import type { VerificationAttempt } from "~~/types/pulse";
 
 type AttemptSequenceProps = {
   attempts: VerificationAttempt[];
+  profileRole?: ProfileRole;
 };
 
-export const AttemptSequence = ({ attempts }: AttemptSequenceProps) => {
+export const CommitRevealCaption = () => (
+  <p className="mt-3 text-xs text-pulse-muted">
+    Locked cards hide attempt type until the hash is revealed onchain for that window.
+  </p>
+);
+
+export const AttemptSequence = ({ attempts, profileRole = "none" }: AttemptSequenceProps) => {
   const { mockRespondToAttempt, mockForceOpenAttempt } = usePulseStore();
-  const actingAs = useResolvedActingRole();
   const hasExpiredUnopened = attempts.some(attempt => attempt.expiredUnopened);
 
   return (
@@ -48,7 +54,7 @@ export const AttemptSequence = ({ attempts }: AttemptSequenceProps) => {
                     ? VERIFICATION_TYPE_LABELS[attempt.verificationType]
                     : "Pending reveal"}
                 </p>
-                {attempt.isActive ? (
+                {attempt.isActive && profileRole === "owner" ? (
                   <PulseButton
                     variant="secondary"
                     className="w-full btn-sm"
@@ -81,15 +87,17 @@ export const AttemptSequence = ({ attempts }: AttemptSequenceProps) => {
         ))}
       </div>
 
-      {hasExpiredUnopened && actingAs === "requestor" ? (
+      <CommitRevealCaption />
+
+      {hasExpiredUnopened && profileRole === "requestor" ? (
         <PulseButton variant="ghost" className="mt-4" onClick={() => mockForceOpenAttempt()}>
           Force open expired attempt
         </PulseButton>
       ) : null}
 
-      {hasExpiredUnopened && actingAs === "owner" ? (
+      {hasExpiredUnopened && profileRole === "owner" ? (
         <p className="mt-4 text-xs text-pulse-muted">
-          An attempt expired unopened. Authorized requestors can force-open if the CRE keeper is unavailable.
+          An attempt expired unopened. Authorized requestors can force-open if the keeper is unavailable.
         </p>
       ) : null}
     </section>
