@@ -1,0 +1,15 @@
+{
+  "name": "pulse-onchain-activity",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "postinstall": "bunx cre-setup || true"
+  },
+  "dependencies": {
+    "@chainlink/cre-sdk": "^1.8.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.21",
+    "typescript": "^5.8.2"
+  }
+}

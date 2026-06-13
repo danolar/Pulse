@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { PageShell, SectionHeader } from "~~/components/pulse";
 import { AttemptSequence } from "~~/components/pulse/console/AttemptSequence";
+import { ChainlinkActivityPanel } from "~~/components/pulse/chainlink/ChainlinkActivityPanel";
 import { ConsoleSignalTimeline } from "~~/components/pulse/console/ConsoleSignalTimeline";
 import { OwnerRequestorActions } from "~~/components/pulse/console/OwnerRequestorActions";
 import { PulseConsoleGauge } from "~~/components/pulse/console/PulseConsoleGauge";
@@ -56,6 +57,8 @@ const ConsolePage = () => {
         <OwnerRequestorActions actingAs={actingAs} lifecycle={lifecycle} orbBound={orbBound} profileId={profileId} />
 
         <AttemptSequence attempts={attempts} />
+
+        <ChainlinkActivityPanel />
 
         <ConsoleSignalTimeline signals={signals} />
       </div>

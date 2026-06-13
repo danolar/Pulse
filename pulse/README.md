@@ -6,7 +6,7 @@ See the [root README](../README.md) for the product overview.
 
 ## Stack
 
-- **Hardhat** — smart contracts (PulseOracle coming soon)
+- **Hardhat** — smart contracts (`PulseOracle` + CRE adapter hooks)
 - **Next.js** — `/` console and `/setup` wizard
 - **Recharts** — radial gauge
 - **Framer Motion** — pulse / timeline animations

@@ -80,14 +80,55 @@ Install CLI (macOS/Linux):
 ```bash
 bash pulse/scripts/install-cre-cli.sh
 cre version
+cre login   # interactive — required for cre init / deploy
 ```
 
-Create a Chainlink account and run `cre login` when ready. Use **Chainlink MCP** in Cursor to explore workflow docs before deploying (requires `PulseOracle` later).
+Install [Bun](https://bun.sh) (≥ 1.2.21) for TypeScript workflow compilation.
 
-Verify CLI + login:
+### Deploy PulseOracle (local)
+
+With `yarn chain` running:
+
+```bash
+cd pulse && yarn deploy:pulse-oracle
+export PULSE_ORACLE_ADDRESS=0x...   # from deploy logs
+echo "NEXT_PUBLIC_PULSE_ORACLE_ADDRESS=$PULSE_ORACLE_ADDRESS" >> packages/nextjs/.env.local
+```
+
+Update `cre/pulse-keeper/config.staging.json` and `cre/pulse-onchain-activity/config.staging.json` with the same oracle address and profile owner addresses.
+
+### Workflows
+
+| Workflow | Path | Role |
+|----------|------|------|
+| Keeper | `cre/pulse-keeper/` | Cron `keeperTick` (open/close attempts) |
+| ONCHAIN_TX | `cre/pulse-onchain-activity/` | Inactivity evaluation → `reportSignal` |
+
+See [cre/README.md](cre/README.md) for full CRE setup.
+
+### Local simulation (no CRE login)
+
+```bash
+cd pulse && yarn simulate:onchain-activity
+cd pulse && yarn simulate:onchain-activity -- --broadcast
+```
+
+In the app: console → **Chainlink · ONCHAIN_TX** → **Run evaluation** (uses `/api/chainlink/activity`).
+
+### CRE CLI simulation (after login + bun install)
+
+```bash
+cd cre/pulse-keeper && bun install && cd ../..
+yarn cre:simulate:keeper
+
+cd cre/pulse-onchain-activity && bun install && cd ../..
+yarn cre:simulate:onchain
+```
+
+Verify CLI:
 
 ```bash
 cd pulse && yarn verify:cre
 ```
 
-Optional for TypeScript workflows later: install [Bun](https://bun.sh) (`bun` warning from CRE installer).
+Use **Chainlink MCP** in Cursor for workflow docs. Live DON deployment requires `cre login` and Chainlink team support during the event.

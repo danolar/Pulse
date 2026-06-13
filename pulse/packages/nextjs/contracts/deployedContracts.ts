@@ -6,6 +6,346 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
   31337: {
+    PulseOracle: {
+      address: "0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "_admin",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "adapter",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "bool",
+              name: "authorized",
+              type: "bool",
+            },
+          ],
+          name: "AdapterAuthorized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "profileOwner",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "action",
+              type: "bytes32",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "reporter",
+              type: "address",
+            },
+          ],
+          name: "KeeperAction",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "target",
+              type: "address",
+            },
+          ],
+          name: "NotificationTargetUpdated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "profileOwner",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint256",
+              name: "threshold",
+              type: "uint256",
+            },
+          ],
+          name: "ProfileSeeded",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "profileOwner",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "signalType",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "int256",
+              name: "weight",
+              type: "int256",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "walrusBlobId",
+              type: "string",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "reporter",
+              type: "address",
+            },
+          ],
+          name: "SignalReported",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "address",
+              name: "profileOwner",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "epoch",
+              type: "uint64",
+            },
+            {
+              indexed: false,
+              internalType: "string",
+              name: "auditBlobId",
+              type: "string",
+            },
+          ],
+          name: "ThresholdReached",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "admin",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "authorizedAdapters",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "profileOwner",
+              type: "address",
+            },
+            {
+              internalType: "uint256",
+              name: "threshold",
+              type: "uint256",
+            },
+          ],
+          name: "devSeedProfile",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address[]",
+              name: "profileOwners",
+              type: "address[]",
+            },
+            {
+              internalType: "bytes32[]",
+              name: "actions",
+              type: "bytes32[]",
+            },
+          ],
+          name: "keeperTick",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "notificationTarget",
+          outputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "profiles",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "exists",
+              type: "bool",
+            },
+            {
+              internalType: "enum PulseOracle.Lifecycle",
+              name: "lifecycle",
+              type: "uint8",
+            },
+            {
+              internalType: "uint64",
+              name: "epoch",
+              type: "uint64",
+            },
+            {
+              internalType: "uint256",
+              name: "accumulatedWeight",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "threshold",
+              type: "uint256",
+            },
+            {
+              internalType: "uint64",
+              name: "lastOnchainActivityAt",
+              type: "uint64",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "profileOwner",
+              type: "address",
+            },
+            {
+              internalType: "bytes32",
+              name: "signalType",
+              type: "bytes32",
+            },
+            {
+              internalType: "int256",
+              name: "weight",
+              type: "int256",
+            },
+            {
+              internalType: "string",
+              name: "walrusBlobId",
+              type: "string",
+            },
+          ],
+          name: "reportSignal",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "adapter",
+              type: "address",
+            },
+            {
+              internalType: "bool",
+              name: "authorized",
+              type: "bool",
+            },
+          ],
+          name: "setAdapter",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "target",
+              type: "address",
+            },
+          ],
+          name: "setNotificationTarget",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ],
+      inheritedFunctions: {},
+      deployedOnBlock: 4,
+    },
     YourContract: {
       address: "0x5fbdb2315678afecb367f032d93f642f64180aa3",
       abi: [

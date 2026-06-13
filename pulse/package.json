@@ -53,7 +53,11 @@
     "verify:world-id-env": "yarn workspace @se-2/nextjs verify:world-id-env",
     "verify:walrus": "yarn workspace @se-2/nextjs verify:walrus",
     "test:walrus-roundtrip": "yarn workspace @se-2/nextjs test:walrus-roundtrip",
-    "verify:cre": "node scripts/verify-cre.mjs"
+    "verify:cre": "node scripts/verify-cre.mjs",
+    "simulate:onchain-activity": "yarn workspace @se-2/nextjs simulate:onchain-activity",
+    "cre:simulate:keeper": "cre workflow simulate pulse-keeper --target local-settings --project-root cre",
+    "cre:simulate:onchain": "cre workflow simulate pulse-onchain-activity --target local-settings --project-root cre",
+    "deploy:pulse-oracle": "yarn hardhat:deploy --tags PulseOracle"
   },
   "devDependencies": {
     "husky": "~9.1.6",

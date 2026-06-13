@@ -1,0 +1,6 @@
+{
+  "schedule": "0 */15 * * * *",
+  "pulseOracleAddress": "0x0000000000000000000000000000000000000000",
+  "profileOwners": [],
+  "keeperActions": ["OPEN_DUE_ATTEMPTS", "CLOSE_EXPIRED_ATTEMPTS"]
+}

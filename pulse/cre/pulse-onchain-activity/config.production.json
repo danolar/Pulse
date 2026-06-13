@@ -1,0 +1,6 @@
+{
+  "schedule": "0 */10 * * * *",
+  "rpcUrl": "https://ethereum-sepolia-rpc.publicnode.com",
+  "pulseOracleAddress": "0x0000000000000000000000000000000000000000",
+  "profiles": []
+}
