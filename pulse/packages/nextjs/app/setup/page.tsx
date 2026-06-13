@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAccount } from "wagmi";
 import { CheckCircle2 } from "lucide-react";
 import { PageShell, PulseButton, SectionHeader } from "~~/components/pulse";
 import { PulseWorldIdButton } from "~~/components/pulse/world-id/PulseWorldIdButton";
+import { CONFIG_FIELD_HINTS, worldIdActions } from "~~/constants/pulseProtocol";
 import { usePulseStore } from "~~/services/store/pulseStore";
 import type { ProfileConfig } from "~~/types/pulse";
 import { notification } from "~~/utils/scaffold-eth/notification";
@@ -20,8 +22,17 @@ const runVerifiedAction = (action: (verification: PulseWorldIdVerification) => v
   };
 };
 
+const CONFIG_FIELDS: Array<{ field: keyof ProfileConfig; label: string; unit: string }> = [
+  { field: "windowDuration", label: "Window duration", unit: "days" },
+  { field: "attemptsPerWindow", label: "Attempts per window", unit: "count" },
+  { field: "responseWindow", label: "Response window", unit: "hours" },
+  { field: "missedAttemptWeight", label: "Missed attempt weight", unit: "points" },
+  { field: "threshold", label: "Threshold", unit: "points" },
+];
+
 const SetupWizard = () => {
   const router = useRouter();
+  const { address } = useAccount();
   const {
     profileId,
     deviceVerified,
@@ -40,10 +51,17 @@ const SetupWizard = () => {
   } = usePulseStore();
 
   const [draftConfig, setDraftConfig] = useState<ProfileConfig>(config);
-  const [adapterForm, setAdapterForm] = useState({ address: "", weight: "10", label: "" });
+  const [adapterForm, setAdapterForm] = useState({ address: "", weight: "10", label: "CRE ONCHAIN_TX" });
   const [requestorAddress, setRequestorAddress] = useState("");
+  const [fallbackProfileKey, setFallbackProfileKey] = useState<string | null>(null);
 
-  const generatedProfileId = useMemo(() => profileId ?? `profile-${crypto.randomUUID().slice(0, 8)}`, [profileId]);
+  useEffect(() => {
+    if (profileId || address) return;
+    setFallbackProfileKey(`profile-${crypto.randomUUID().slice(0, 8)}`);
+  }, [profileId, address]);
+
+  const profileKey = profileId ?? address ?? fallbackProfileKey;
+  const profileKeyLabel = profileKey ?? "Assigning profile key…";
 
   const updateConfigField = (field: keyof ProfileConfig, value: string) => {
     setDraftConfig(current => ({ ...current, [field]: Number(value) || 0 }));
@@ -53,50 +71,58 @@ const SetupWizard = () => {
     <PageShell>
       <SectionHeader
         title="Profile setup"
-        subtitle="One-time wizard to create your Pulse profile, bind Orb identity, and configure access lists."
+        subtitle="Consent-first registration: Device World ID creates the profile; Orb World ID unlocks emergency controls."
       />
 
       <div className="space-y-6">
         <section className="pulse-card p-5 sm:p-6">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-base font-semibold">Step 1 · Create profile</h2>
+            <h2 className="text-base font-semibold">Step 1 · createProfile (Device)</h2>
             {deviceVerified ? (
-              <span className="badge badge-sm border-none bg-success/15 text-success">Verified</span>
+              <span className="badge badge-sm border-none bg-success/15 text-success">Device bound</span>
             ) : null}
           </div>
-          <p className="mb-4 text-sm text-pulse-muted">
-            Verify with World ID (device level) to create your profile identity.
+          <p className="mb-2 text-sm text-pulse-muted">
+            Stores the owner&apos;s Device nullifier hash. Enables check-in and request extension. Profile key:{" "}
+            <span className="font-mono text-xs" suppressHydrationWarning>
+              {profileKeyLabel}
+            </span>
           </p>
+          {address ? (
+            <p className="mb-4 text-xs text-pulse-muted">Connected wallet will become the onchain profile owner.</p>
+          ) : (
+            <p className="mb-4 text-xs text-warning">Connect a wallet to align profileId with owner address (spec §8).</p>
+          )}
           <PulseWorldIdButton
             level="device"
-            action="pulse-create-profile"
-            signal={generatedProfileId}
-            label="Verify & Create Profile"
-            disabled={deviceVerified}
-            onVerified={runVerifiedAction(verification => {
-              // TODO: wire to PulseOracle.createProfile(profileId, proof)
-              mockCreateProfile(generatedProfileId, verification);
+            action={worldIdActions.createProfile(profileKey ?? "pending")}
+            signal={profileKey ?? "pending"}
+            label="Verify & create profile"
+            disabled={deviceVerified || !profileKey}
+            onVerified={runVerifiedAction(v => {
+              if (!profileKey) return;
+              mockCreateProfile(profileKey, v);
             })}
           />
         </section>
 
         <section className={`pulse-card p-5 sm:p-6 ${deviceVerified ? "" : "opacity-60"}`}>
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-base font-semibold">Step 2 · Bind Orb identity</h2>
+            <h2 className="text-base font-semibold">Step 2 · bindOrbIdentity (Orb)</h2>
             {orbBound ? <span className="badge badge-sm border-none bg-accent/15 text-accent">Orb bound</span> : null}
           </div>
           <p className="mb-4 text-sm text-pulse-muted">
-            Unlocks emergency controls (block / resurrect) for this profile.
+            Separate Orb nullifier (unlinkable from Device by design). Required for block and resurrect.
           </p>
           <PulseWorldIdButton
             level="orb"
-            action="pulse-bind-orb"
-            signal={generatedProfileId}
-            label="Bind Orb Identity"
-            disabled={!deviceVerified || orbBound}
-            onVerified={runVerifiedAction(verification => {
-              // TODO: wire to PulseOracle.bindOrbIdentity(profileId, proof)
-              mockBindOrb(verification);
+            action={worldIdActions.bindOrb(profileKey ?? "pending")}
+            signal={profileKey ?? "pending"}
+            label="Bind Orb identity"
+            disabled={!deviceVerified || orbBound || !profileKey}
+            onVerified={runVerifiedAction(v => {
+              if (!profileKey) return;
+              mockBindOrb(v);
             })}
           />
         </section>
@@ -107,17 +133,11 @@ const SetupWizard = () => {
             {configSaved ? <span className="badge badge-sm border-none bg-success/15 text-success">Saved</span> : null}
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {(
-              [
-                ["windowDuration", "Window duration (minutes)"],
-                ["attemptsPerWindow", "Attempts per window"],
-                ["responseWindow", "Response window (minutes)"],
-                ["missedAttemptWeight", "Missed attempt weight"],
-                ["threshold", "Threshold"],
-              ] as const
-            ).map(([field, label]) => (
+            {CONFIG_FIELDS.map(({ field, label, unit }) => (
               <label key={field} className="form-control">
-                <span className="label-text mb-1 text-sm text-pulse-muted">{label}</span>
+                <span className="label-text mb-1 text-sm text-pulse-muted">
+                  {label} ({unit})
+                </span>
                 <input
                   type="number"
                   min={1}
@@ -126,18 +146,16 @@ const SetupWizard = () => {
                   disabled={!deviceVerified}
                   onChange={event => updateConfigField(field, event.target.value)}
                 />
+                <span className="mt-1 text-xs text-pulse-muted">{CONFIG_FIELD_HINTS[field]}</span>
               </label>
             ))}
           </div>
           <PulseButton
             className="mt-4"
             disabled={!deviceVerified}
-            onClick={() => {
-              // TODO: wire to PulseOracle.setConfig(...)
-              mockSaveConfig(draftConfig);
-            }}
+            onClick={() => mockSaveConfig(draftConfig)}
           >
-            Save Configuration
+            Save configuration
           </PulseButton>
         </section>
 
@@ -154,7 +172,8 @@ const SetupWizard = () => {
 
           <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
             <div>
-              <h3 className="mb-3 text-sm font-semibold">Signal adapters</h3>
+              <h3 className="mb-1 text-sm font-semibold">Signal adapters (ISignalAdapter)</h3>
+              <p className="mb-3 text-xs text-pulse-muted">Authorized signers — e.g. Chainlink CRE ONCHAIN_TX keeper.</p>
               <div className="mb-3 overflow-x-auto rounded-2xl border border-base-content/10">
                 <table className="table table-sm">
                   <thead>
@@ -186,7 +205,7 @@ const SetupWizard = () => {
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                 <input
                   className="input input-bordered rounded-2xl sm:col-span-1"
-                  placeholder="Address"
+                  placeholder="Signer address"
                   value={adapterForm.address}
                   disabled={!configSaved}
                   onChange={event => setAdapterForm(current => ({ ...current, address: event.target.value }))}
@@ -211,37 +230,45 @@ const SetupWizard = () => {
                 className="mt-3"
                 disabled={!configSaved || !adapterForm.address || !adapterForm.label}
                 onClick={() => {
-                  // TODO: wire to PulseOracle.authorizeAdapter(address, weight, label)
                   mockAddAdapter({
                     address: adapterForm.address,
                     weight: Number(adapterForm.weight) || 0,
                     label: adapterForm.label,
                   });
-                  setAdapterForm({ address: "", weight: "10", label: "" });
+                  setAdapterForm({ address: "", weight: "10", label: "CRE ONCHAIN_TX" });
                 }}
               >
-                Add Adapter
+                Authorize adapter
               </PulseButton>
             </div>
 
             <div>
-              <h3 className="mb-3 text-sm font-semibold">Authorized requestors</h3>
+              <h3 className="mb-1 text-sm font-semibold">Requestor slots</h3>
+              <p className="mb-3 text-xs text-pulse-muted">
+                Owner authorizes address → requestor claims with Device World ID → can request evaluation.
+              </p>
               <div className="mb-3 overflow-x-auto rounded-2xl border border-base-content/10">
                 <table className="table table-sm">
                   <thead>
                     <tr>
                       <th>Address</th>
+                      <th>Authorized</th>
+                      <th>Claimed</th>
                     </tr>
                   </thead>
                   <tbody>
                     {requestors.length === 0 ? (
                       <tr>
-                        <td className="text-pulse-muted">No requestors yet</td>
+                        <td colSpan={3} className="text-pulse-muted">
+                          No requestors yet
+                        </td>
                       </tr>
                     ) : (
                       requestors.map(requestor => (
                         <tr key={requestor.id}>
                           <td className="font-mono text-xs">{requestor.address}</td>
+                          <td>{requestor.authorized ? "Yes" : "No"}</td>
+                          <td>{requestor.claimed ? "Yes" : "Pending"}</td>
                         </tr>
                       ))
                     )}
@@ -260,12 +287,11 @@ const SetupWizard = () => {
                 className="mt-3"
                 disabled={!configSaved || !requestorAddress}
                 onClick={() => {
-                  // TODO: wire to PulseOracle.authorizeRequestor(address)
                   mockAddRequestor(requestorAddress);
                   setRequestorAddress("");
                 }}
               >
-                Add Requestor
+                authorizeRequestor
               </PulseButton>
             </div>
           </div>
@@ -278,7 +304,7 @@ const SetupWizard = () => {
               router.push("/");
             }}
           >
-            Go to Console
+            Activate profile & open console
           </PulseButton>
         </section>
       </div>

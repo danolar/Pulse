@@ -38,9 +38,10 @@ python3 -m json.tool pulse/.cursor/mcp.json
 
 1. Register at https://developer.world.org
 2. Copy `packages/nextjs/.env.local.example` → `packages/nextjs/.env.local`
-3. Set `NEXT_PUBLIC_WORLD_APP_ID` and `NEXT_PUBLIC_WORLD_RP_ID`
-4. Restart `yarn start`
-5. On `/setup`, click **Verify & Create Profile** (real widget, not mock)
+3. Set `NEXT_PUBLIC_WORLD_APP_ID`, `NEXT_PUBLIC_WORLD_RP_ID`, and `WORLD_RP_SIGNING_KEY` (RP signing key — server only, from the portal)
+4. Optional: `NEXT_PUBLIC_WORLD_ID_ENVIRONMENT=production` when testing Orb on a real World App account (default `staging` for simulator)
+5. Restart `yarn start`
+6. On `/setup`, click **Verify & create profile** (real widget, not mock). Step 2 **Bind Orb** requires an Orb-verified World App identity.
 
 ```bash
 cd packages/nextjs && yarn verify:world-id-env

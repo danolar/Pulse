@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CONSOLE_GAUGE_SIZE, ThresholdGauge } from "~~/components/pulse/gauge/ThresholdGauge";
+import { LIFECYCLE_DESCRIPTIONS } from "~~/constants/pulseProtocol";
 import { LIFECYCLE_LABELS, type LifecycleState } from "~~/types/pulse";
 
 const MOBILE_GAUGE_SIZE = 236;
@@ -26,8 +27,10 @@ export const PulseConsoleGauge = ({ accumulatedWeight, threshold, lifecycle, epo
   }, []);
 
   const percentage = threshold > 0 ? Math.round((accumulatedWeight / threshold) * 100) : 0;
-  const pulseDuration = lifecycle === "ACTIVE" ? Math.max(0.8, 2.4 - percentage / 100) : 3.6;
-  const pulseOpacity = lifecycle === "ACTIVE" ? Math.max(0.35, 1 - percentage / 120) : 0.25;
+  const pulseDuration =
+    lifecycle === "ACTIVE" || lifecycle === "EVALUATING" ? Math.max(0.8, 2.4 - percentage / 100) : 3.6;
+  const pulseOpacity =
+    lifecycle === "ACTIVE" || lifecycle === "EVALUATING" ? Math.max(0.35, 1 - percentage / 120) : 0.25;
 
   return (
     <section className="pulse-card overflow-hidden p-4 sm:p-8">
@@ -36,10 +39,10 @@ export const PulseConsoleGauge = ({ accumulatedWeight, threshold, lifecycle, epo
           <ThresholdGauge
             value={accumulatedWeight}
             max={threshold}
-            label="Weight / threshold"
+            label="Unresponsiveness / threshold"
             size={gaugeSize}
             showPulseLine
-            pulseActive={lifecycle === "ACTIVE"}
+            pulseActive={lifecycle === "ACTIVE" || lifecycle === "EVALUATING"}
             pulseDuration={pulseDuration}
             pulseOpacity={pulseOpacity}
           />
@@ -50,9 +53,9 @@ export const PulseConsoleGauge = ({ accumulatedWeight, threshold, lifecycle, epo
             <span className="badge badge-lg border-none bg-primary/10 text-primary">{LIFECYCLE_LABELS[lifecycle]}</span>
             <span className="badge badge-lg border-none bg-base-300 text-base-content">Epoch {epoch}</span>
           </div>
-          <p className="max-w-md text-sm text-pulse-muted">
-            Accumulated weight {accumulatedWeight} / {threshold}. Pulse animation stays active while monitoring and
-            eases as the gauge approaches threshold.
+          <p className="max-w-md text-sm leading-relaxed text-pulse-muted">{LIFECYCLE_DESCRIPTIONS[lifecycle]}</p>
+          <p className="font-mono text-xs text-pulse-muted">
+            {accumulatedWeight} / {threshold} unresponsiveness weight ({percentage}%)
           </p>
         </div>
       </div>

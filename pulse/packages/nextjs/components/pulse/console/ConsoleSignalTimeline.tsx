@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 import { WalrusEvidenceModal } from "~~/components/pulse/walrus/WalrusEvidenceModal";
+import { formatSignalWeight } from "~~/constants/pulseProtocol";
 import { useReducedMotion } from "~~/hooks/useReducedMotion";
 import type { ConsoleSignal } from "~~/types/pulse";
 import { parseWalrusBlobId } from "~~/utils/walrus";
@@ -27,7 +28,10 @@ export const ConsoleSignalTimeline = ({ signals }: ConsoleSignalTimelineProps) =
   return (
     <>
       <section className="pulse-card p-5 sm:p-6">
-        <h2 className="mb-4 text-base font-semibold text-base-content">Signal timeline</h2>
+        <h2 className="mb-1 text-base font-semibold text-base-content">Signal audit trail</h2>
+        <p className="mb-4 text-sm text-pulse-muted">
+          Each signal references Walrus evidence (Seal-encrypted in production). Only current-epoch window signals count.
+        </p>
 
         <ol className="space-y-3">
           {signals.map((signal, index) => {
@@ -44,11 +48,7 @@ export const ConsoleSignalTimeline = ({ signals }: ConsoleSignalTimelineProps) =
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-sm font-medium text-base-content">{signal.signalType}</p>
-                    <p className="text-xs text-pulse-muted">
-                      {signal.direction === "positive" ? "Positive" : "Negative"} · Weight{" "}
-                      {signal.weight > 0 ? "+" : ""}
-                      {signal.weight}
-                    </p>
+                    <p className="text-xs text-pulse-muted">{formatSignalWeight(signal.direction, signal.weight)}</p>
                   </div>
                   <span className="font-mono text-xs text-pulse-muted">{formatTimestamp(signal.timestamp)}</span>
                 </div>

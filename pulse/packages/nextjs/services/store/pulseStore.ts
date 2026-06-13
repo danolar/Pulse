@@ -9,6 +9,7 @@ import {
   type ProfileConfig,
   type SignalAdapter,
   type VerificationAttempt,
+  type VerificationType,
 } from "~~/types/pulse";
 import type { PulseWorldIdVerification } from "~~/utils/worldIdProof";
 import { assertStoredNullifier, isMockWorldIdVerification } from "~~/utils/worldIdProof";
@@ -17,7 +18,7 @@ const buildAttempts = (count: number): VerificationAttempt[] =>
   Array.from({ length: count }, (_, index) => ({
     id: `attempt-${index + 1}`,
     status: index === 0 ? "revealed" : "locked",
-    verificationType: index === 0 ? "World ID" : undefined,
+    verificationType: index === 0 ? "WORLD_ID" : undefined,
     isActive: index === 0,
     expiredUnopened: index === 1 && count > 1,
   }));
@@ -25,15 +26,15 @@ const buildAttempts = (count: number): VerificationAttempt[] =>
 const initialSignals: ConsoleSignal[] = [
   {
     id: "sig-1",
-    signalType: "Onchain activity",
-    direction: "positive",
-    weight: -8,
+    signalType: "ONCHAIN_TX",
+    direction: "negative",
+    weight: 8,
     timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
     walrusBlobId: toWalrusBlobRef(WALRUS_DEMO_BLOBS.onchainActivity),
   },
   {
     id: "sig-2",
-    signalType: "Missed check-in",
+    signalType: "Missed attempt",
     direction: "negative",
     weight: 15,
     timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
@@ -65,13 +66,14 @@ type PulseState = {
   mockSaveConfig: (config: ProfileConfig) => void;
   mockAddAdapter: (adapter: Omit<SignalAdapter, "id">) => void;
   mockAddRequestor: (address: string) => void;
+  mockClaimRequestorSlot: (requestorAddress: string, verification?: PulseWorldIdVerification) => void;
   mockCompleteSetup: () => void;
   mockCheckIn: (verification?: PulseWorldIdVerification) => void;
   mockRequestExtension: (verification?: PulseWorldIdVerification) => void;
   mockBlock: (verification?: PulseWorldIdVerification) => void;
   mockResurrect: (verification?: PulseWorldIdVerification) => void;
   mockRequestEvaluation: (verification?: PulseWorldIdVerification) => void;
-  mockRespondToAttempt: (attemptId: string) => void;
+  mockRespondToAttempt: (attemptId: string, verificationType?: VerificationType) => void;
   mockForceOpenAttempt: () => void;
   appendSignal: (signal: Omit<ConsoleSignal, "id" | "timestamp"> & { timestamp?: string }) => void;
 };
@@ -98,7 +100,6 @@ export const usePulseStore = create<PulseState>((set, get) => ({
   setActingAs: role => set({ actingAs: role }),
 
   mockCreateProfile: (profileId, verification) => {
-    // TODO: wire to PulseOracle.createProfile(profileId, proof)
     if (verification && !isMockWorldIdVerification(verification) && verification.level !== "device") {
       throw new Error("createProfile requires Device-level World ID verification.");
     }
@@ -113,7 +114,6 @@ export const usePulseStore = create<PulseState>((set, get) => ({
   },
 
   mockBindOrb: verification => {
-    // TODO: wire to PulseOracle.bindOrbIdentity(profileId, proof)
     if (verification && !isMockWorldIdVerification(verification) && verification.level !== "orb") {
       throw new Error("bindOrbIdentity requires Orb-level World ID verification.");
     }
@@ -125,7 +125,6 @@ export const usePulseStore = create<PulseState>((set, get) => ({
   },
 
   mockSaveConfig: config => {
-    // TODO: wire to PulseOracle.setConfig(...)
     set({
       config,
       configSaved: true,
@@ -134,16 +133,31 @@ export const usePulseStore = create<PulseState>((set, get) => ({
   },
 
   mockAddAdapter: adapter => {
-    // TODO: wire to PulseOracle.authorizeAdapter(address, weight, label)
     set(state => ({
       adapters: [...state.adapters, { ...adapter, id: crypto.randomUUID() }],
     }));
   },
 
   mockAddRequestor: address => {
-    // TODO: wire to PulseOracle.authorizeRequestor(address)
     set(state => ({
-      requestors: [...state.requestors, { id: crypto.randomUUID(), address }],
+      requestors: [
+        ...state.requestors,
+        { id: crypto.randomUUID(), address, authorized: true, claimed: false },
+      ],
+    }));
+  },
+
+  mockClaimRequestorSlot: (requestorAddress, verification) => {
+    if (verification && !isMockWorldIdVerification(verification) && verification.level !== "device") {
+      throw new Error("claimRequestorSlot requires Device-level World ID verification.");
+    }
+
+    set(state => ({
+      requestors: state.requestors.map(requestor =>
+        requestor.address.toLowerCase() === requestorAddress.toLowerCase()
+          ? { ...requestor, claimed: true }
+          : requestor,
+      ),
     }));
   },
 
@@ -154,29 +168,23 @@ export const usePulseStore = create<PulseState>((set, get) => ({
       setupComplete: true,
       lifecycle: "ACTIVE",
       epoch: 1,
-      accumulatedWeight: 35,
+      accumulatedWeight: 23,
       attempts: buildAttempts(config.attemptsPerWindow),
     });
   },
 
   mockCheckIn: verification => {
-    // TODO: wire to PulseOracle.checkin(...)
     assertStoredNullifier(verification ?? { mock: true, level: "device" }, get().deviceNullifierHash, "device");
-    const state = get();
-    set({
-      accumulatedWeight: Math.max(0, state.accumulatedWeight - 20),
-      lifecycle: "ACTIVE",
-    });
+    set({ accumulatedWeight: 0, lifecycle: "ACTIVE" });
     get().appendSignal({
-      signalType: "Owner check-in",
+      signalType: "WORLD_ID check-in",
       direction: "positive",
-      weight: -20,
+      weight: 0,
       walrusBlobId: toWalrusBlobRef(WALRUS_DEMO_BLOBS.checkin),
     });
   },
 
   mockRequestExtension: verification => {
-    // TODO: wire to PulseOracle.requestExtension(...)
     assertStoredNullifier(verification ?? { mock: true, level: "device" }, get().deviceNullifierHash, "device");
     get().appendSignal({
       signalType: "Extension requested",
@@ -187,48 +195,52 @@ export const usePulseStore = create<PulseState>((set, get) => ({
   },
 
   mockBlock: verification => {
-    // TODO: wire to PulseOracle.block(...)
     assertStoredNullifier(verification ?? { mock: true, level: "orb" }, get().orbNullifierHash, "orb");
     set({ lifecycle: "BLOCKED", accumulatedWeight: 0 });
   },
 
   mockResurrect: verification => {
-    // TODO: wire to PulseOracle.resurrect(...)
     assertStoredNullifier(verification ?? { mock: true, level: "orb" }, get().orbNullifierHash, "orb");
-    set({ lifecycle: "ACTIVE", accumulatedWeight: 20, epoch: get().epoch + 1 });
-  },
-
-  mockRequestEvaluation: () => {
-    // TODO: wire to PulseOracle.requestEvaluation(...) with requestor nullifier from claimRequestorSlot
-    set({ lifecycle: "EVALUATING" });
+    set({ lifecycle: "ACTIVE", accumulatedWeight: 0, epoch: get().epoch + 1 });
     get().appendSignal({
-      signalType: "Evaluation requested",
-      direction: "negative",
-      weight: 5,
+      signalType: "Resurrection (Orb)",
+      direction: "positive",
+      weight: 0,
       walrusBlobId: toWalrusBlobRef(WALRUS_DEMO_BLOBS.checkin),
     });
   },
 
-  mockRespondToAttempt: attemptId => {
-    // TODO: wire to PulseOracle.respondToAttempt(...)
+  mockRequestEvaluation: () => {
+    set({ lifecycle: "EVALUATING" });
+    get().appendSignal({
+      signalType: "Evaluation requested",
+      direction: "negative",
+      weight: 0,
+      walrusBlobId: toWalrusBlobRef(WALRUS_DEMO_BLOBS.checkin),
+    });
+  },
+
+  mockRespondToAttempt: (attemptId, verificationType = "WORLD_ID") => {
+    const isLifeProof = verificationType === "WORLD_ID" || verificationType === "ONCHAIN_TX";
+
     set(state => ({
       attempts: state.attempts.map(attempt =>
         attempt.id === attemptId
           ? { ...attempt, status: "completed" as const, result: "success" as const, isActive: false }
           : attempt,
       ),
-      accumulatedWeight: Math.max(0, state.accumulatedWeight - 10),
+      accumulatedWeight: isLifeProof ? 0 : state.accumulatedWeight,
     }));
+
     get().appendSignal({
-      signalType: "Attempt response",
+      signalType: verificationType === "ONCHAIN_TX" ? "ONCHAIN_TX response" : "Attempt response",
       direction: "positive",
-      weight: -10,
+      weight: 0,
       walrusBlobId: toWalrusBlobRef(WALRUS_DEMO_BLOBS.checkin),
     });
   },
 
   mockForceOpenAttempt: () => {
-    // TODO: wire to PulseOracle.forceOpenAttempt(...)
     set(state => {
       const targetIndex = state.attempts.findIndex(a => a.expiredUnopened || a.status === "locked");
       if (targetIndex === -1) return state;
@@ -239,7 +251,7 @@ export const usePulseStore = create<PulseState>((set, get) => ({
             ? {
                 ...attempt,
                 status: "revealed" as const,
-                verificationType: "World ID",
+                verificationType: "ONCHAIN_TX" as VerificationType,
                 isActive: true,
                 expiredUnopened: false,
               }
