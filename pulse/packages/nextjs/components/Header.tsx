@@ -162,7 +162,7 @@ export const Header = () => {
             ))}
           </nav>
 
-          <div className="flex h-8 min-w-[5.5rem] items-center justify-end sm:min-w-[7.25rem] md:min-w-[12rem]">
+          <div className="flex min-w-0 items-center justify-end">
             <RainbowKitCustomConnectButton />
           </div>
         </div>

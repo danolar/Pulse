@@ -23,22 +23,16 @@ export const NetworkOptions = ({ hidden = false }: NetworkOptionsProps) => {
         .map(allowedNetwork => (
           <li key={allowedNetwork.id} className={hidden ? "hidden" : ""}>
             <button
-              className="menu-item btn-sm rounded-xl! flex gap-3 py-3 whitespace-nowrap"
+              className="pulse-wallet-menu-item w-full border-none bg-transparent"
               type="button"
               onClick={() => {
                 switchChain?.({ chainId: allowedNetwork.id });
               }}
             >
-              <ArrowsRightLeftIcon className="h-6 w-4 ml-2 sm:ml-0" />
-              <span>
+              <ArrowsRightLeftIcon className="h-4 w-4 shrink-0" />
+              <span className="whitespace-nowrap">
                 Switch to{" "}
-                <span
-                  style={{
-                    color: getNetworkColor(allowedNetwork, isDarkMode),
-                  }}
-                >
-                  {allowedNetwork.name}
-                </span>
+                <span style={{ color: getNetworkColor(allowedNetwork, isDarkMode) }}>{allowedNetwork.name}</span>
               </span>
             </button>
           </li>

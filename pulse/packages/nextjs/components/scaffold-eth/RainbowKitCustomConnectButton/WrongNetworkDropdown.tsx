@@ -6,23 +6,23 @@ export const WrongNetworkDropdown = () => {
   const { disconnect } = useDisconnect();
 
   return (
-    <div className="dropdown dropdown-end mr-2">
-      <label tabIndex={0} className="btn btn-error btn-sm dropdown-toggle gap-1">
-        <span>Wrong network</span>
-        <ChevronDownIcon className="h-6 w-4 ml-2 sm:ml-0" />
-      </label>
-      <ul
+    <div className="dropdown dropdown-end">
+      <label
         tabIndex={0}
-        className="dropdown-content menu p-2 mt-1 shadow-center shadow-accent bg-base-200 rounded-box gap-1"
+        className="btn btn-sm flex h-9 min-h-9 items-center gap-1.5 rounded-2xl border border-pulse-unresponsive/25 bg-pulse-unresponsive/10 px-3 font-medium normal-case text-pulse-unresponsive shadow-none hover:bg-pulse-unresponsive/15"
       >
+        <span className="text-xs">Wrong network</span>
+        <ChevronDownIcon className="h-3.5 w-3.5 shrink-0" />
+      </label>
+      <ul tabIndex={0} className="dropdown-content menu pulse-wallet-menu mt-2 gap-0.5">
         <NetworkOptions />
         <li>
           <button
-            className="menu-item text-error btn-sm rounded-xl! flex gap-3 py-3"
+            className="pulse-wallet-menu-item pulse-wallet-menu-danger w-full border-none bg-transparent"
             type="button"
             onClick={() => disconnect()}
           >
-            <ArrowLeftOnRectangleIcon className="h-6 w-4 ml-2 sm:ml-0" />
+            <ArrowLeftOnRectangleIcon className="h-4 w-4 shrink-0" />
             <span>Disconnect</span>
           </button>
         </li>

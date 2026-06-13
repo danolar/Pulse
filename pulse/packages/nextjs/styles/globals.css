@@ -295,6 +295,46 @@
   @apply inline-flex items-center gap-1.5;
 }
 
+.pulse-wallet-cluster {
+  @apply flex max-w-full items-center rounded-2xl border border-base-content/8 bg-base-100/80 p-0.5 shadow-pulse-sm backdrop-blur-sm;
+}
+
+.pulse-wallet-balance {
+  @apply hidden min-w-0 px-2.5 text-xs font-medium tabular-nums text-base-content md:block;
+}
+
+.pulse-wallet-network {
+  @apply badge badge-sm hidden max-w-[5.5rem] shrink-0 truncate border-none bg-primary/10 px-2 font-medium normal-case text-primary md:inline-flex;
+}
+
+.pulse-wallet-connect {
+  @apply btn btn-primary btn-sm h-9 min-h-9 rounded-2xl px-4 shadow-pulse-sm;
+}
+
+.pulse-wallet-address {
+  @apply btn btn-ghost btn-sm h-9 min-h-9 gap-1.5 rounded-2xl border-none bg-transparent px-1.5 pr-2 shadow-none hover:bg-primary/8;
+}
+
+.pulse-wallet-menu {
+  @apply z-50 mt-2 w-52 rounded-2xl border border-base-content/8 bg-base-100/95 p-2 shadow-pulse-md backdrop-blur-md;
+}
+
+.pulse-wallet-menu-item {
+  @apply flex h-9 items-center gap-2 rounded-xl px-2 text-sm text-base-content/90;
+}
+
+.pulse-wallet-menu-item:hover {
+  @apply bg-primary/8;
+}
+
+.pulse-wallet-menu-danger {
+  @apply text-pulse-unresponsive;
+}
+
+.pulse-wallet-menu-danger:hover {
+  @apply bg-pulse-unresponsive/10;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .pulse-card-interactive:hover {
     transform: none;

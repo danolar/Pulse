@@ -47,16 +47,12 @@ export const getMetadata = ({
       icon: [
         {
           url: "/brand/pulse-icon.svg",
-          sizes: "512x512",
-          type: "image/svg+xml",
-        },
-        {
-          url: "/brand/pulse-mark.svg",
-          sizes: "48x48",
           type: "image/svg+xml",
         },
       ],
       apple: "/brand/pulse-icon.svg",
+      shortcut: "/brand/pulse-icon.svg",
     },
+    manifest: "/manifest.json",
   };
 };

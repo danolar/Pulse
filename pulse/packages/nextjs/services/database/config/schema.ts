@@ -1,3 +1,5 @@
+import "server-only";
+
 import { integer, jsonb, pgTable, timestamp, varchar } from "drizzle-orm/pg-core";
 import type { PersistedPulseProfile } from "~~/services/store/pulseStore";
 
