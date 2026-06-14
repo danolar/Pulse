@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import { deployScript, artifacts } from "../rocketh/deploy.js";
+import { HACKATHON_CRE_ADAPTER_ADDRESS } from "../scripts/creHackathonAdapter.js";
 
 const SEPOLIA_WORLD_ID_ROUTER = "0x469449f251692e0779667583026b5a1e99512157" as const;
 const DEV_PROFILE_OWNER = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8" as const;
@@ -33,7 +34,11 @@ export default deployScript(
     console.log("Deploy network:", deployNetwork);
 
     const profileOwner = resolveAddress(process.env.PULSE_PROFILE_OWNER, DEV_PROFILE_OWNER, "PULSE_PROFILE_OWNER");
-    const creAdapter = resolveAddress(process.env.CRE_ADAPTER_ADDRESS, deployer, "CRE_ADAPTER_ADDRESS");
+    const creAdapter = resolveAddress(
+      process.env.CRE_ADAPTER_ADDRESS,
+      HACKATHON_CRE_ADAPTER_ADDRESS,
+      "CRE_ADAPTER_ADDRESS",
+    );
 
     let worldIdRouterAddress: `0x${string}`;
     if (isSepolia) {

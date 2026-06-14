@@ -20,7 +20,11 @@
     "lint": "eslint",
     "lint-staged": "eslint",
     "test": "hardhat test --network hardhat --gas-stats",
-    "verify": "tsx scripts/runVerify.ts"
+    "verify": "tsx scripts/runVerify.ts",
+    "cre:adapter:info": "tsx scripts/creAdapterInfo.ts",
+    "cre:adapter:reveal-key": "tsx scripts/creAdapterRevealKey.ts",
+    "cre:adapter:authorize": "tsx scripts/runWithDeployerPK.ts scripts/authorizeCreAdapter.ts",
+    "cre:report": "tsx scripts/runCreReport.ts"
   },
   "dependencies": {
     "@inquirer/password": "^4.0.2",

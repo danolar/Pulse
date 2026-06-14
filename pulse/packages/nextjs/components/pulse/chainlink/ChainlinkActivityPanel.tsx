@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { ExternalLink, RefreshCw, Zap } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
 import { usePulseStore } from "~~/services/store/pulseStore";
 
@@ -20,17 +20,6 @@ type ActivityResponse = {
   error?: string;
 };
 
-type ReportResponse = {
-  status: string;
-  txHash?: string;
-  walrusBlobId?: string;
-  walrusRef?: string;
-  chainRef?: string;
-  explorerUrl?: string;
-  message?: string;
-  error?: string;
-};
-
 /** Seeded hackathon profile owner (Hardhat #1) — monitored by CRE adapter. */
 const DEMO_PROFILE_OWNER = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
 
@@ -38,9 +27,7 @@ export const ChainlinkActivityPanel = () => {
   const { config } = usePulseStore();
   const watchAddress = DEMO_PROFILE_OWNER;
   const [loading, setLoading] = useState(false);
-  const [reporting, setReporting] = useState(false);
   const [result, setResult] = useState<ActivityResponse | null>(null);
-  const [reportResult, setReportResult] = useState<ReportResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const thresholdSeconds = Math.min(config.responseWindow * 60, 3600);
@@ -49,7 +36,6 @@ export const ChainlinkActivityPanel = () => {
   const evaluate = useCallback(async () => {
     setLoading(true);
     setError(null);
-    setReportResult(null);
 
     try {
       const params = new URLSearchParams({
@@ -73,40 +59,6 @@ export const ChainlinkActivityPanel = () => {
     }
   }, [watchAddress, thresholdSeconds, weight]);
 
-  const reportOnchain = useCallback(
-    async (force = false) => {
-      setReporting(true);
-      setError(null);
-
-      try {
-        const response = await fetch("/api/chainlink/report", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            address: watchAddress,
-            thresholdSeconds,
-            weight,
-            force,
-          }),
-        });
-
-        const body = (await response.json()) as ReportResponse & { error?: string };
-
-        if (!response.ok) {
-          throw new Error(body.error ?? body.message ?? `HTTP ${response.status}`);
-        }
-
-        setReportResult(body);
-      } catch (fetchError) {
-        setError(fetchError instanceof Error ? fetchError.message : "Onchain report failed");
-        setReportResult(null);
-      } finally {
-        setReporting(false);
-      }
-    },
-    [watchAddress, thresholdSeconds, weight],
-  );
-
   const canReport = result?.evaluation?.shouldReportInactive ?? false;
 
   return (
@@ -120,21 +72,18 @@ export const ChainlinkActivityPanel = () => {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <PulseButton variant="secondary" className="shrink-0" disabled={loading || reporting} onClick={evaluate}>
+          <PulseButton variant="secondary" className="shrink-0" disabled={loading} onClick={evaluate}>
             <RefreshCw className={`mr-2 h-4 w-4 ${loading ? "animate-spin" : ""}`} />
             Simulate adapter
           </PulseButton>
-          <PulseButton
-            variant="primary"
-            className="shrink-0"
-            disabled={loading || reporting || !result}
-            onClick={() => reportOnchain(canReport ? false : true)}
-          >
-            <Zap className={`mr-2 h-4 w-4 ${reporting ? "animate-pulse" : ""}`} />
-            Report onchain (CRE)
-          </PulseButton>
         </div>
       </div>
+
+      <p className="mb-3 text-xs text-pulse-muted">
+        Onchain broadcast uses the dedicated hackathon CRE wallet (Hardhat account #3), not your deployer. From repo
+        root: <code className="text-[11px]">yarn cre:report -- --force</code> after funding{" "}
+        <code className="text-[11px]">0x90F79…3b906</code> on Sepolia.
+      </p>
 
       {error ? <p className="mb-3 text-sm text-error">{error}</p> : null}
 
@@ -169,31 +118,10 @@ export const ChainlinkActivityPanel = () => {
         </dl>
       ) : null}
 
-      {reportResult?.txHash ? (
-        <div className="mt-4 rounded-2xl border border-success/30 bg-success/5 p-4 text-sm">
-          <p className="font-medium text-success">Signal reported on Sepolia</p>
-          <p className="mt-2 font-mono text-xs break-all">tx: {reportResult.txHash}</p>
-          {reportResult.walrusBlobId ? (
-            <p className="mt-1 font-mono text-xs break-all">Walrus: {reportResult.walrusBlobId}</p>
-          ) : null}
-          {reportResult.explorerUrl ? (
-            <a
-              href={reportResult.explorerUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 inline-flex items-center gap-1 text-xs link link-primary"
-            >
-              View on Etherscan
-              <ExternalLink className="h-3 w-3" />
-            </a>
-          ) : null}
-        </div>
-      ) : null}
-
       {!canReport && result ? (
         <p className="mt-3 text-xs text-pulse-muted">
-          Report button uses demo override when threshold not met. Requires <code>CRE_ADAPTER_PRIVATE_KEY</code> in{" "}
-          <code>.env.local</code>.
+          Evaluation only in UI. Broadcast via CLI after{" "}
+          <code className="text-[11px]">yarn cre:adapter:authorize --network sepolia</code>.
         </p>
       ) : null}
     </section>

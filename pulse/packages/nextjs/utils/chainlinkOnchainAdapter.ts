@@ -219,7 +219,9 @@ export const reportInactiveSignalOnchain = async (options?: {
   }
 
   if (!config.adapterPrivateKey) {
-    throw new Error("Missing CRE_ADAPTER_PRIVATE_KEY for onchain reportSignal");
+    throw new Error(
+      "Onchain broadcast is disabled in the app. Fund the hackathon CRE adapter and run: yarn cre:report -- --force",
+    );
   }
 
   const publicClient = getSepoliaPublicClient(config.rpcUrl);

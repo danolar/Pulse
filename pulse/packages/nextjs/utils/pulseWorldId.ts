@@ -1,8 +1,8 @@
-import { getAddress, keccak256, toUtf8Bytes } from "ethers";
+import { getAddress, keccak256, stringToBytes } from "viem";
 
 /** Semaphore-compatible field hash — matches PulseWorldId.sol */
 export const hashToField = (value: string): bigint => {
-  const hash = keccak256(toUtf8Bytes(value));
+  const hash = keccak256(stringToBytes(value));
   return BigInt(hash) >> 8n;
 };
 
