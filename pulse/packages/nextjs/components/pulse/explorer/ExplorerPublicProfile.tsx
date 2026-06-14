@@ -14,10 +14,10 @@ export const ProfileHeader = ({ ownerAddress }: ProfileHeaderProps) => {
 
   const firstLabel = view.firstSignalAt
     ? new Date(view.firstSignalAt).toLocaleDateString(undefined, { dateStyle: "medium" })
-    : "—";
+    : "None";
   const lastLabel = view.lastSignalAt
     ? new Date(view.lastSignalAt).toLocaleDateString(undefined, { dateStyle: "medium" })
-    : "—";
+    : "None";
 
   return (
     <header className="pulse-card p-5 sm:p-6">

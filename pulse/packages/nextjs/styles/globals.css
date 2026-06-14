@@ -6,7 +6,7 @@
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-comfortaa), var(--font-sans);
 
-  /* Pulse brand — light application (dark mode deferred) */
+  /* Pulse brand tokens (overridden in [data-theme="dark"]) */
   --color-pulse-accent: #4c66ff;
   --color-pulse-primary: #4c66ff;
   --color-pulse-galaxy: #0b0b1e;
@@ -152,6 +152,18 @@
   }
 }
 
+[data-theme="dark"] {
+  --color-pulse-ink: #f8f6ff;
+  --color-pulse-secondary: #c8c3dc;
+  --color-pulse-muted: #9892a8;
+
+  --shadow-pulse-sm: 0 1px 2px rgb(0 0 0 / 0.35), 0 4px 16px rgb(76 102 255 / 0.12);
+  --shadow-pulse-md: 0 2px 4px rgb(0 0 0 / 0.4), 0 8px 28px rgb(76 102 255 / 0.16);
+  --shadow-pulse-lg: 0 4px 8px rgb(0 0 0 / 0.45), 0 16px 40px rgb(76 102 255 / 0.2);
+
+  color-scheme: dark;
+}
+
 :root,
 [data-theme] {
   background: var(--color-base-200);
@@ -195,16 +207,9 @@
   font-family: var(--font-sans);
   font-weight: 300;
   font-style: italic;
-  font-size: 0.5rem;
   letter-spacing: 0.01em;
-  line-height: 1.1;
-  text-transform: lowercase;
+  line-height: 1.4;
   color: var(--color-pulse-muted);
-  display: block;
-  width: 100%;
-  text-align: justify;
-  text-align-last: justify;
-  text-justify: inter-character;
 }
 
 .btn {

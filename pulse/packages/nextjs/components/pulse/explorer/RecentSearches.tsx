@@ -14,9 +14,9 @@ export const RecentSearches = () => {
   if (recent.length === 0) return null;
 
   return (
-    <div className="mx-auto w-full max-w-lg">
+    <div className="mx-auto w-full max-w-lg text-center">
       <p className="mb-2 text-xs font-medium text-pulse-muted">Recent</p>
-      <ul className="flex flex-wrap gap-2">
+      <ul className="flex flex-wrap justify-center gap-2">
         {recent.map(address => (
           <li key={address}>
             <Link

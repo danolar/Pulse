@@ -69,7 +69,7 @@ export const ProfileConsole = () => {
       <div className="space-y-6">
         {isConsumerReadOnly ? (
           <p className="rounded-2xl border border-base-content/10 bg-base-200/40 px-4 py-3 text-sm text-pulse-muted">
-            Read-only — you are monitoring this profile as the integrating app.
+            Read-only view. You are monitoring this profile as the integrating app.
           </p>
         ) : null}
 

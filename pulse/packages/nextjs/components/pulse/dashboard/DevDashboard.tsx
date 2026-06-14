@@ -50,9 +50,7 @@ export const DevDashboard = () => {
           {profiles.length === 0 ? (
             <div className="px-5 py-12 text-center sm:px-6">
               <p className="mb-2 text-sm font-medium">No profiles yet</p>
-              <p className="mb-4 text-sm text-pulse-muted">
-                Create profiles from your app, or load a demo from Test integration.
-              </p>
+              <p className="mb-4 text-sm text-pulse-muted">Create profiles from your app, or try the lab demo.</p>
               <div className="flex flex-wrap justify-center gap-2">
                 <Link href="/lab">
                   <PulseButton variant="secondary">Test integration</PulseButton>
@@ -69,7 +67,7 @@ export const DevDashboard = () => {
                   <tr className="text-pulse-muted">
                     <th>Owner</th>
                     <th>Lifecycle</th>
-                    <th className="hidden md:table-cell">Weight / threshold</th>
+                    <th className="hidden md:table-cell">Weight toward threshold</th>
                     <th className="hidden sm:table-cell">Last signal</th>
                     <th />
                   </tr>
@@ -89,7 +87,7 @@ export const DevDashboard = () => {
                       <td className="hidden text-xs sm:table-cell">
                         {profile.lastSignalAt
                           ? new Date(profile.lastSignalAt).toLocaleDateString(undefined, { dateStyle: "medium" })
-                          : "—"}
+                          : "None"}
                       </td>
                       <td className="text-right">
                         <Link href={`/dashboard/${profile.profileId}`} className="btn btn-ghost btn-xs rounded-lg">

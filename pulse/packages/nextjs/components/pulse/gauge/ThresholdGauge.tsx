@@ -68,7 +68,7 @@ export const ThresholdGauge = ({
       className="relative mx-auto shrink-0 [&_.recharts-wrapper]:mx-auto [&_.recharts-wrapper]:max-w-none"
       style={{ width: size, height: size, minWidth: size, minHeight: size }}
       role="img"
-      aria-label={`${label}: ${percentage}% · ${gaugeState.label}`}
+      aria-label={`${label}: ${percentage}%, ${gaugeState.label}`}
     >
       <PieChart width={size} height={size} margin={{ top: 0, right: 0, bottom: 0, left: 0 }} className="mx-auto block">
         <Pie
@@ -90,7 +90,7 @@ export const ThresholdGauge = ({
       </PieChart>
 
       <div
-        className="pointer-events-none absolute left-1/2 top-[51%] w-full max-w-[72%] -translate-x-1/2 -translate-y-1/2 text-center"
+        className="pointer-events-none absolute left-1/2 top-1/2 w-full max-w-[72%] -translate-x-1/2 -translate-y-1/2 text-center"
         aria-hidden
       >
         <motion.div

@@ -1,53 +1,19 @@
 "use client";
 
-import * as React from "react";
+import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
+import type { ThemeProviderProps } from "next-themes";
 
-type ThemeContextValue = {
-  theme: string;
-  setTheme: (theme: string | ((theme: string) => string)) => void;
-  forcedTheme?: string;
-  resolvedTheme?: string;
-  themes: string[];
-  systemTheme?: string;
-};
+export { useTheme };
 
-const ThemeContext = React.createContext<ThemeContextValue>({
-  theme: "light",
-  setTheme: () => {},
-  resolvedTheme: "light",
-  themes: ["light"],
-});
-
-export const useTheme = () => React.useContext(ThemeContext);
-
-type ThemeProviderProps = {
-  children: React.ReactNode;
-  attribute?: string;
-  defaultTheme?: string;
-  forcedTheme?: string;
-  enableSystem?: boolean;
-  storageKey?: string;
-};
-
-export const ThemeProvider = ({
-  children,
-  attribute = "data-theme",
-  forcedTheme = "light",
-}: ThemeProviderProps) => {
-  const value = React.useMemo<ThemeContextValue>(
-    () => ({
-      theme: forcedTheme,
-      setTheme: () => {},
-      forcedTheme,
-      resolvedTheme: forcedTheme,
-      themes: [forcedTheme],
-    }),
-    [forcedTheme],
-  );
-
-  React.useEffect(() => {
-    document.documentElement.setAttribute(attribute, forcedTheme);
-  }, [attribute, forcedTheme]);
-
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
-};
+export const ThemeProvider = ({ children, ...props }: ThemeProviderProps) => (
+  <NextThemesProvider
+    attribute="data-theme"
+    defaultTheme="system"
+    enableSystem
+    storageKey="pulse-theme"
+    themes={["light", "dark"]}
+    {...props}
+  >
+    {children}
+  </NextThemesProvider>
+);

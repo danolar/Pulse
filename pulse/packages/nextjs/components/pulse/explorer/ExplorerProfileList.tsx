@@ -40,7 +40,7 @@ const SparseTimeline = ({ timestamps }: { timestamps: string[] }) => {
         })}
       </div>
       <p className="text-xs text-pulse-muted">
-        {sorted.length} signal{sorted.length === 1 ? "" : "s"} over time — timing only, no content or weight.
+        {sorted.length} signal{sorted.length === 1 ? "" : "s"} over time. Timing only, no content or weight.
       </p>
     </div>
   );
@@ -99,7 +99,9 @@ const ThresholdEvents = ({
           >
             <div>
               <p className="text-sm font-medium">{event.kind.replace("_", " ")}</p>
-              <p className="text-xs text-pulse-muted">{formatDate(event.timestamp)} · epoch {event.epoch}</p>
+              <p className="text-xs text-pulse-muted">
+                {formatDate(event.timestamp)}, epoch {event.epoch}
+              </p>
             </div>
             <ViewEvidenceButton blobId={event.auditBlobId} profileId={profileId} />
           </li>
@@ -142,7 +144,7 @@ const ProfileCard = ({ profile }: { profile: PublicOwnerProfileView }) => (
           </div>
           <div>
             <dt className="text-xs text-pulse-muted">Most recent</dt>
-            <dd>{profile.lastSignalAt ? formatDate(profile.lastSignalAt) : "—"}</dd>
+            <dd>{profile.lastSignalAt ? formatDate(profile.lastSignalAt) : "None"}</dd>
           </div>
         </dl>
         <SparseTimeline timestamps={profile.signalTimestamps} />
@@ -157,9 +159,7 @@ export const ExplorerProfileList = ({ profiles }: { profiles: PublicOwnerProfile
   <section className="space-y-4">
     <div>
       <h2 className="pulse-section-title">Profiles</h2>
-      <p className="mt-1 text-sm text-pulse-muted">
-        One card per integration context. Oracle state is public; weights and signal detail stay private.
-      </p>
+      <p className="mt-1 text-sm text-pulse-muted">One card per integration context.</p>
     </div>
     {profiles.map(profile => (
       <ProfileCard key={profile.profileId} profile={profile} />

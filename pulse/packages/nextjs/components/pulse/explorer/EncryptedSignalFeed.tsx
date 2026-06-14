@@ -103,7 +103,7 @@ export const EncryptedSignalFeed = ({ ownerAddress }: { ownerAddress: string }) 
         <div className="border-b border-base-content/10 px-5 py-4 sm:px-6">
           <h2 className="pulse-section-title">Encrypted signal feed</h2>
           <p className="mt-1 text-sm text-pulse-muted">
-            Walrus blob references across all consumer contexts — content remains encrypted.
+            Walrus blob references across all consumer contexts. Content remains encrypted.
           </p>
         </div>
 

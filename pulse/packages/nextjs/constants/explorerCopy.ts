@@ -2,7 +2,7 @@ export const PULSE_WHAT_IS =
   "Pulse accumulates weighted signals onchain and emits a verifiable event when a profile crosses its threshold.";
 
 export const PULSE_EXPLORER_TOOL_NOTE =
-  "Search any address to see public oracle results. Signal detail is available in the integrating app's dashboard.";
+  "Search any address to see public oracle results. Signal detail stays in the integrating app's dashboard.";
 
 export const EXPLORER_SEARCH_LABEL = "Search a wallet address";
 
@@ -23,10 +23,10 @@ export const VIEWING_BANNER =
   "Read-only view. Owner and requestor actions run in the integrating app.";
 
 export const EXPLORER_BROWSE_NOTE =
-  "Public oracle results — lifecycle state, threshold events, and signal timing. Weights and signal content stay private.";
+  "Public oracle results: lifecycle state, threshold events, and signal timing. Weights and signal content stay private.";
 
 export const PUBLIC_VIEW_NOTE =
-  "Public activity for this address. Weights and configuration are visible only to the integrating app.";
+  "Weights and configuration are visible only to the integrating app.";
 
 export const SIGNAL_ACTIVITY_TITLE = "Signal activity";
 

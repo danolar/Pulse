@@ -24,7 +24,7 @@ export const EvidenceViewer = ({ blobId, onClose, mode = "private" }: EvidenceVi
     if (mode === "public") {
       setLoading(false);
       setContent(null);
-      setError("Encrypted blob — public routes never return decoded payload.");
+      setError("Encrypted blob. Public routes never return decoded payload.");
       return;
     }
 

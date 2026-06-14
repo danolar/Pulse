@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import { PageShell, SectionHeader } from "~~/components/pulse";
 import { ExplorerBrowseNote } from "~~/components/pulse/explorer/ExplorerBrowseNote";
 import { ExplorerProfileList } from "~~/components/pulse/explorer/ExplorerProfileList";
-import { ProfileHeader, PublicViewNote } from "~~/components/pulse/explorer/ExplorerPublicProfile";
+import { ProfileHeader } from "~~/components/pulse/explorer/ExplorerPublicProfile";
 import { ProfileNotFound } from "~~/components/pulse/explorer/ProfileBanners";
 import { useExplorerOwnerView } from "~~/hooks/pulse/useExplorerOwnerView";
 import { isEthAddress, pushRecentSearch } from "~~/utils/pulse/explorerAddress";
@@ -42,12 +42,11 @@ export const ProfileDetailPage = () => {
       <SectionHeader
         title="Pulse oracle activity"
         eyebrow="public explorer"
-        subtitle="Public oracle activity for this address"
+        subtitle={profileAddress}
       />
 
       <div className="space-y-6">
         <ExplorerBrowseNote />
-        <PublicViewNote />
         <ProfileHeader ownerAddress={profileAddress} />
         <ExplorerProfileList profiles={view.profiles} />
       </div>

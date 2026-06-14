@@ -3,14 +3,10 @@
 import { Check, HelpCircle, Lock, X } from "lucide-react";
 import { PulseWorldIdButton } from "~~/components/pulse/world-id/PulseWorldIdButton";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
-import {
-  WINDOW_SCHEDULE_FOOTNOTE,
-  WINDOW_SCHEDULE_NOTE,
-} from "~~/constants/explorerCopy";
 import { VERIFICATION_TYPE_LABELS, worldIdActions } from "~~/constants/pulseProtocol";
 import type { ProfileRole } from "~~/hooks/pulse/useProfileConsole";
 import { usePulseStore } from "~~/services/store/pulseStore";
-import { LIFECYCLE_LABELS, type LifecycleState, type VerificationAttempt } from "~~/types/pulse";
+import { type LifecycleState, type VerificationAttempt } from "~~/types/pulse";
 import { notification } from "~~/utils/scaffold-eth/notification";
 import type { PulseWorldIdVerification } from "~~/utils/worldIdProof";
 
@@ -40,51 +36,17 @@ export const CommitRevealCaption = () => (
   </p>
 );
 
-const WindowStatusBar = ({
-  lifecycle,
-  epoch,
-  responseWindowHours,
-  activeAttemptIndex,
-}: {
-  lifecycle: LifecycleState;
-  epoch: number;
-  responseWindowHours?: number;
-  activeAttemptIndex: number | null;
-}) => (
-  <div className="mb-4 flex flex-wrap items-center gap-2 rounded-2xl border border-base-content/10 bg-base-200/40 px-4 py-3 text-sm">
-    <span className="badge badge-sm border-none bg-base-300">{LIFECYCLE_LABELS[lifecycle]}</span>
-    <span className="text-pulse-muted">Epoch {epoch}</span>
-    {activeAttemptIndex !== null ? (
-      <>
-        <span className="text-base-content/30">·</span>
-        <span className="font-medium text-base-content">
-          Attempt {activeAttemptIndex + 1} open
-        </span>
-        {responseWindowHours ? (
-          <span className="text-pulse-muted">({responseWindowHours}h response window)</span>
-        ) : null}
-      </>
-    ) : (
-      <>
-        <span className="text-base-content/30">·</span>
-        <span className="text-pulse-muted">No open attempt</span>
-      </>
-    )}
-  </div>
-);
-
 export const AttemptSequence = ({
   attempts,
   profileRole = "none",
-  lifecycle = "CREATED",
-  epoch = 0,
-  responseWindowHours,
+  lifecycle: _lifecycle = "CREATED",
+  epoch: _epoch = 0,
+  responseWindowHours: _responseWindowHours,
   profileKey = "",
   showKeeperActions = false,
 }: AttemptSequenceProps) => {
   const { mockRespondToAttempt, mockForceOpenAttempt, mockResolveExpiredAttempt } = usePulseStore();
   const hasExpiredUnopened = attempts.some(attempt => attempt.expiredUnopened);
-  const activeAttemptIndex = attempts.findIndex(attempt => attempt.isActive && attempt.status === "revealed");
   const isOwner = profileRole === "owner";
   const isRequestor = profileRole === "requestor";
 
@@ -95,22 +57,9 @@ export const AttemptSequence = ({
   return (
     <section className="pulse-card p-5 sm:p-6">
       <div className="mb-4">
-        <h2 className="pulse-section-title">Verification window</h2>
-        <p className="mt-1 text-sm text-pulse-muted">
-          Current epoch attempts. Respond during the open card.
-        </p>
+        <h2 className="pulse-section-title">Respond to checks</h2>
+        <p className="mt-1 text-sm text-pulse-muted">Open cards in the current epoch.</p>
       </div>
-
-      <WindowStatusBar
-        lifecycle={lifecycle}
-        epoch={epoch}
-        responseWindowHours={responseWindowHours}
-        activeAttemptIndex={activeAttemptIndex >= 0 ? activeAttemptIndex : null}
-      />
-
-      <p className="mb-4 text-xs leading-relaxed text-pulse-muted">
-        {isOwner ? WINDOW_SCHEDULE_FOOTNOTE : WINDOW_SCHEDULE_NOTE}
-      </p>
 
       <div className="flex gap-3 overflow-x-auto pb-2">
         {attempts.length === 0 ? (
@@ -119,7 +68,7 @@ export const AttemptSequence = ({
           attempts.map((attempt, index) => (
             <article
               key={attempt.id}
-              className={`min-w-[11rem] flex-1 rounded-2xl border p-4 transition-colors ${
+              className={`min-w-[11rem] shrink-0 rounded-2xl border p-4 transition-colors ${
                 attempt.isActive && attempt.status === "revealed"
                   ? "border-primary/40 bg-primary/5"
                   : "border-base-content/10 bg-base-200/60"
@@ -131,7 +80,7 @@ export const AttemptSequence = ({
                 <div className="flex flex-col items-center gap-2 py-4 text-center">
                   <Lock className="h-5 w-5 text-pulse-muted" />
                   <HelpCircle className="h-4 w-4 text-pulse-muted" />
-                  <p className="text-sm text-pulse-muted">Committed · hidden until reveal</p>
+                  <p className="text-sm text-pulse-muted">Committed, hidden until reveal</p>
                 </div>
               ) : null}
 
@@ -148,7 +97,7 @@ export const AttemptSequence = ({
                         level="device"
                         action={worldIdActions.checkin(profileKey)}
                         signal={profileKey}
-                        label="Respond · World ID"
+                        label="Respond with World ID"
                         onVerified={runVerifiedAction(() => respondToAttempt(attempt))}
                       />
                     ) : (

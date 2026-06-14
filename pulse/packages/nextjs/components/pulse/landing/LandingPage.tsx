@@ -8,7 +8,7 @@ import { HeroSearchBar } from "~~/components/pulse/explorer/HeroSearchBar";
 import { RecentSearches } from "~~/components/pulse/explorer/RecentSearches";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
 import { PULSE_TAGLINE } from "~~/constants/pulseBrand";
-import { PULSE_EXPLORER_TOOL_NOTE, PULSE_WHAT_IS } from "~~/constants/explorerCopy";
+import { PULSE_WHAT_IS } from "~~/constants/explorerCopy";
 
 const RadarHero = () => (
   <div className="relative mx-auto flex h-48 w-48 items-center justify-center sm:h-56 sm:w-56" aria-hidden>
@@ -38,10 +38,7 @@ const TagOneLiner = () => (
 );
 
 const WhatIsThisNote = () => (
-  <div className="mx-auto max-w-2xl space-y-2 text-center text-sm leading-relaxed text-pulse-muted">
-    <p>{PULSE_WHAT_IS}</p>
-    <p>{PULSE_EXPLORER_TOOL_NOTE}</p>
-  </div>
+  <p className="mx-auto max-w-2xl text-center text-sm leading-relaxed text-pulse-muted">{PULSE_WHAT_IS}</p>
 );
 
 const DevEntryPoint = () => {
@@ -54,7 +51,7 @@ const DevEntryPoint = () => {
       </p>
       <Link href={address ? "/dashboard" : "/setup"}>
         <PulseButton variant="secondary" className="w-full sm:w-auto">
-          {address ? "Open dashboard" : "Connect to get started"}
+          {address ? "Open dashboard" : "Get started"}
         </PulseButton>
       </Link>
     </div>
@@ -69,8 +66,5 @@ export const LandingPage = () => (
     <HeroSearchBar />
     <DevEntryPoint />
     <RecentSearches />
-    <Link href="/explorer" className="link link-hover text-xs text-pulse-muted">
-      Open explorer
-    </Link>
   </PageShell>
 );
