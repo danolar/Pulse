@@ -48,7 +48,7 @@ export const ProfileDetailPage = () => {
       <div className="space-y-6">
         <ExplorerBrowseNote />
         <ProfileHeader ownerAddress={profileAddress} />
-        <ExplorerProfileList profiles={view.profiles} />
+        <ExplorerProfileList profiles={view.profiles} ownerAddress={profileAddress} />
       </div>
     </PageShell>
   );

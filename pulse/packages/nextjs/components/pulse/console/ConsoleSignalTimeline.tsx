@@ -3,10 +3,12 @@
 import { useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
+import { OnchainVerifiedBadge } from "~~/components/pulse/ui/OnchainVerifiedBadge";
 import { WalrusEvidenceModal } from "~~/components/pulse/walrus/WalrusEvidenceModal";
 import { formatSignalWeight } from "~~/constants/pulseProtocol";
 import { useReducedMotion } from "~~/hooks/useReducedMotion";
 import type { ConsoleSignal } from "~~/types/pulse";
+import { getSepoliaTxUrl } from "~~/utils/pulseOnchainEvents";
 import { parseWalrusBlobId } from "~~/utils/walrus";
 
 type ConsoleSignalTimelineProps = {
@@ -63,12 +65,26 @@ export const ConsoleSignalTimeline = ({
                 transition={{ duration: reducedMotion ? 0 : 0.22, delay: reducedMotion ? 0 : index * 0.04 }}
               >
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-base-content">{signal.signalType}</p>
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-medium text-base-content">{signal.signalType}</p>
+                      {signal.onchainVerified ? <OnchainVerifiedBadge /> : null}
+                    </div>
                     <p className="text-xs text-pulse-muted">{formatSignalWeight(signal.direction, signal.weight)}</p>
                   </div>
                   <span className="font-mono text-xs text-pulse-muted">{formatTimestamp(signal.timestamp)}</span>
                 </div>
+                {signal.onchainVerified && signal.transactionHash ? (
+                  <a
+                    href={getSepoliaTxUrl(signal.transactionHash)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-2 inline-flex items-center gap-1 text-xs link link-primary"
+                  >
+                    Sepolia tx
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                ) : null}
                 <button
                   type="button"
                   className="mt-3 inline-flex items-center gap-1 text-sm link disabled:cursor-not-allowed disabled:opacity-50"

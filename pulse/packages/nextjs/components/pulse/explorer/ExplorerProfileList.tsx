@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import { EvidenceViewer } from "~~/components/pulse/explorer/EvidenceViewer";
+import { ProfileOnchainFeed } from "~~/components/pulse/explorer/ProfileOnchainFeed";
 import { LifecycleStateBadge } from "~~/components/pulse/ui/LifecycleStateBadge";
 import { StatusTag } from "~~/components/pulse/ui/StatusTag";
 import { useCanAccessProfileConsole } from "~~/hooks/pulse/useProfileConsole";
@@ -111,7 +112,13 @@ const ThresholdEvents = ({
   );
 };
 
-const ProfileCard = ({ profile }: { profile: PublicOwnerProfileView }) => (
+const ProfileCard = ({
+  profile,
+  ownerAddress,
+}: {
+  profile: PublicOwnerProfileView;
+  ownerAddress: string;
+}) => (
   <article className="pulse-card p-5 sm:p-6">
     <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
       <div>
@@ -151,18 +158,26 @@ const ProfileCard = ({ profile }: { profile: PublicOwnerProfileView }) => (
       </div>
 
       <ThresholdEvents events={profile.thresholdEvents} profileId={profile.profileId} />
+
+      <ProfileOnchainFeed profileId={profile.profileId} ownerAddress={ownerAddress} />
     </div>
   </article>
 );
 
-export const ExplorerProfileList = ({ profiles }: { profiles: PublicOwnerProfileView[] }) => (
+export const ExplorerProfileList = ({
+  profiles,
+  ownerAddress,
+}: {
+  profiles: PublicOwnerProfileView[];
+  ownerAddress: string;
+}) => (
   <section className="space-y-4">
     <div>
       <h2 className="pulse-section-title">Profiles</h2>
       <p className="mt-1 text-sm text-pulse-muted">One card per integration context.</p>
     </div>
     {profiles.map(profile => (
-      <ProfileCard key={profile.profileId} profile={profile} />
+      <ProfileCard key={profile.profileId} profile={profile} ownerAddress={ownerAddress} />
     ))}
   </section>
 );

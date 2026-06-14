@@ -16,6 +16,7 @@ import {
   useProfileConsole,
   useProfileRole,
 } from "~~/hooks/pulse/useProfileConsole";
+import { usePulseOnchainEvents } from "~~/hooks/pulse/usePulseOnchainEvents";
 import { usePulseStore } from "~~/services/store/pulseStore";
 import { normalizeAddress } from "~~/utils/pulse/explorerAddress";
 
@@ -28,6 +29,13 @@ export const ProfileConsole = () => {
   const canAccess = useCanAccessProfileConsole(profileId);
   const profile = useProfileConsole(profileId);
   const role = useProfileRole(profileId, profile.requestors, profile.ownerAddress);
+  const onchain = usePulseOnchainEvents({
+    ownerAddress: profile.ownerAddress,
+    consumerAddress: profile.consumerAddress,
+  });
+
+  const timelineSignals =
+    onchain.isEnabled && onchain.consoleSignals.length > 0 ? onchain.consoleSignals : profile.signals;
 
   useEffect(() => {
     if (profileId && canAccess) {
@@ -81,10 +89,13 @@ export const ProfileConsole = () => {
         />
 
         <SignalTimeline
-          signals={profile.signals}
+          signals={timelineSignals}
           lifecycle={profile.lifecycle}
           accumulatedWeight={profile.accumulatedWeight}
           threshold={profile.config.threshold}
+          onchainThresholdEvents={onchain.thresholdEvents}
+          onchainLoading={onchain.isLoading}
+          preferOnchainSignals={onchain.consoleSignals.length > 0}
         />
 
         <WindowScheduleReadout

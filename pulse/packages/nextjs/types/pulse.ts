@@ -70,6 +70,25 @@ export type DecodedSignal = {
   walrusBlobId: string;
   adapterAddress?: string;
   consumerContextHash?: string;
+  /** Set when this row was read from PulseOracleV2 logs on Sepolia. */
+  onchainVerified?: boolean;
+  transactionHash?: string;
+};
+
+export type PulseOnchainEventKind = "SignalReported" | "ThresholdReached" | "WeightReset";
+
+/** Decoded PulseOracleV2 log for explorer / dashboard timelines. */
+export type PulseOnchainEvent = {
+  id: string;
+  kind: PulseOnchainEventKind;
+  profileId: string;
+  timestamp: string;
+  epoch: number;
+  reporter?: string;
+  walrusChainRef: string;
+  walrusBlobId: string | null;
+  transactionHash: string;
+  blockNumber: bigint;
 };
 
 /** Alias used in console/dashboard components. */
