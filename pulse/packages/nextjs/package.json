@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "yarn lint && next build",
+    "build:docker": "next build",
     "check-types": "tsc --noEmit --incremental",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",

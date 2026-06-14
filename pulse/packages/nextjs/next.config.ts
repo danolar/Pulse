@@ -13,6 +13,9 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: process.env.NEXT_PUBLIC_IGNORE_BUILD_ERROR === "true",
   },
+  eslint: {
+    ignoreDuringBuilds: process.env.DOCKER_BUILD === "1",
+  },
 };
 
 const isIpfs = process.env.NEXT_PUBLIC_IPFS_BUILD === "true";
