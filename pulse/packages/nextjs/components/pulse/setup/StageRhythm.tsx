@@ -232,7 +232,7 @@ export const StageRhythm = ({
       <div>
         <h2 className="pulse-section-title">Monitoring rhythm</h2>
         <p className="mt-1 text-sm text-pulse-muted">
-          Window cadence, attempt frequency, response time, missed-attempt weight, and threshold.
+          Window cadence, attempt frequency, response time, missed attempt weight, and threshold.
         </p>
       </div>
 

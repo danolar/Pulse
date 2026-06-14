@@ -23,7 +23,7 @@ export const CopyRow = ({ label, value }: CopyRowProps) => {
     <div className="flex items-start justify-between gap-3 rounded-xl bg-base-200/60 px-3 py-2">
       <div className="min-w-0">
         <p className="text-xs font-medium text-pulse-muted">{label}</p>
-        <p className="break-all font-mono text-xs">{value || "—"}</p>
+        <p className="break-all font-mono text-xs">{value || "Not set"}</p>
       </div>
       <button
         type="button"

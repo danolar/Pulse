@@ -15,7 +15,7 @@ export const MONITORING_PROFILE_PRESETS: MonitoringProfilePreset[] = [
   {
     id: "relaxed",
     name: "Relaxed",
-    tagline: "Fewer check-ins and more time to respond — suited to low-risk or long-horizon monitoring.",
+    tagline: "Fewer check-ins and more time to respond. Suited to low-risk or long-horizon monitoring.",
     config: {
       windowDuration: 90,
       attemptsPerWindow: 3,
@@ -27,14 +27,14 @@ export const MONITORING_PROFILE_PRESETS: MonitoringProfilePreset[] = [
   {
     id: "standard",
     name: "Standard",
-    tagline: "Balanced rhythm for most profiles — the default Pulse recommends.",
+    tagline: "Balanced rhythm for most profiles. The default Pulse recommends.",
     recommended: true,
     config: DEFAULT_PROFILE_CONFIG,
   },
   {
     id: "strict",
     name: "Strict",
-    tagline: "More frequent attempts and faster weight accumulation — for high-stakes outcomes.",
+    tagline: "More frequent attempts and faster weight accumulation. For high-stakes outcomes.",
     config: {
       windowDuration: 30,
       attemptsPerWindow: 6,
@@ -83,7 +83,7 @@ export const describeMonitoringRhythm = (config: ProfileConfig): string => {
   const missLine =
     reachesThresholdOnMissesOnly !== null
       ? `Missing about ${reachesThresholdOnMissesOnly} attempts in a row could reach the threshold (ignoring passive signals).`
-      : "Missed attempts alone may not reach the threshold — passive inactivity signals also count.";
+      : "Missed attempts alone may not reach the threshold. Passive inactivity signals also count.";
 
   return [
     `Every ${config.windowDuration} days Pulse schedules ${config.attemptsPerWindow} random check-ins.`,

@@ -32,7 +32,7 @@ export const FooterContent = ({ compact = false }: FooterContentProps) => {
             </Link>
             <span aria-hidden>·</span>
             <Link href="/blockexplorer" className="link">
-              explorer
+              block explorer
             </Link>
           </>
         ) : null}

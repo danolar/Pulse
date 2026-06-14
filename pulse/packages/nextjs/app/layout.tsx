@@ -22,7 +22,7 @@ const dmSans = DM_Sans({
 
 export const metadata = getMetadata({
   title: "pulse",
-  description: "onchain liveness oracle — is this human still here?",
+  description: "Onchain liveness oracle. Is this human still here?",
 });
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {

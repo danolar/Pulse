@@ -41,13 +41,11 @@ export const ProfileActions = ({
   return (
     <section className="pulse-card p-5 sm:p-6">
       <h2 className="pulse-section-title mb-1">Owner actions</h2>
-      <p className="mb-4 text-sm text-pulse-muted">
-        World ID–gated actions for the profile owner.
-      </p>
+      <p className="mb-4 text-sm text-pulse-muted">World ID gated actions for the profile owner.</p>
 
       {hasActiveAttempt ? (
         <p className="mb-4 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-xs leading-relaxed text-pulse-muted">
-          An attempt is open — respond in the verification window above first.
+          An attempt is open. Respond in the verification window above first.
         </p>
       ) : null}
 

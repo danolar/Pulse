@@ -55,12 +55,12 @@ export const PulseConsoleGauge = ({
   return (
     <section className="pulse-card overflow-hidden p-5 sm:p-6 lg:p-8">
       <div className="flex flex-col gap-5 sm:gap-6">
-        <div className="grid grid-cols-1 items-center gap-6 sm:grid-cols-[auto_minmax(0,1fr)] sm:gap-8 lg:gap-10">
+        <div className="grid grid-cols-1 items-center gap-6 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center sm:gap-8 lg:gap-10">
           <aside className="mx-auto shrink-0 sm:mx-0">
             <ThresholdGauge
               value={accumulatedWeight}
               max={threshold}
-              label="Unresponsiveness / threshold"
+              label="Unresponsiveness toward threshold"
               size={gaugeSize}
               showArcLabel={!isExplorer}
               showPulseLine
@@ -71,7 +71,7 @@ export const PulseConsoleGauge = ({
             />
           </aside>
 
-          <div className="flex min-w-0 flex-col gap-4 text-center sm:mt-5 sm:text-left lg:mt-7">
+          <div className="flex min-w-0 flex-col gap-4 text-center sm:text-left">
             <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
               <span className={`pulse-state-badge pulse-state-${gaugeState.id}`}>{gaugeState.label}</span>
               <span className="badge badge-lg border-none bg-base-300 text-base-content">
@@ -93,7 +93,7 @@ export const PulseConsoleGauge = ({
           </div>
         </div>
 
-        <div className="pulse-gauge-legend border-t border-base-content/5 pt-4 text-pulse-muted">
+        <div className={`pulse-gauge-legend border-t border-base-content/5 pt-4 text-pulse-muted ${isExplorer ? "" : "sm:justify-start"}`}>
           {PULSE_GAUGE_STATES.map(state => (
             <span key={state.id} className="pulse-gauge-legend-item">
               <PulseMark size={14} color={state.color} tone="solid" />

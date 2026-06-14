@@ -84,7 +84,7 @@ export const WizardFooter = ({
       className={`fixed inset-x-0 z-30 border-t border-base-content/6 bg-base-100/90 pb-[max(0.625rem,env(safe-area-inset-bottom))] backdrop-blur-md ${bottomOffset}`}
       aria-label="Configuration navigation"
     >
-      <div className="pulse-page-x mx-auto max-w-3xl space-y-2 px-4 pt-3">
+      <div className="pulse-page-x mx-auto max-w-7xl space-y-2 px-4 pt-3">
         <div className="flex items-center gap-2 sm:gap-3">
           <WizardNavArrow
             direction="back"

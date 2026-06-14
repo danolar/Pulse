@@ -23,7 +23,7 @@ export const VERIFICATION_TYPE_LABELS: Record<VerificationType, string> = {
 export const LIFECYCLE_DESCRIPTIONS: Record<LifecycleState, string> = {
   CREATED: "Profile registered. Finish setup to enter active monitoring.",
   ACTIVE: "Passive signals accumulate silently. Act when an attempt opens or you choose to check in.",
-  EVALUATING: "Authorized evaluation in progress — attempt frequency intensifies.",
+  EVALUATING: "Authorized evaluation in progress. Attempt frequency intensifies.",
   THRESHOLD_REACHED: "Threshold crossed. Integrating apps may act after reviewing evidence.",
   BLOCKED: "Owner froze evaluation with Orb verification.",
 };

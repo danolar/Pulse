@@ -20,16 +20,16 @@ type WindowScheduleReadoutProps = {
 };
 
 const scheduleStatusLabel = (attempt: VerificationAttempt): string => {
-  if (attempt.status === "locked") return "Committed · type hidden";
+  if (attempt.status === "locked") return "Committed, type hidden";
   if (attempt.status === "completed") {
-    return attempt.result === "success" ? "Closed · proof received" : "Closed · weight accrued";
+    return attempt.result === "success" ? "Closed, proof received" : "Closed, weight accrued";
   }
   if (attempt.isActive && attempt.status === "revealed") {
     return attempt.verificationType
-      ? `Response window open · ${VERIFICATION_TYPE_LABELS[attempt.verificationType]}`
+      ? `Response window open (${VERIFICATION_TYPE_LABELS[attempt.verificationType]})`
       : "Response window open";
   }
-  if (attempt.verificationType) return `Revealed · ${VERIFICATION_TYPE_LABELS[attempt.verificationType]}`;
+  if (attempt.verificationType) return `Revealed (${VERIFICATION_TYPE_LABELS[attempt.verificationType]})`;
   return "Scheduled";
 };
 
