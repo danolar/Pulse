@@ -1,135 +1,304 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.0 <0.9.0;
+pragma solidity ^0.8.24;
 
-import { IThresholdConsumer } from "./interfaces/IThresholdConsumer.sol";
+/// @title PulseOracle v0.1 - Core accumulator
+/// @notice Minimal version: profile creation, adapter authorization, signal reporting, threshold detection.
+/// @dev World ID, attempts, windows, commit-reveal, block/resurrect are added in subsequent iterations.
 
-/// @title PulseOracle
-/// @notice MVP weighted signal accumulator for Pulse profiles (hackathon cut).
-/// @dev World ID binding and full attempt engine ship in follow-up iterations.
 contract PulseOracle {
-    enum Lifecycle {
-        Created,
-        Active,
-        Evaluating,
-        ThresholdReached,
-        Blocked
+
+    // ============ Enums ============
+
+    enum LifecycleState {
+        NONE,              // 0 - never created
+        ACTIVE,            // 1 - operating
+        THRESHOLD_REACHED, // 2 - weight crossed threshold
+        FINAL              // 3 - outcome finalized
+    }
+
+    enum SignalDirection {
+        NEGATIVE, // adds weight toward threshold
+        POSITIVE  // resets accumulated weight
+    }
+
+    // ============ Constants ============
+
+    uint8 public constant CAP_NEGATIVE = 1;
+    uint8 public constant CAP_POSITIVE = 2;
+
+    // ============ Structs ============
+
+    struct Config {
+        uint32 threshold;           // total weight that triggers event
+        uint32 missedAttemptWeight; // reserved for attempts layer (v0.3)
     }
 
     struct Profile {
-        bool exists;
-        Lifecycle lifecycle;
-        uint64 epoch;
-        uint256 accumulatedWeight;
-        uint256 threshold;
-        uint64 lastOnchainActivityAt;
+        address owner;
+        address consumer;
+        LifecycleState state;
+        uint32 epoch;
+        uint32 accumulatedWeight;
+        address notificationTarget;
+        Config config;
     }
 
-    address public admin;
-    address public notificationTarget;
+    struct AdapterAuth {
+        bool authorized;
+        uint32 weight;
+        uint8 capabilities;   // CAP_NEGATIVE | CAP_POSITIVE bitmask
+        bytes32 typeLabel;
+    }
 
-    mapping(address => Profile) public profiles;
-    mapping(address => bool) public authorizedAdapters;
+    // ============ Storage ============
 
-    event ProfileSeeded(address indexed profileOwner, uint256 threshold);
-    event AdapterAuthorized(address indexed adapter, bool authorized);
-    event NotificationTargetUpdated(address indexed target);
-    event SignalReported(
-        address indexed profileOwner,
-        bytes32 indexed signalType,
-        int256 weight,
-        string walrusBlobId,
-        address indexed reporter
+    mapping(bytes32 => Profile) public profiles;
+    mapping(bytes32 => mapping(address => AdapterAuth)) public adapters;
+    mapping(bytes32 => address[]) internal _adapterList;
+
+    // ============ Events (public layer - no weights or direction) ============
+
+    event ProfileCreated(
+        bytes32 indexed profileId,
+        address indexed owner,
+        address indexed consumer,
+        uint64 timestamp
     );
-    event KeeperAction(address indexed profileOwner, bytes32 action, address indexed reporter);
-    event ThresholdReached(address indexed profileOwner, uint64 epoch, string auditBlobId);
 
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "Not admin");
+    event ConfigUpdated(bytes32 indexed profileId, uint32 threshold);
+
+    event NotificationTargetSet(bytes32 indexed profileId, address target);
+
+    event AdapterAuthorized(
+        bytes32 indexed profileId,
+        address indexed adapter,
+        uint8 capabilities,
+        bytes32 typeLabel
+    );
+
+    event AdapterRevoked(bytes32 indexed profileId, address indexed adapter);
+
+    // SignalReported is PUBLIC: no weight, no direction, no accumulated total
+    event SignalReported(
+        bytes32 indexed profileId,
+        address indexed reporter,
+        bytes32 walrusBlobId,
+        uint32 epoch,
+        uint64 timestamp
+    );
+
+    event WeightReset(bytes32 indexed profileId, uint32 epoch);
+
+    event ThresholdReached(
+        bytes32 indexed profileId,
+        uint32 epoch,
+        bytes32 auditBlobId,
+        uint64 timestamp
+    );
+
+    event Finalized(bytes32 indexed profileId, uint32 epoch);
+
+    // ============ Errors ============
+
+    error ProfileExists();
+    error ProfileMissing();
+    error NotConsumer();
+    error NotOwner();
+    error NotAuthorizedAdapter();
+    error CapabilityNotAllowed();
+    error WrongState(LifecycleState current);
+    error ZeroAddress();
+    error ZeroThreshold();
+
+    // ============ Modifiers ============
+
+    modifier onlyConsumer(bytes32 profileId) {
+        if (profiles[profileId].consumer != msg.sender) revert NotConsumer();
         _;
     }
 
-    modifier onlyAdapter() {
-        require(authorizedAdapters[msg.sender], "Not adapter");
+    modifier profileExists(bytes32 profileId) {
+        if (profiles[profileId].state == LifecycleState.NONE) revert ProfileMissing();
         _;
     }
 
-    constructor(address _admin) {
-        admin = _admin;
+    // ============ View helpers ============
+
+    /// @notice Compute profileId from owner and consumer addresses
+    function computeProfileId(address owner, address consumer) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(owner, consumer));
     }
 
-    function setAdapter(address adapter, bool authorized) external onlyAdmin {
-        authorizedAdapters[adapter] = authorized;
-        emit AdapterAuthorized(adapter, authorized);
+    /// @notice Get the list of adapter addresses for a profile
+    function getAdapters(bytes32 profileId) external view returns (address[] memory) {
+        return _adapterList[profileId];
     }
 
-    function setNotificationTarget(address target) external onlyAdmin {
-        notificationTarget = target;
-        emit NotificationTargetUpdated(target);
-    }
+    // ============ Profile creation ============
 
-    /// @dev Local/demo helper until createProfile is wired with World ID proofs.
-    function devSeedProfile(address profileOwner, uint256 threshold) external onlyAdmin {
-        profiles[profileOwner] = Profile({
-            exists: true,
-            lifecycle: Lifecycle.Active,
+    /// @notice Create a profile. msg.sender is the consumer. owner is the user being monitored.
+    /// @dev In later versions, owner must provide a World ID proof here.
+    function createProfile(
+        address owner,
+        uint32 threshold
+    ) external returns (bytes32 profileId) {
+        if (owner == address(0)) revert ZeroAddress();
+        if (threshold == 0) revert ZeroThreshold();
+
+        profileId = computeProfileId(owner, msg.sender);
+        if (profiles[profileId].state != LifecycleState.NONE) revert ProfileExists();
+
+        profiles[profileId] = Profile({
+            owner: owner,
+            consumer: msg.sender,
+            state: LifecycleState.ACTIVE,
             epoch: 1,
             accumulatedWeight: 0,
-            threshold: threshold,
-            lastOnchainActivityAt: uint64(block.timestamp)
+            notificationTarget: address(0),
+            config: Config({
+                threshold: threshold,
+                missedAttemptWeight: 0
+            })
         });
-        emit ProfileSeeded(profileOwner, threshold);
+
+        emit ProfileCreated(profileId, owner, msg.sender, uint64(block.timestamp));
+        emit ConfigUpdated(profileId, threshold);
+
+        return profileId;
     }
 
-    /// @notice CRE ONCHAIN_TX adapter entrypoint after offchain inactivity evaluation.
+    // ============ Configuration ============
+
+    function setConfig(
+        bytes32 profileId,
+        uint32 threshold
+    ) external onlyConsumer(profileId) profileExists(profileId) {
+        if (threshold == 0) revert ZeroThreshold();
+        profiles[profileId].config.threshold = threshold;
+        emit ConfigUpdated(profileId, threshold);
+    }
+
+    function setNotificationTarget(
+        bytes32 profileId,
+        address target
+    ) external onlyConsumer(profileId) profileExists(profileId) {
+        profiles[profileId].notificationTarget = target;
+        emit NotificationTargetSet(profileId, target);
+    }
+
+    // ============ Adapter management ============
+
+    function authorizeAdapter(
+        bytes32 profileId,
+        address adapter,
+        uint32 weight,
+        uint8 capabilities,
+        bytes32 typeLabel
+    ) external onlyConsumer(profileId) profileExists(profileId) {
+        if (adapter == address(0)) revert ZeroAddress();
+        if (capabilities == 0 || capabilities > 3) revert CapabilityNotAllowed();
+
+        bool isNew = !adapters[profileId][adapter].authorized;
+
+        adapters[profileId][adapter] = AdapterAuth({
+            authorized: true,
+            weight: weight,
+            capabilities: capabilities,
+            typeLabel: typeLabel
+        });
+
+        if (isNew) {
+            _adapterList[profileId].push(adapter);
+        }
+
+        emit AdapterAuthorized(profileId, adapter, capabilities, typeLabel);
+    }
+
+    function revokeAdapter(
+        bytes32 profileId,
+        address adapter
+    ) external onlyConsumer(profileId) profileExists(profileId) {
+        adapters[profileId][adapter].authorized = false;
+        emit AdapterRevoked(profileId, adapter);
+    }
+
+    // ============ Signal reporting (the core) ============
+
+    /// @notice Report a signal for a profile. Called by authorized adapters.
     function reportSignal(
-        address profileOwner,
-        bytes32 signalType,
-        int256 weight,
-        string calldata walrusBlobId
-    ) external onlyAdapter {
-        Profile storage profile = profiles[profileOwner];
-        require(profile.exists, "Profile missing");
-        require(profile.lifecycle == Lifecycle.Active || profile.lifecycle == Lifecycle.Evaluating, "Not active");
+        bytes32 profileId,
+        SignalDirection direction,
+        bytes32 walrusBlobId
+    ) external profileExists(profileId) {
+        Profile storage p = profiles[profileId];
+        AdapterAuth storage auth = adapters[profileId][msg.sender];
 
-        if (weight < 0) {
-            uint256 added = uint256(-weight);
-            profile.accumulatedWeight += added;
-        } else if (weight > 0) {
-            // Positive proof-of-life resets current window weight (spec §4.1).
-            profile.accumulatedWeight = 0;
+        if (!auth.authorized) revert NotAuthorizedAdapter();
+
+        if (direction == SignalDirection.NEGATIVE && (auth.capabilities & CAP_NEGATIVE) == 0) {
+            revert CapabilityNotAllowed();
+        }
+        if (direction == SignalDirection.POSITIVE && (auth.capabilities & CAP_POSITIVE) == 0) {
+            revert CapabilityNotAllowed();
         }
 
-        if (bytes32("ONCHAIN_TX") == signalType && weight > 0) {
-            profile.lastOnchainActivityAt = uint64(block.timestamp);
+        if (p.state != LifecycleState.ACTIVE) revert WrongState(p.state);
+
+        if (direction == SignalDirection.NEGATIVE) {
+            p.accumulatedWeight += auth.weight;
+        } else {
+            p.accumulatedWeight = 0;
+            emit WeightReset(profileId, p.epoch);
         }
 
-        emit SignalReported(profileOwner, signalType, weight, walrusBlobId, msg.sender);
+        emit SignalReported(profileId, msg.sender, walrusBlobId, p.epoch, uint64(block.timestamp));
 
-        if (profile.accumulatedWeight >= profile.threshold) {
-            profile.lifecycle = Lifecycle.ThresholdReached;
-            emit ThresholdReached(profileOwner, profile.epoch, walrusBlobId);
-
-            if (notificationTarget != address(0)) {
-                (bool ok, ) = notificationTarget.call(
-                    abi.encodeWithSelector(
-                        IThresholdConsumer.onThresholdReached.selector,
-                        profileOwner,
-                        walrusBlobId
-                    )
-                );
-                ok;
-            }
+        if (p.accumulatedWeight >= p.config.threshold) {
+            _reachThreshold(profileId, walrusBlobId);
         }
     }
 
-    /// @notice CRE keeper hook — logs intended attempt lifecycle actions for MVP simulation.
-    function keeperTick(address[] calldata profileOwners, bytes32[] calldata actions) external onlyAdapter {
-        require(profileOwners.length == actions.length, "Length mismatch");
+    // ============ Manual check-in (owner resets weight) ============
 
-        for (uint256 i = 0; i < profileOwners.length; i++) {
-            address owner = profileOwners[i];
-            require(profiles[owner].exists, "Profile missing");
-            emit KeeperAction(owner, actions[i], msg.sender);
+    /// @notice Owner checks in, resetting accumulated weight.
+    /// @dev In later versions this requires a World ID proof.
+    function checkin(bytes32 profileId) external profileExists(profileId) {
+        Profile storage p = profiles[profileId];
+        if (msg.sender != p.owner) revert NotOwner();
+        if (p.state != LifecycleState.ACTIVE) revert WrongState(p.state);
+
+        p.accumulatedWeight = 0;
+        emit WeightReset(profileId, p.epoch);
+        emit SignalReported(profileId, msg.sender, bytes32(0), p.epoch, uint64(block.timestamp));
+    }
+
+    // ============ Finalization ============
+
+    /// @notice Finalize a profile that has reached threshold (no challenge period in v0.1)
+    function finalize(bytes32 profileId) external profileExists(profileId) {
+        Profile storage p = profiles[profileId];
+        if (p.state != LifecycleState.THRESHOLD_REACHED) revert WrongState(p.state);
+        p.state = LifecycleState.FINAL;
+        emit Finalized(profileId, p.epoch);
+    }
+
+    // ============ Internal ============
+
+    function _reachThreshold(bytes32 profileId, bytes32 auditBlobId) internal {
+        Profile storage p = profiles[profileId];
+        p.state = LifecycleState.THRESHOLD_REACHED;
+
+        emit ThresholdReached(profileId, p.epoch, auditBlobId, uint64(block.timestamp));
+
+        if (p.notificationTarget != address(0)) {
+            (bool success,) = p.notificationTarget.call(
+                abi.encodeWithSignature(
+                    "onThresholdReached(bytes32,bytes32)",
+                    profileId,
+                    auditBlobId
+                )
+            );
+            (success); // event is source of truth; a buggy consumer must not brick the oracle
         }
     }
 }
