@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { type Address } from "viem";
 import { toWalrusBlobRef, WALRUS_DEMO_BLOBS } from "~~/constants/walrusDemoBlobs";
 import { DEFAULT_ENABLED_MODULE_IDS, getPulseModule } from "~~/modules/pulse";
 import {
@@ -8,10 +9,13 @@ import {
   DEFAULT_PROFILE_CONFIG,
   type LifecycleState,
   type ProfileConfig,
+  type PublicSignalRecord,
   type SignalAdapter,
   type VerificationAttempt,
   type VerificationType,
 } from "~~/types/pulse";
+import { normalizeAddress } from "~~/utils/pulse/explorerAddress";
+import { computeConsumerContextHash, resolveProfileIdentity, type ProfileId } from "~~/utils/pulse/profileId";
 import type { PulseWorldIdVerification } from "~~/utils/worldIdProof";
 import { assertStoredNullifier, isMockWorldIdVerification } from "~~/utils/worldIdProof";
 
@@ -26,7 +30,7 @@ const buildAttempts = (count: number): VerificationAttempt[] =>
     expiredUnopened: index === 1 && count > 1,
   }));
 
-const initialSignals: ConsoleSignal[] = [
+const buildDemoSignals = (consumerContextHash: string): ConsoleSignal[] => [
   {
     id: "sig-1",
     signalType: "ONCHAIN_TX",
@@ -34,6 +38,8 @@ const initialSignals: ConsoleSignal[] = [
     weight: 8,
     timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
     walrusBlobId: toWalrusBlobRef(WALRUS_DEMO_BLOBS.onchainActivity),
+    adapterAddress: "0x0000000000000000000000000000000000000a01",
+    consumerContextHash,
   },
   {
     id: "sig-2",
@@ -42,6 +48,8 @@ const initialSignals: ConsoleSignal[] = [
     weight: 15,
     timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
     walrusBlobId: toWalrusBlobRef(WALRUS_DEMO_BLOBS.missedCheckin),
+    adapterAddress: "0x0000000000000000000000000000000000000a01",
+    consumerContextHash,
   },
   {
     id: "sig-3",
@@ -50,11 +58,15 @@ const initialSignals: ConsoleSignal[] = [
     weight: 0,
     timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
     walrusBlobId: toWalrusBlobRef(WALRUS_DEMO_BLOBS.onchainActivity),
+    adapterAddress: "0x0000000000000000000000000000000000000a02",
+    consumerContextHash,
   },
 ];
 
-type PulseState = {
+export type PersistedPulseProfile = {
   profileId: string | null;
+  ownerAddress: string | null;
+  consumerAddress: string | null;
   deviceVerified: boolean;
   deviceNullifierHash: string | null;
   orbBound: boolean;
@@ -65,7 +77,6 @@ type PulseState = {
   config: ProfileConfig;
   notificationTarget: string | null;
   adapters: SignalAdapter[];
-  configuredAdapters: ConfiguredAdapter[];
   requestors: AuthorizedRequestor[];
   enabledModuleIds: string[];
   lifecycle: LifecycleState;
@@ -73,7 +84,26 @@ type PulseState = {
   accumulatedWeight: number;
   attempts: VerificationAttempt[];
   signals: ConsoleSignal[];
-  mockCreateProfile: (profileId: string, verification?: PulseWorldIdVerification) => void;
+};
+
+export type ConsumerPulseSnapshot = {
+  configuredAdapters: ConfiguredAdapter[];
+  profiles: Record<string, PersistedPulseProfile>;
+  activeProfileId: string | null;
+  publicSignalsByOwner: Record<string, PublicSignalRecord[]>;
+};
+
+type PulseState = PersistedPulseProfile & {
+  configuredAdapters: ConfiguredAdapter[];
+  profiles: Record<string, PersistedPulseProfile>;
+  activeProfileId: string | null;
+  publicSignalsByOwner: Record<string, PublicSignalRecord[]>;
+  initProfileTarget: (ownerAddress: string, consumerAddress: string) => ProfileId;
+  loadProfile: (profileId: string) => boolean;
+  getProfilesByConsumer: (consumerAddress: string) => PersistedPulseProfile[];
+  exportConsumerSnapshot: () => ConsumerPulseSnapshot;
+  importConsumerSnapshot: (snapshot: ConsumerPulseSnapshot) => void;
+  mockCreateProfile: (ownerAddress: string, consumerAddress: string, verification?: PulseWorldIdVerification) => void;
   mockBindOrb: (verification?: PulseWorldIdVerification) => void;
   mockSaveConfig: (config: ProfileConfig, notificationTarget?: string | null) => void;
   toggleModule: (moduleId: string) => void;
@@ -84,6 +114,7 @@ type PulseState = {
   mockAuthorizeProfileAdapter: (catalogId: string, weight?: number) => void;
   mockRevokeProfileAdapter: (adapterId: string) => void;
   mockAddRequestor: (address: string) => void;
+  mockRemoveRequestor: (requestorId: string) => void;
   mockClaimRequestorSlot: (requestorAddress: string, verification?: PulseWorldIdVerification) => void;
   mockCompleteSetup: () => void;
   mockCheckIn: (verification?: PulseWorldIdVerification) => void;
@@ -93,37 +124,63 @@ type PulseState = {
   mockRequestEvaluation: (verification?: PulseWorldIdVerification) => void;
   mockRespondToAttempt: (attemptId: string, verificationType?: VerificationType) => void;
   mockForceOpenAttempt: () => void;
+  mockResolveExpiredAttempt: () => void;
   appendSignal: (signal: Omit<ConsoleSignal, "id" | "timestamp"> & { timestamp?: string }) => void;
 };
 
-export type PersistedPulseProfile = Pick<
-  PulseState,
-  | "profileId"
-  | "deviceVerified"
-  | "deviceNullifierHash"
-  | "orbBound"
-  | "orbNullifierHash"
-  | "configSaved"
-  | "accessListsSaved"
-  | "setupComplete"
-  | "config"
-  | "notificationTarget"
-  | "adapters"
-  | "configuredAdapters"
-  | "requestors"
-  | "enabledModuleIds"
-  | "lifecycle"
-  | "epoch"
-  | "accumulatedWeight"
-  | "attempts"
-  | "signals"
->;
+const toPublicSignal = (signal: ConsoleSignal, status: PublicSignalRecord["status"] = "encrypted"): PublicSignalRecord => ({
+  id: signal.id,
+  blobId: signal.walrusBlobId,
+  timestamp: signal.timestamp,
+  adapterAddress: signal.adapterAddress ?? "0x0000000000000000000000000000000000000000",
+  consumerContextHash: signal.consumerContextHash ?? "0x00000000",
+  status,
+});
+
+const syncActiveToProfiles = (state: PulseState): Partial<PulseState> => {
+  if (!state.profileId) return {};
+  return {
+    profiles: {
+      ...state.profiles,
+      [state.profileId]: toPersistedProfile(state),
+    },
+  };
+};
 
 export const getInitialPulseState = (): Omit<
   PulseState,
-  keyof Pick<PulseState, "mockCreateProfile" | "mockBindOrb" | "mockSaveConfig" | "toggleModule" | "ensureModuleEnabled" | "setModuleAdapter" | "mockConfigureAdapter" | "mockRevokeConfiguredAdapter" | "mockAuthorizeProfileAdapter" | "mockRevokeProfileAdapter" | "mockAddRequestor" | "mockClaimRequestorSlot" | "mockCompleteSetup" | "mockCheckIn" | "mockRequestExtension" | "mockBlock" | "mockResurrect" | "mockRequestEvaluation" | "mockRespondToAttempt" | "mockForceOpenAttempt" | "appendSignal">
+  | "initProfileTarget"
+  | "loadProfile"
+  | "getProfilesByConsumer"
+  | "exportConsumerSnapshot"
+  | "importConsumerSnapshot"
+  | "mockCreateProfile"
+  | "mockBindOrb"
+  | "mockSaveConfig"
+  | "toggleModule"
+  | "ensureModuleEnabled"
+  | "setModuleAdapter"
+  | "mockConfigureAdapter"
+  | "mockRevokeConfiguredAdapter"
+  | "mockAuthorizeProfileAdapter"
+  | "mockRevokeProfileAdapter"
+  | "mockAddRequestor"
+  | "mockRemoveRequestor"
+  | "mockClaimRequestorSlot"
+  | "mockCompleteSetup"
+  | "mockCheckIn"
+  | "mockRequestExtension"
+  | "mockBlock"
+  | "mockResurrect"
+  | "mockRequestEvaluation"
+  | "mockRespondToAttempt"
+  | "mockForceOpenAttempt"
+  | "mockResolveExpiredAttempt"
+  | "appendSignal"
 > => ({
   profileId: null,
+  ownerAddress: null,
+  consumerAddress: null,
   deviceVerified: false,
   deviceNullifierHash: null,
   orbBound: false,
@@ -141,11 +198,16 @@ export const getInitialPulseState = (): Omit<
   epoch: 0,
   accumulatedWeight: 0,
   attempts: [],
-  signals: initialSignals,
+  signals: [],
+  profiles: {},
+  activeProfileId: null,
+  publicSignalsByOwner: {},
 });
 
 export const toPersistedProfile = (state: PulseState): PersistedPulseProfile => ({
   profileId: state.profileId,
+  ownerAddress: state.ownerAddress,
+  consumerAddress: state.consumerAddress,
   deviceVerified: state.deviceVerified,
   deviceNullifierHash: state.deviceNullifierHash,
   orbBound: state.orbBound,
@@ -156,7 +218,6 @@ export const toPersistedProfile = (state: PulseState): PersistedPulseProfile => 
   config: state.config,
   notificationTarget: state.notificationTarget,
   adapters: state.adapters,
-  configuredAdapters: state.configuredAdapters,
   requestors: state.requestors,
   enabledModuleIds: state.enabledModuleIds,
   lifecycle: state.lifecycle,
@@ -166,20 +227,97 @@ export const toPersistedProfile = (state: PulseState): PersistedPulseProfile => 
   signals: state.signals,
 });
 
+const applyPersistedProfile = (profile: PersistedPulseProfile): Partial<PulseState> => ({
+  ...profile,
+  activeProfileId: profile.profileId,
+});
+
 export const usePulseStore = create<PulseState>((set, get) => ({
   ...getInitialPulseState(),
 
-  mockCreateProfile: (profileId, verification) => {
+  initProfileTarget: (ownerAddress, consumerAddress) => {
+    const { profileId, ownerAddress: owner, consumerAddress: consumer } = resolveProfileIdentity(
+      ownerAddress,
+      consumerAddress,
+    );
+    const existing = get().profiles[profileId];
+
+    if (existing) {
+      set({ ...applyPersistedProfile(existing), configuredAdapters: get().configuredAdapters });
+      return profileId;
+    }
+
+    set({
+      ...getInitialPulseState(),
+      profileId,
+      ownerAddress: owner,
+      consumerAddress: consumer,
+      activeProfileId: profileId,
+      configuredAdapters: get().configuredAdapters,
+      profiles: get().profiles,
+      publicSignalsByOwner: get().publicSignalsByOwner,
+    });
+
+    return profileId;
+  },
+
+  loadProfile: profileId => {
+    const profile = get().profiles[profileId] ?? get().profiles[profileId.toLowerCase()];
+    if (!profile) return false;
+    set({ ...applyPersistedProfile(profile), configuredAdapters: get().configuredAdapters });
+    return true;
+  },
+
+  getProfilesByConsumer: consumerAddress => {
+    const normalized = normalizeAddress(consumerAddress);
+    return Object.values(get().profiles).filter(
+      profile =>
+        profile.consumerAddress &&
+        normalizeAddress(profile.consumerAddress) === normalized &&
+        profile.setupComplete,
+    );
+  },
+
+  exportConsumerSnapshot: () => ({
+    configuredAdapters: get().configuredAdapters,
+    profiles: get().profiles,
+    activeProfileId: get().activeProfileId,
+    publicSignalsByOwner: get().publicSignalsByOwner,
+  }),
+
+  importConsumerSnapshot: snapshot => {
+    const active = snapshot.activeProfileId ? snapshot.profiles[snapshot.activeProfileId] : null;
+    set({
+      configuredAdapters: snapshot.configuredAdapters,
+      profiles: snapshot.profiles,
+      activeProfileId: snapshot.activeProfileId,
+      publicSignalsByOwner: snapshot.publicSignalsByOwner,
+      ...(active ? applyPersistedProfile(active) : getInitialPulseState()),
+    });
+  },
+
+  mockCreateProfile: (ownerAddress, consumerAddress, verification) => {
     if (verification && !isMockWorldIdVerification(verification) && verification.level !== "device") {
       throw new Error("createProfile requires Device-level World ID verification.");
     }
 
-    set({
-      profileId,
-      deviceVerified: true,
-      deviceNullifierHash:
-        verification && !isMockWorldIdVerification(verification) ? verification.nullifier : null,
-      lifecycle: "CREATED",
+    const { profileId, ownerAddress: owner, consumerAddress: consumer } = resolveProfileIdentity(
+      ownerAddress,
+      consumerAddress,
+    );
+
+    set(state => {
+      const next: Partial<PulseState> = {
+        profileId,
+        ownerAddress: owner,
+        consumerAddress: consumer,
+        activeProfileId: profileId,
+        deviceVerified: true,
+        deviceNullifierHash:
+          verification && !isMockWorldIdVerification(verification) ? verification.nullifier : null,
+        lifecycle: "CREATED",
+      };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
     });
   },
 
@@ -188,18 +326,24 @@ export const usePulseStore = create<PulseState>((set, get) => ({
       throw new Error("bindOrbIdentity requires Orb-level World ID verification.");
     }
 
-    set({
-      orbBound: true,
-      orbNullifierHash: verification && !isMockWorldIdVerification(verification) ? verification.nullifier : null,
+    set(state => {
+      const next: Partial<PulseState> = {
+        orbBound: true,
+        orbNullifierHash: verification && !isMockWorldIdVerification(verification) ? verification.nullifier : null,
+      };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
     });
   },
 
   mockSaveConfig: (config, notificationTarget = null) => {
-    set({
-      config,
-      notificationTarget,
-      configSaved: true,
-      attempts: buildAttempts(config.attemptsPerWindow),
+    set(state => {
+      const next: Partial<PulseState> = {
+        config,
+        notificationTarget,
+        configSaved: true,
+        attempts: buildAttempts(config.attemptsPerWindow),
+      };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
     });
   },
 
@@ -233,7 +377,8 @@ export const usePulseStore = create<PulseState>((set, get) => ({
         }
       }
 
-      return { enabledModuleIds, adapters };
+      const next = { enabledModuleIds, adapters };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
     });
   },
 
@@ -260,39 +405,44 @@ export const usePulseStore = create<PulseState>((set, get) => ({
         ];
       }
 
-      return { enabledModuleIds: [...state.enabledModuleIds, moduleId], adapters };
+      const next = { enabledModuleIds: [...state.enabledModuleIds, moduleId], adapters };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
     });
   },
 
   setModuleAdapter: (moduleId, patch) => {
-    set(state => ({
-      adapters: state.adapters.map(adapter =>
-        adapter.moduleId === moduleId
-          ? {
-              ...adapter,
-              ...(patch.address !== undefined ? { address: patch.address } : {}),
-              ...(patch.weight !== undefined ? { weight: patch.weight } : {}),
-            }
-          : adapter,
-      ),
-    }));
+    set(state => {
+      const next = {
+        adapters: state.adapters.map(adapter =>
+          adapter.moduleId === moduleId
+            ? {
+                ...adapter,
+                ...(patch.address !== undefined ? { address: patch.address } : {}),
+                ...(patch.weight !== undefined ? { weight: patch.weight } : {}),
+              }
+            : adapter,
+        ),
+      };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
+    });
   },
 
   mockConfigureAdapter: adapter => {
     set(state => {
       const bindingStatus = adapter.bindingStatus ?? "active";
       const existing = state.configuredAdapters.filter(a => a.catalogId !== adapter.catalogId);
-      return {
-        configuredAdapters: [...existing, { ...adapter, bindingStatus }],
-      };
+      return { configuredAdapters: [...existing, { ...adapter, bindingStatus }] };
     });
   },
 
   mockRevokeConfiguredAdapter: catalogId => {
-    set(state => ({
-      configuredAdapters: state.configuredAdapters.filter(a => a.catalogId !== catalogId),
-      adapters: state.adapters.filter(a => a.moduleId !== catalogId),
-    }));
+    set(state => {
+      const next = {
+        configuredAdapters: state.configuredAdapters.filter(a => a.catalogId !== catalogId),
+        adapters: state.adapters.filter(a => a.moduleId !== catalogId),
+      };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
+    });
   },
 
   mockAuthorizeProfileAdapter: (catalogId, weight) => {
@@ -302,16 +452,14 @@ export const usePulseStore = create<PulseState>((set, get) => ({
 
       const w = weight ?? configured.weight;
       const existing = state.adapters.find(a => a.moduleId === catalogId);
-      if (existing) {
-        return {
-          adapters: state.adapters.map(a =>
-            a.moduleId === catalogId ? { ...a, address: configured.adapterAddress, weight: w } : a,
-          ),
-        };
-      }
+      let adapters: SignalAdapter[];
 
-      return {
-        adapters: [
+      if (existing) {
+        adapters = state.adapters.map(a =>
+          a.moduleId === catalogId ? { ...a, address: configured.adapterAddress, weight: w } : a,
+        );
+      } else {
+        adapters = [
           ...state.adapters,
           {
             id: crypto.randomUUID(),
@@ -322,24 +470,42 @@ export const usePulseStore = create<PulseState>((set, get) => ({
             typeLabel: configured.typeLabel,
             capabilities: configured.capabilities,
           },
-        ],
-      };
+        ];
+      }
+
+      const next = { adapters };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
     });
   },
 
   mockRevokeProfileAdapter: adapterId => {
-    set(state => ({
-      adapters: state.adapters.map(a => (a.id === adapterId ? { ...a, address: "", weight: 0 } : a)),
-    }));
+    set(state => {
+      const next = {
+        adapters: state.adapters.map(a => (a.id === adapterId ? { ...a, address: "", weight: 0 } : a)),
+      };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
+    });
   },
 
   mockAddRequestor: address => {
-    set(state => ({
-      requestors: [
-        ...state.requestors,
-        { id: crypto.randomUUID(), address, authorized: true, claimed: false },
-      ],
-    }));
+    set(state => {
+      const normalized = normalizeAddress(address);
+      if (state.requestors.some(r => normalizeAddress(r.address) === normalized)) return state;
+      const next = {
+        requestors: [
+          ...state.requestors,
+          { id: crypto.randomUUID(), address: normalized, authorized: true, claimed: false },
+        ],
+      };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
+    });
+  },
+
+  mockRemoveRequestor: requestorId => {
+    set(state => {
+      const next = { requestors: state.requestors.filter(r => r.id !== requestorId) };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
+    });
   },
 
   mockClaimRequestorSlot: (requestorAddress, verification) => {
@@ -347,24 +513,46 @@ export const usePulseStore = create<PulseState>((set, get) => ({
       throw new Error("claimRequestorSlot requires Device-level World ID verification.");
     }
 
-    set(state => ({
-      requestors: state.requestors.map(requestor =>
-        requestor.address.toLowerCase() === requestorAddress.toLowerCase()
-          ? { ...requestor, claimed: true }
-          : requestor,
-      ),
-    }));
+    set(state => {
+      const next = {
+        requestors: state.requestors.map(requestor =>
+          requestor.address.toLowerCase() === requestorAddress.toLowerCase()
+            ? { ...requestor, claimed: true }
+            : requestor,
+        ),
+      };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
+    });
   },
 
   mockCompleteSetup: () => {
-    const { config } = get();
-    set({
-      accessListsSaved: true,
-      setupComplete: true,
-      lifecycle: "ACTIVE",
-      epoch: 1,
-      accumulatedWeight: 23,
-      attempts: buildAttempts(config.attemptsPerWindow),
+    const { config, ownerAddress, consumerAddress } = get();
+    const consumerHash = consumerAddress
+      ? computeConsumerContextHash(consumerAddress as Address)
+      : "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+    set(state => {
+      const demoSignals = buildDemoSignals(consumerHash);
+      const next: Partial<PulseState> = {
+        accessListsSaved: true,
+        setupComplete: true,
+        lifecycle: "ACTIVE",
+        epoch: 1,
+        accumulatedWeight: 23,
+        attempts: buildAttempts(config.attemptsPerWindow),
+        signals: demoSignals,
+      };
+      const merged = { ...state, ...next } as PulseState;
+      const profiles = {
+        ...merged.profiles,
+        ...(merged.profileId ? { [merged.profileId]: toPersistedProfile(merged) } : {}),
+      };
+      const publicSignalsByOwner = { ...merged.publicSignalsByOwner };
+      if (ownerAddress) {
+        const ownerKey = normalizeAddress(ownerAddress);
+        publicSignalsByOwner[ownerKey] = demoSignals.map(signal => toPublicSignal(signal));
+      }
+      return { ...next, profiles, publicSignalsByOwner };
     });
   },
 
@@ -375,7 +563,7 @@ export const usePulseStore = create<PulseState>((set, get) => ({
         attempt => attempt.isActive && attempt.status === "revealed",
       );
 
-      return {
+      const next: Partial<PulseState> = {
         accumulatedWeight: 0,
         lifecycle: "ACTIVE",
         attempts: activeAttempt
@@ -386,6 +574,7 @@ export const usePulseStore = create<PulseState>((set, get) => ({
             )
           : state.attempts,
       };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
     });
     get().appendSignal({
       signalType: "WORLD_ID check-in",
@@ -407,12 +596,18 @@ export const usePulseStore = create<PulseState>((set, get) => ({
 
   mockBlock: verification => {
     assertStoredNullifier(verification ?? { mock: true, level: "orb" }, get().orbNullifierHash, "orb");
-    set({ lifecycle: "BLOCKED", accumulatedWeight: 0 });
+    set(state => {
+      const next = { lifecycle: "BLOCKED" as LifecycleState, accumulatedWeight: 0 };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
+    });
   },
 
   mockResurrect: verification => {
     assertStoredNullifier(verification ?? { mock: true, level: "orb" }, get().orbNullifierHash, "orb");
-    set({ lifecycle: "ACTIVE", accumulatedWeight: 0, epoch: get().epoch + 1 });
+    set(state => {
+      const next = { lifecycle: "ACTIVE" as LifecycleState, accumulatedWeight: 0, epoch: state.epoch + 1 };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
+    });
     get().appendSignal({
       signalType: "Resurrection (Orb)",
       direction: "positive",
@@ -422,7 +617,10 @@ export const usePulseStore = create<PulseState>((set, get) => ({
   },
 
   mockRequestEvaluation: () => {
-    set({ lifecycle: "EVALUATING" });
+    set(state => {
+      const next = { lifecycle: "EVALUATING" as LifecycleState };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
+    });
     get().appendSignal({
       signalType: "Evaluation requested",
       direction: "negative",
@@ -435,14 +633,17 @@ export const usePulseStore = create<PulseState>((set, get) => ({
     const isLifeProof =
       verificationType === "WORLD_ID" || verificationType === "ONCHAIN_TX" || verificationType === "VOICE_AGENT";
 
-    set(state => ({
-      attempts: state.attempts.map(attempt =>
-        attempt.id === attemptId
-          ? { ...attempt, status: "completed" as const, result: "success" as const, isActive: false }
-          : attempt,
-      ),
-      accumulatedWeight: isLifeProof ? 0 : state.accumulatedWeight,
-    }));
+    set(state => {
+      const next = {
+        attempts: state.attempts.map(attempt =>
+          attempt.id === attemptId
+            ? { ...attempt, status: "completed" as const, result: "success" as const, isActive: false }
+            : attempt,
+        ),
+        accumulatedWeight: isLifeProof ? 0 : state.accumulatedWeight,
+      };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
+    });
 
     get().appendSignal({
       signalType: verificationType === "ONCHAIN_TX" ? "ONCHAIN_TX response" : "Attempt response",
@@ -457,7 +658,7 @@ export const usePulseStore = create<PulseState>((set, get) => ({
       const targetIndex = state.attempts.findIndex(a => a.expiredUnopened || a.status === "locked");
       if (targetIndex === -1) return state;
 
-      return {
+      const next = {
         attempts: state.attempts.map((attempt, index) =>
           index === targetIndex
             ? {
@@ -470,22 +671,84 @@ export const usePulseStore = create<PulseState>((set, get) => ({
             : { ...attempt, isActive: false },
         ),
       };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
+    });
+  },
+
+  mockResolveExpiredAttempt: () => {
+    set(state => {
+      const target = state.attempts.find(a => a.expiredUnopened);
+      if (!target) return state;
+      const next = {
+        attempts: state.attempts.map(attempt =>
+          attempt.id === target.id
+            ? {
+                ...attempt,
+                status: "completed" as const,
+                result: "failure" as const,
+                isActive: false,
+                expiredUnopened: false,
+              }
+            : attempt,
+        ),
+        accumulatedWeight: state.accumulatedWeight + state.config.missedAttemptWeight,
+      };
+      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
     });
   },
 
   appendSignal: signal => {
-    set(state => ({
-      signals: [
-        {
-          id: crypto.randomUUID(),
-          timestamp: signal.timestamp ?? new Date().toISOString(),
-          signalType: signal.signalType,
-          direction: signal.direction,
-          weight: signal.weight,
-          walrusBlobId: signal.walrusBlobId,
-        },
-        ...state.signals,
-      ],
-    }));
+    const state = get();
+    const consumerHash =
+      state.consumerAddress != null
+        ? computeConsumerContextHash(state.consumerAddress as Address)
+        : signal.consumerContextHash ?? "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+    const decoded: ConsoleSignal = {
+      id: crypto.randomUUID(),
+      timestamp: signal.timestamp ?? new Date().toISOString(),
+      signalType: signal.signalType,
+      direction: signal.direction,
+      weight: signal.weight,
+      walrusBlobId: signal.walrusBlobId,
+      adapterAddress: signal.adapterAddress ?? state.adapters.find(a => a.address)?.address,
+      consumerContextHash: signal.consumerContextHash ?? consumerHash,
+    };
+
+    set(current => {
+      const publicRecord = toPublicSignal(decoded);
+      const publicSignalsByOwner = { ...current.publicSignalsByOwner };
+      if (current.ownerAddress) {
+        const ownerKey = normalizeAddress(current.ownerAddress);
+        publicSignalsByOwner[ownerKey] = [publicRecord, ...(publicSignalsByOwner[ownerKey] ?? [])];
+      }
+
+      const next = { signals: [decoded, ...current.signals], publicSignalsByOwner };
+      return { ...next, ...syncActiveToProfiles({ ...current, ...next } as PulseState) };
+    });
   },
 }));
+
+export const getPublicSignalsForOwner = (ownerAddress: string): PublicSignalRecord[] => {
+  const ownerKey = normalizeAddress(ownerAddress);
+  return usePulseStore.getState().publicSignalsByOwner[ownerKey] ?? [];
+};
+
+export const aggregatePublicSignalsFromProfiles = (
+  ownerAddress: string,
+  profiles: PersistedPulseProfile[],
+): PublicSignalRecord[] => {
+  const ownerKey = normalizeAddress(ownerAddress);
+  const fromProfiles = profiles
+    .filter(p => p.ownerAddress && normalizeAddress(p.ownerAddress) === ownerKey && p.setupComplete)
+    .flatMap(p => p.signals.map(signal => toPublicSignal(signal)));
+
+  const fromIndex = getPublicSignalsForOwner(ownerAddress);
+  const merged = [...fromIndex, ...fromProfiles];
+  const seen = new Set<string>();
+  return merged.filter(item => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
+};

@@ -145,3 +145,18 @@ cd pulse && yarn verify:cre
 ```
 
 Use **Chainlink MCP** in Cursor for workflow docs. Live DON deployment requires `cre login` and Chainlink team support during the event.
+
+## Pulse UI routes (product validation — mock layer)
+
+| Route | Purpose |
+|-------|---------|
+| `/` | Landing + hero search + dev entry → `/dashboard` |
+| `/explorer/:address` | Public encrypted Walrus feed only |
+| `/adapters` | Consumer-scoped adapter credentials (data plane) |
+| `/setup` | Create profile: `profileId = keccak256(owner, consumer wallet)` |
+| `/setup/:profileId` | Edit existing profile |
+| `/dashboard` | List profiles for connected consumer wallet |
+| `/dashboard/:profileId` | Decoded console: gauge, signals, actions, attempts |
+| `/console` | Redirects to `/dashboard` |
+
+Onchain contract migration is **deferred** until product flows are validated in UI.

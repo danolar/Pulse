@@ -1,5 +1,6 @@
 "use client";
 
+import { useAccount } from "wagmi";
 import deployedContracts from "~~/contracts/deployedContracts";
 import {
   CONNECTION_KIT_CONSUME_EXTEND_NOTE,
@@ -128,11 +129,16 @@ const DocsLinks = () => (
 );
 
 export const ConnectionKitPanel = ({ open, onClose }: ConnectionKitPanelProps) => {
+  const { address } = useAccount();
   const { targetNetwork } = useTargetNetwork();
   const contractAddress =
     deployedContracts[targetNetwork.id as keyof typeof deployedContracts]?.PulseOracle?.address ?? "";
   const appId = process.env.NEXT_PUBLIC_WORLD_APP_ID ?? "";
-  const snippets = buildConnectionKitSnippets({ appId, contractAddress });
+  const snippets = buildConnectionKitSnippets({
+    appId,
+    contractAddress,
+    consumerAddress: address ?? undefined,
+  });
 
   return (
     <SlideOver open={open} title={CONNECTION_KIT_PANEL_TITLE} onClose={onClose} size="lg">

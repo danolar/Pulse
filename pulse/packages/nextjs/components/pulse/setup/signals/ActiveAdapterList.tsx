@@ -1,5 +1,6 @@
 "use client";
 
+import { useAccount } from "wagmi";
 import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
@@ -7,7 +8,7 @@ import { StatusTag } from "~~/components/pulse/ui/StatusTag";
 import { usePulseStore } from "~~/services/store/pulseStore";
 
 export const ActiveAdapterList = () => {
-  const { adapters, setModuleAdapter } = usePulseStore();
+  const { adapters, setModuleAdapter, mockRevokeProfileAdapter } = usePulseStore();
   const active = adapters.filter(adapter => adapter.address?.trim());
 
   return (
@@ -16,11 +17,11 @@ export const ActiveAdapterList = () => {
         <div>
           <h2 className="pulse-section-title">Active signal adapters</h2>
           <p className="mt-1 text-sm text-pulse-muted">
-            Adapters authorized on this profile. Add or revoke bindings in{" "}
+            Adapters authorized on this profileId. Configure credentials in{" "}
             <Link href="/adapters" className="link link-primary">
               Adapters
             </Link>
-            .
+            , then activate here.
           </p>
         </div>
         <Link href="/adapters">
@@ -35,7 +36,7 @@ export const ActiveAdapterList = () => {
         <div className="rounded-2xl border border-dashed border-base-content/15 px-4 py-10 text-center">
           <p className="mb-1 text-sm font-medium text-base-content">No adapters on this profile</p>
           <p className="mb-4 text-sm text-pulse-muted">
-            Configure credentials in Adapters, then authorize signers on your profile.
+            Configure credentials in Adapters, then activate signers on this profile.
           </p>
           <Link href="/adapters">
             <PulseButton>Open Adapters</PulseButton>
@@ -49,6 +50,7 @@ export const ActiveAdapterList = () => {
                 <th>Adapter</th>
                 <th className="hidden sm:table-cell">Signer</th>
                 <th className="w-28">Weight</th>
+                <th className="w-24" />
               </tr>
             </thead>
             <tbody>
@@ -81,6 +83,15 @@ export const ActiveAdapterList = () => {
                     ) : (
                       <span className="text-xs text-pulse-muted">Gate · 0</span>
                     )}
+                  </td>
+                  <td>
+                    <PulseButton
+                      variant="ghost"
+                      className="btn-xs"
+                      onClick={() => mockRevokeProfileAdapter(adapter.id)}
+                    >
+                      Remove
+                    </PulseButton>
                   </td>
                 </tr>
               ))}

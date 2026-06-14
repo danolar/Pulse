@@ -58,7 +58,8 @@ export type VerificationAttempt = {
   expiredUnopened?: boolean;
 };
 
-export type ConsoleSignal = {
+/** Decoded signal — visible only in consumer dashboard, not public Explorer. */
+export type DecodedSignal = {
   id: string;
   signalType: string;
   /** Negative = adds unresponsiveness weight; positive = proof-of-life (resets window in contract). */
@@ -67,6 +68,32 @@ export type ConsoleSignal = {
   weight: number;
   timestamp: string;
   walrusBlobId: string;
+  adapterAddress?: string;
+  consumerContextHash?: string;
+};
+
+/** Alias used in console/dashboard components. */
+export type ConsoleSignal = DecodedSignal;
+
+/** Public Explorer feed row — no weight, type, or threshold data. */
+export type PublicSignalRecord = {
+  id: string;
+  blobId: string;
+  timestamp: string;
+  adapterAddress: string;
+  consumerContextHash: string;
+  status: "encrypted" | "decrypted";
+};
+
+export type PulseProfileSummary = {
+  profileId: string;
+  ownerAddress: string;
+  consumerAddress: string;
+  setupComplete: boolean;
+  lifecycle: LifecycleState;
+  accumulatedWeight: number;
+  config: ProfileConfig;
+  lastSignalAt: string | null;
 };
 
 /** Demo-friendly defaults; production profiles use longer windows (spec example: 60 days). */

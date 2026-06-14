@@ -7,6 +7,7 @@ import { WorldIDConfigStatus } from "~~/components/pulse/setup/identity/WorldIDC
 import { DEV_TEST_SECTION_TITLE } from "~~/constants/explorerCopy";
 import { worldIdActions } from "~~/constants/pulseProtocol";
 import { usePulseStore } from "~~/services/store/pulseStore";
+import { normalizeAddress } from "~~/utils/pulse/explorerAddress";
 import { notification } from "~~/utils/scaffold-eth/notification";
 import type { PulseWorldIdVerification } from "~~/utils/worldIdProof";
 
@@ -22,10 +23,15 @@ const runVerifiedAction = (action: (verification: PulseWorldIdVerification) => v
 
 const WorldIDButton = PulseWorldIdButton;
 
-const DevTestStep = () => {
-  const { address } = useAccount();
+type StageIdentityProps = {
+  ownerAddress: string;
+};
+
+const DevTestStep = ({ ownerAddress }: StageIdentityProps) => {
+  const { address: consumerAddress } = useAccount();
   const { deviceVerified, orbBound, mockCreateProfile, mockBindOrb } = usePulseStore();
-  const profileKey = address ?? "pending";
+  const ownerKey = normalizeAddress(ownerAddress);
+  const canCreate = Boolean(consumerAddress);
 
   return (
     <section className="pulse-card border-dashed border-primary/30 p-5 sm:p-6">
@@ -39,16 +45,18 @@ const DevTestStep = () => {
             <VerifiedCheck verified={deviceVerified} label="Device bound" />
           </div>
           <p className="mb-3 text-sm text-pulse-muted">
-            Creates your dev profile and binds Device identity. Profile key:{" "}
-            <span className="font-mono text-xs">{profileKey}</span>
+            Mock createProfile for owner{" "}
+            <span className="font-mono text-xs">{ownerKey}</span> with consumer wallet as msg.sender.
           </p>
           <WorldIDButton
             level="device"
-            action={worldIdActions.createProfile(profileKey)}
-            signal={profileKey}
+            action={worldIdActions.createProfile(ownerKey)}
+            signal={ownerKey}
             label="Verify & create profile"
-            disabled={deviceVerified}
-            onVerified={runVerifiedAction(v => mockCreateProfile(profileKey, v))}
+            disabled={deviceVerified || !canCreate}
+            onVerified={runVerifiedAction(v =>
+              mockCreateProfile(ownerKey, consumerAddress!, v),
+            )}
           />
         </div>
 
@@ -62,8 +70,8 @@ const DevTestStep = () => {
           </p>
           <WorldIDButton
             level="orb"
-            action={worldIdActions.bindOrb(profileKey)}
-            signal={profileKey}
+            action={worldIdActions.bindOrb(ownerKey)}
+            signal={ownerKey}
             label="Bind Orb identity"
             disabled={!deviceVerified || orbBound}
             onVerified={runVerifiedAction(mockBindOrb)}
@@ -74,9 +82,9 @@ const DevTestStep = () => {
   );
 };
 
-export const StageIdentity = () => (
+export const StageIdentity = ({ ownerAddress }: StageIdentityProps) => (
   <div className="space-y-6">
     <WorldIDConfigStatus />
-    <DevTestStep />
+    <DevTestStep ownerAddress={ownerAddress} />
   </div>
 );

@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useAccount } from "wagmi";
 import { PulseMark } from "~~/components/pulse/brand/PulseMark";
 import { PageShell } from "~~/components/pulse";
 import { HeroSearchBar } from "~~/components/pulse/explorer/HeroSearchBar";
 import { RecentSearches } from "~~/components/pulse/explorer/RecentSearches";
+import { PulseButton } from "~~/components/pulse/ui/PulseButton";
 import { PULSE_TAGLINE } from "~~/constants/pulseBrand";
 import { PULSE_EXPLORER_TOOL_NOTE, PULSE_WHAT_IS } from "~~/constants/explorerCopy";
 
@@ -42,12 +44,30 @@ const WhatIsThisNote = () => (
   </div>
 );
 
+const DevEntryPoint = () => {
+  const { address } = useAccount();
+
+  return (
+    <div className="mx-auto max-w-md rounded-2xl border border-base-content/10 bg-base-200/40 px-5 py-4 text-center">
+      <p className="mb-3 text-sm text-pulse-muted">
+        Building with Pulse? Connect your wallet to manage your integration.
+      </p>
+      <Link href={address ? "/dashboard" : "/setup"}>
+        <PulseButton variant="secondary" className="w-full sm:w-auto">
+          {address ? "Open dashboard" : "Connect to get started"}
+        </PulseButton>
+      </Link>
+    </div>
+  );
+};
+
 export const LandingPage = () => (
   <PageShell className="flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center gap-8 py-12">
     <RadarHero />
     <TagOneLiner />
     <WhatIsThisNote />
     <HeroSearchBar />
+    <DevEntryPoint />
     <RecentSearches />
     <Link href="/explorer" className="link link-hover text-xs text-pulse-muted">
       Open explorer

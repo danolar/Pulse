@@ -8,7 +8,7 @@ import {
   WINDOW_SCHEDULE_NOTE,
 } from "~~/constants/explorerCopy";
 import { VERIFICATION_TYPE_LABELS, worldIdActions } from "~~/constants/pulseProtocol";
-import type { ProfileRole } from "~~/hooks/pulse/useProfileByAddress";
+import type { ProfileRole } from "~~/hooks/pulse/useProfileConsole";
 import { usePulseStore } from "~~/services/store/pulseStore";
 import { LIFECYCLE_LABELS, type LifecycleState, type VerificationAttempt } from "~~/types/pulse";
 import { notification } from "~~/utils/scaffold-eth/notification";
@@ -21,6 +21,7 @@ type AttemptSequenceProps = {
   epoch?: number;
   responseWindowHours?: number;
   profileKey?: string;
+  showKeeperActions?: boolean;
 };
 
 const runVerifiedAction = (action: (verification: PulseWorldIdVerification) => void) => {
@@ -79,8 +80,9 @@ export const AttemptSequence = ({
   epoch = 0,
   responseWindowHours,
   profileKey = "",
+  showKeeperActions = false,
 }: AttemptSequenceProps) => {
-  const { mockRespondToAttempt, mockForceOpenAttempt } = usePulseStore();
+  const { mockRespondToAttempt, mockForceOpenAttempt, mockResolveExpiredAttempt } = usePulseStore();
   const hasExpiredUnopened = attempts.some(attempt => attempt.expiredUnopened);
   const activeAttemptIndex = attempts.findIndex(attempt => attempt.isActive && attempt.status === "revealed");
   const isOwner = profileRole === "owner";
@@ -190,6 +192,17 @@ export const AttemptSequence = ({
         <PulseButton variant="ghost" className="mt-4" onClick={() => mockForceOpenAttempt()}>
           Force open expired attempt
         </PulseButton>
+      ) : null}
+
+      {showKeeperActions && hasExpiredUnopened ? (
+        <div className="mt-4 flex flex-wrap gap-2">
+          <PulseButton variant="secondary" className="btn-sm" onClick={() => mockForceOpenAttempt()}>
+            Open next attempt (mock keeper)
+          </PulseButton>
+          <PulseButton variant="ghost" className="btn-sm" onClick={() => mockResolveExpiredAttempt()}>
+            Resolve expired (mock keeper)
+          </PulseButton>
+        </div>
       ) : null}
 
       {hasExpiredUnopened && isOwner ? (

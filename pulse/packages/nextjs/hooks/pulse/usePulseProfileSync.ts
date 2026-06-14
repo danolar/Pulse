@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { useAccount } from "wagmi";
-import { loadPulseProfile, savePulseProfile } from "~~/services/store/pulseProfileStorage";
-import { getInitialPulseState, toPersistedProfile, usePulseStore } from "~~/services/store/pulseStore";
+import { loadConsumerPulseSnapshot, saveConsumerPulseSnapshot } from "~~/services/store/pulseProfileStorage";
+import { getInitialPulseState, usePulseStore } from "~~/services/store/pulseStore";
 
 const SAVE_DEBOUNCE_MS = 400;
 
@@ -19,7 +19,7 @@ export const usePulseProfileSync = () => {
       const previousAddress = previousAddressRef.current;
 
       if (previousAddress && previousAddress !== address) {
-        await savePulseProfile(previousAddress, toPersistedProfile(usePulseStore.getState()));
+        await saveConsumerPulseSnapshot(previousAddress, usePulseStore.getState().exportConsumerSnapshot());
       }
 
       previousAddressRef.current = address ?? null;
@@ -31,10 +31,18 @@ export const usePulseProfileSync = () => {
         return;
       }
 
-      const savedProfile = await loadPulseProfile(address);
+      const savedSnapshot = await loadConsumerPulseSnapshot(address);
       if (cancelled) return;
 
-      usePulseStore.setState(savedProfile ? { ...getInitialPulseState(), ...savedProfile } : getInitialPulseState());
+      if (savedSnapshot) {
+        usePulseStore.getState().importConsumerSnapshot(savedSnapshot);
+      } else {
+        usePulseStore.setState({
+          ...getInitialPulseState(),
+          consumerAddress: address,
+        });
+      }
+
       isHydratingRef.current = false;
     };
 
@@ -55,7 +63,7 @@ export const usePulseProfileSync = () => {
 
       if (saveTimeout) clearTimeout(saveTimeout);
       saveTimeout = setTimeout(() => {
-        void savePulseProfile(address, toPersistedProfile(usePulseStore.getState()));
+        void saveConsumerPulseSnapshot(address, usePulseStore.getState().exportConsumerSnapshot());
       }, SAVE_DEBOUNCE_MS);
     });
 

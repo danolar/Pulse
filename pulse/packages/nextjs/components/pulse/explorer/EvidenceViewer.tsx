@@ -2,30 +2,37 @@
 
 import { useEffect, useState } from "react";
 import { PulseModal } from "~~/components/pulse/modals/PulseModal";
-import { parseWalrusBlobId } from "~~/utils/walrus";
 
 type EvidenceViewerProps = {
   blobId: string | null;
   onClose: () => void;
+  mode?: "public" | "private";
 };
 
-export const EvidenceViewer = ({ blobId, onClose }: EvidenceViewerProps) => {
+export const EvidenceViewer = ({ blobId, onClose, mode = "private" }: EvidenceViewerProps) => {
   const [content, setContent] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const parsed = blobId ? parseWalrusBlobId(blobId) : null;
-
   useEffect(() => {
-    if (!blobId || !parsed) {
+    if (!blobId) {
       setContent(null);
       setError(null);
+      return;
+    }
+
+    if (mode === "public") {
+      setLoading(false);
+      setContent(null);
+      setError("Encrypted blob — public routes never return decoded payload.");
       return;
     }
 
     let cancelled = false;
     setLoading(true);
     setError(null);
+
+    const parsed = blobId.replace(/^walrus:/, "");
 
     fetch(`/api/walrus/blobs/${encodeURIComponent(parsed)}`)
       .then(async response => {
@@ -51,7 +58,7 @@ export const EvidenceViewer = ({ blobId, onClose }: EvidenceViewerProps) => {
     return () => {
       cancelled = true;
     };
-  }, [blobId, parsed]);
+  }, [blobId, mode]);
 
   return (
     <PulseModal open={Boolean(blobId)} title="Signal evidence" onClose={onClose} size="lg">
@@ -60,7 +67,7 @@ export const EvidenceViewer = ({ blobId, onClose }: EvidenceViewerProps) => {
       {content ? (
         <pre className="max-h-[50vh] overflow-auto rounded-xl bg-base-200/80 p-3 font-mono text-xs">{content}</pre>
       ) : null}
-      {!loading && !error && !content && blobId ? (
+      {!loading && !error && !content && blobId && mode === "private" ? (
         <p className="text-sm text-pulse-muted">No decoded payload (mock blob reference only).</p>
       ) : null}
     </PulseModal>

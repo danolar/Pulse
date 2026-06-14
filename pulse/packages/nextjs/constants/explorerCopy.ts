@@ -2,28 +2,31 @@ export const PULSE_WHAT_IS =
   "Pulse is an open protocol that accumulates weighted signals and emits a verifiable onchain event when a profile crosses its threshold.";
 
 export const PULSE_EXPLORER_TOOL_NOTE =
-  "Pulse Explorer is a developer tool for configuration, contract testing, and auditing — not the end-user app. Users live in consumer apps like Legacy Ledger.";
+  "Pulse Explorer is a public audit surface — encrypted Walrus evidence only. Decoded state and actions live in consumer apps (Legacy Ledger) and the developer dashboard.";
 
 export const EXPLORER_SEARCH_LABEL = "Search a wallet address";
 
-export const EXPLORER_HERO_CTA = "Enter a wallet address to view its Pulse profile.";
+export const EXPLORER_HERO_CTA = "Enter a wallet address to see encrypted Pulse activity.";
 
-export const CONFIGURATION_PAGE_TITLE = "Pulse configuration";
+export const CONFIGURATION_PAGE_TITLE = "Profile setup";
 
 export const CONFIGURATION_PAGE_SUBTITLE =
-  "Identity, signal sources, and monitoring rhythm — configure your dev profile step by step.";
+  "Signals, identity, and monitoring rhythm — create a profile for profileId = keccak256(owner, your wallet).";
 
 export const REQUESTORS_CONFIG_CALLOUT =
   "Trusted requestors are authorized per end-user profile inside your consumer app (for example Legacy Ledger), not globally in Explorer. Your app calls authorizeRequestor for specific wallets tied to that user's profile, then each requestor claims their slot with World ID.";
 
 export const PROFILE_NOT_FOUND = (address: string) =>
-  `No Pulse profile found for ${address}.`;
+  `No encrypted Pulse activity found for ${address}.`;
 
 export const VIEWING_BANNER =
   "Read-only profile view. Verification and owner actions run in the consumer app, not Explorer.";
 
 export const EXPLORER_BROWSE_NOTE =
-  "Explorer shows onchain protocol state for audit. It is not where owners or requestors act.";
+  "Public Explorer shows encrypted Walrus blob references only — no weights, thresholds, or lifecycle state.";
+
+export const PUBLIC_VIEW_NOTE =
+  "This view shows encrypted signal records stored on Walrus. Weights, thresholds, and configuration details are visible only to authorized parties.";
 
 export const SIGNAL_ACTIVITY_TITLE = "Signal activity";
 
@@ -36,7 +39,7 @@ export const WINDOW_SCHEDULE_NOTE =
   "Separate from passive signals: the protocol commits a random sequence of owner response windows (commit-reveal). Adapters keep reporting in the background; at most one scheduled check typically expects an owner response at a given time.";
 
 export const WINDOW_SCHEDULE_FOOTNOTE =
-  "Owners respond to scheduled checks in their consumer app. Explorer shows both layers read-only for audit.";
+  "Owners respond to scheduled checks in their consumer app. The public Explorer never shows decoded schedule state.";
 
 export const REQUESTOR_ACTIONS_NOTE =
   "Verified requestor actions for this profile. Requestors are authorized per user in the consumer app.";

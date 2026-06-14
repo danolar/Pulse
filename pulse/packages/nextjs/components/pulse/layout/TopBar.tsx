@@ -4,7 +4,8 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
-import { Bug, Cable, Menu, Plug, Search, Settings } from "lucide-react";
+import { useAccount } from "wagmi";
+import { Bug, Cable, LayoutDashboard, Menu, Plug, Search, Settings } from "lucide-react";
 import { PulseLogo } from "~~/components/pulse/brand/PulseLogo";
 import { AddressSearchBar } from "~~/components/pulse/explorer/AddressSearchBar";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
@@ -48,17 +49,26 @@ type TopBarProps = {
 
 export const TopBar = ({ onOpenConnectionKit }: TopBarProps) => {
   const pathname = usePathname();
+  const { address } = useAccount();
   const { targetNetwork } = useTargetNetwork();
   const isLocalNetwork = targetNetwork.id === hardhat.id;
 
-  const appNavLinks: NavLink[] = useMemo(
-    () => [
+  const appNavLinks: NavLink[] = useMemo(() => {
+    const links: NavLink[] = [
       { label: "Explorer", href: "/explorer", matchPrefix: true },
       { label: "Adapters", href: "/adapters", icon: <Plug className="h-4 w-4 shrink-0" /> },
-      { label: "Configure", href: "/setup", icon: <Settings className="h-4 w-4 shrink-0" /> },
-    ],
-    [],
-  );
+      { label: "Setup", href: "/setup", icon: <Settings className="h-4 w-4 shrink-0" /> },
+    ];
+    if (address) {
+      links.push({
+        label: "Dashboard",
+        href: "/dashboard",
+        icon: <LayoutDashboard className="h-4 w-4 shrink-0" />,
+        matchPrefix: true,
+      });
+    }
+    return links;
+  }, [address]);
 
   const devNavLinks: NavLink[] = useMemo(() => {
     const links: NavLink[] = [];

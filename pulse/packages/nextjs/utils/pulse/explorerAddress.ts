@@ -6,6 +6,12 @@ export const isEthAddress = (value: string): boolean => ETH_ADDRESS.test(value.t
 
 export const normalizeAddress = (value: string): string => value.trim().toLowerCase();
 
+export const truncateAddress = (value: string, chars = 6): string => {
+  const normalized = normalizeAddress(value);
+  if (normalized.length < 2 + chars * 2) return normalized;
+  return `${normalized.slice(0, 2 + chars)}…${normalized.slice(-chars)}`;
+};
+
 export const getRecentSearches = (): string[] => {
   if (typeof window === "undefined") return [];
   try {

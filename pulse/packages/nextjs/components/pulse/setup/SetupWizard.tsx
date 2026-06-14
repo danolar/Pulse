@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { isAddress } from "viem";
 import { useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
 import { PageShell, SectionHeader } from "~~/components/pulse";
+import { ProfileTargetInput } from "~~/components/pulse/setup/ProfileTargetInput";
 import { validateEnabledModulesForActivation } from "~~/components/pulse/setup/signals/signalsValidation";
 import { StageIdentity } from "~~/components/pulse/setup/StageIdentity";
 import { StageRhythm } from "~~/components/pulse/setup/StageRhythm";
@@ -24,11 +26,42 @@ import {
 import { SHOW_SCAFFOLD_DEV_UI } from "~~/constants/pulseAppConfig";
 import { usePulseStore } from "~~/services/store/pulseStore";
 
-export const SetupWizard = () => {
+type SetupWizardProps = {
+  editProfileId?: string;
+};
+
+export const SetupWizard = ({ editProfileId }: SetupWizardProps) => {
   const router = useRouter();
   const { address } = useAccount();
   const store = usePulseStore();
-  const { deviceVerified, configSaved, config, notificationTarget, mockSaveConfig, mockCompleteSetup } = store;
+  const {
+    deviceVerified,
+    configSaved,
+    config,
+    notificationTarget,
+    ownerAddress,
+    profileId,
+    mockSaveConfig,
+    mockCompleteSetup,
+    initProfileTarget,
+  } = store;
+
+  const [ownerDraft, setOwnerDraft] = useState(() => ownerAddress ?? address ?? "");
+
+  useEffect(() => {
+    if (!address) return;
+    if (ownerAddress && isAddress(ownerAddress)) {
+      setOwnerDraft(ownerAddress);
+      return;
+    }
+    if (editProfileId) return;
+    setOwnerDraft(address);
+  }, [address, ownerAddress, editProfileId]);
+
+  useEffect(() => {
+    if (!address || !isAddress(ownerDraft)) return;
+    initProfileTarget(ownerDraft, address);
+  }, [address, ownerDraft, initProfileTarget]);
 
   const progress = useMemo(
     () =>
@@ -49,6 +82,8 @@ export const SetupWizard = () => {
     });
   }, [progress]);
 
+  const ownerValid = isAddress(ownerDraft);
+
   const handleBack = () => {
     const previous = getPreviousStage(currentStage);
     if (previous) setCurrentStage(previous);
@@ -61,14 +96,11 @@ export const SetupWizard = () => {
   };
 
   const handleFinish = () => {
-    if (!configSaved) return;
+    if (!configSaved || !ownerValid || !address) return;
     if (!validateEnabledModulesForActivation()) return;
     mockCompleteSetup();
-    if (address) {
-      router.push(`/explorer/${address}`);
-    } else {
-      router.push("/explorer");
-    }
+    const targetProfileId = profileId ?? initProfileTarget(ownerDraft, address);
+    router.push(`/dashboard/${targetProfileId}`);
   };
 
   const scrollClearance = SHOW_SCAFFOLD_DEV_UI
@@ -80,12 +112,20 @@ export const SetupWizard = () => {
       <PageShell className={scrollClearance}>
         <SectionHeader
           title={CONFIGURATION_PAGE_TITLE}
-          eyebrow="pulse explorer"
+          eyebrow="setup"
           subtitle={CONFIGURATION_PAGE_SUBTITLE}
         />
 
-        {currentStage === "identity" ? <StageIdentity /> : null}
+        <div className="mb-6">
+          <ProfileTargetInput
+            ownerAddress={ownerDraft}
+            onOwnerAddressChange={setOwnerDraft}
+            disabled={Boolean(editProfileId)}
+          />
+        </div>
+
         {currentStage === "signals" ? <StageSignals /> : null}
+        {currentStage === "identity" ? <StageIdentity ownerAddress={ownerDraft} /> : null}
         {currentStage === "rhythm" ? (
           <StageRhythm
             disabled={!deviceVerified}
@@ -95,10 +135,7 @@ export const SetupWizard = () => {
           />
         ) : null}
 
-        <div
-          aria-hidden
-          className={SHOW_SCAFFOLD_DEV_UI ? "h-40 sm:h-48" : "h-32 sm:h-40"}
-        />
+        <div aria-hidden className={SHOW_SCAFFOLD_DEV_UI ? "h-40 sm:h-48" : "h-32 sm:h-40"} />
       </PageShell>
 
       <WizardFooter
@@ -110,7 +147,7 @@ export const SetupWizard = () => {
         onBack={handleBack}
         onNext={handleNext}
         onFinish={handleFinish}
-        finishDisabled={!configSaved}
+        finishDisabled={!configSaved || !ownerValid}
       />
     </>
   );

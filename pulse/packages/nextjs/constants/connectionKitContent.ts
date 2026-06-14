@@ -3,7 +3,7 @@ import { worldIdActions } from "~~/constants/pulseProtocol";
 export const CONNECTION_KIT_PANEL_TITLE = "Connect your app to Pulse";
 
 export const CONNECTION_KIT_PANEL_INTRO =
-  "Your app talks to Pulse through one contract and one World ID app_id. Users sign with their own wallet; you read state by their address. No registration handshake.";
+  "Your consumer app (for example Legacy Ledger) integrates via profileId = keccak256(ownerAddress, consumerAddress). Users sign with their own wallet; you read decoded state in your dashboard context.";
 
 export const CONNECTION_KIT_DEPLOYMENT_NOTE =
   "These are the values for the official Pulse deployment. If you deploy your own Pulse instance, replace the contract address and the app_id with your own; everything else below is identical.";
@@ -11,20 +11,20 @@ export const CONNECTION_KIT_DEPLOYMENT_NOTE =
 export const CONNECTION_KIT_CONSUME_EXTEND_NOTE =
   "Most integrations consume Pulse (read state, react to outcomes — steps 1–5 below). To extend Pulse by authoring a signal adapter, see the adapter guide linked at the bottom.";
 
-/** World ID action string convention — templates use {address} / {owner} / {requestor} placeholders. */
+/** World ID action strings — owner address in create/checkin flows; profile keyed by profileId onchain (future). */
 export const WORLD_ID_ACTION_PATTERNS = [
-  { flow: "Create profile", pattern: worldIdActions.createProfile("{address}"), level: "device" },
-  { flow: "Bind Orb", pattern: worldIdActions.bindOrb("{address}"), level: "orb" },
-  { flow: "Check in", pattern: worldIdActions.checkin("{address}"), level: "device" },
-  { flow: "Request extension", pattern: worldIdActions.requestExtension("{address}"), level: "device" },
-  { flow: "Freeze evaluation", pattern: worldIdActions.block("{address}"), level: "orb" },
-  { flow: "Reverse alarm", pattern: worldIdActions.resurrect("{address}"), level: "orb" },
+  { flow: "Create profile", pattern: worldIdActions.createProfile("{ownerAddress}"), level: "device" },
+  { flow: "Bind Orb", pattern: worldIdActions.bindOrb("{ownerAddress}"), level: "orb" },
+  { flow: "Check in", pattern: worldIdActions.checkin("{ownerAddress}"), level: "device" },
+  { flow: "Request extension", pattern: worldIdActions.requestExtension("{ownerAddress}"), level: "device" },
+  { flow: "Freeze evaluation", pattern: worldIdActions.block("{ownerAddress}"), level: "orb" },
+  { flow: "Reverse alarm", pattern: worldIdActions.resurrect("{ownerAddress}"), level: "orb" },
   {
     flow: "Claim requestor slot",
-    pattern: worldIdActions.claimRequestorSlot("{owner}", "{requestor}"),
+    pattern: worldIdActions.claimRequestorSlot("{ownerAddress}", "{requestor}"),
     level: "device",
   },
-  { flow: "Request evaluation", pattern: worldIdActions.requestEvaluation("{owner}"), level: "device" },
+  { flow: "Request evaluation", pattern: worldIdActions.requestEvaluation("{ownerAddress}"), level: "device" },
 ] as const;
 
 export const CONNECTION_KIT_INTEGRATION_STEPS = [
@@ -47,15 +47,15 @@ export const CONNECTION_KIT_INTEGRATION_STEPS = [
     snippetKey: "checkinWrite" as const,
   },
   {
-    title: "Read profile state by your user's address",
+    title: "Read profile state by profileId",
     explanation:
-      "A profile is keyed by the owner's wallet address. Read state directly — no per-app registration.",
+      "profileId = keccak256(ownerAddress, yourConsumerWallet). One owner can have multiple profiles across consumer apps.",
     snippetKey: "profilesRead" as const,
   },
   {
     title: "React to outcomes",
     explanation:
-      "Listen for ThresholdReached on your users' addresses, or implement IThresholdConsumer and set your contract as the profile notification target.",
+      "Listen for ThresholdReached on profileId, or implement IThresholdConsumer and set your contract as the profile notification target.",
     snippetKey: "outcomes" as const,
   },
 ] as const;
@@ -63,8 +63,9 @@ export const CONNECTION_KIT_INTEGRATION_STEPS = [
 export const buildConnectionKitSnippets = (params: {
   appId: string;
   contractAddress: string;
+  consumerAddress?: string;
 }) => {
-  const { appId, contractAddress } = params;
+  const { appId, contractAddress, consumerAddress = "0xYourConsumerWallet" } = params;
   const appIdValue = appId || "app_...";
   const contract = contractAddress || "0x...";
 
@@ -72,30 +73,35 @@ export const buildConnectionKitSnippets = (params: {
     appId: `export const PULSE_WORLD_APP_ID = "${appIdValue}";`,
     idKit: `<IDKitWidget
   app_id="${appIdValue}"
-  action="${worldIdActions.checkin("{userAddress}")}"
-  signal="{userAddress}"
+  action="${worldIdActions.checkin("{ownerAddress}")}"
+  signal="{ownerAddress}"
   verification_level="device"
   onSuccess={async (proof) => {
     // pass proof to PulseOracle (step 3)
   }}
 />`,
     checkinWrite: `await pulseOracle.write.checkin([
+  profileId,
   proof.root,
   proof.nullifier_hash,
   proof.proof,
 ]);`,
-    profilesRead: `const profile = await pulseOracle.read.profiles([userAddress]);
-// profile.exists, profile.lifecycle (state), profile.accumulatedWeight,
-// profile.threshold, profile.epoch — plus orbBound when exposed by your deployment`,
+    profilesRead: `import { keccak256, encodePacked } from "viem";
+
+const profileId = keccak256(
+  encodePacked(["address", "address"], [ownerAddress, "${consumerAddress}"]),
+);
+
+const profile = await pulseOracle.read.profiles([profileId]);
+// profile.lifecycle, profile.accumulatedWeight, profile.threshold — decoded in your app only`,
     outcomes: `// Push: implement IThresholdConsumer
 interface IThresholdConsumer {
-  function onThresholdReached(address profileOwner, string calldata auditBlobId) external;
+  function onThresholdReached(bytes32 profileId, string calldata auditBlobId) external;
 }
 
-// Pull: watch ThresholdReached(profileOwner indexed, epoch, auditBlobId)
-// event ThresholdReached(address indexed profileOwner, uint64 epoch, string auditBlobId)
+// Pull: watch ThresholdReached(profileId indexed, epoch, auditBlobId)
 
-// Set notificationTarget on the profile to receive the push callback`,
+// Explorer shows only encrypted Walrus blobs — never decoded weights`,
   };
 };
 

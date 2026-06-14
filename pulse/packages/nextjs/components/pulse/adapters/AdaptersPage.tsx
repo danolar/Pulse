@@ -13,13 +13,7 @@ import { ADAPTER_CATALOG, AI_DECISION_CATALOG_ENTRY, type AdapterCatalogEntry } 
 import { usePulseStore } from "~~/services/store/pulseStore";
 
 export const AdaptersPage = () => {
-  const {
-    configuredAdapters,
-    mockConfigureAdapter,
-    mockRevokeConfiguredAdapter,
-    mockAuthorizeProfileAdapter,
-    mockRevokeProfileAdapter,
-  } = usePulseStore();
+  const { configuredAdapters, mockConfigureAdapter, mockRevokeConfiguredAdapter } = usePulseStore();
 
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [setupEntry, setSetupEntry] = useState<AdapterCatalogEntry | null>(null);
@@ -33,7 +27,7 @@ export const AdaptersPage = () => {
   const keyAdapter = configuredAdapters.find(a => a.catalogId === keyAdapterId) ?? null;
   const signalAdapters = configuredAdapters.filter(a => !a.isDecisionLayer);
 
-  const handleSetupComplete = (params: {
+  const handleSetupComplete = async (params: {
     catalogId: string;
     name: string;
     typeLabel: string;
@@ -43,7 +37,20 @@ export const AdaptersPage = () => {
     isDecisionLayer?: boolean;
   }) => {
     mockConfigureAdapter({ ...params, bindingStatus: "active" });
-    mockAuthorizeProfileAdapter(params.catalogId, params.weight);
+
+    try {
+      await fetch("/api/adapters/bindings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          catalogId: params.catalogId,
+          adapterAddress: params.adapterAddress,
+          capabilities: params.capabilities,
+        }),
+      });
+    } catch {
+      // Mock binding API — local configure is sufficient for product validation.
+    }
   };
 
   const openDecisionSetup = () => {
@@ -69,8 +76,7 @@ export const AdaptersPage = () => {
             onManageKeys={setKeyAdapterId}
             onRevoke={catalogId => {
               mockRevokeConfiguredAdapter(catalogId);
-              const profileAdapter = usePulseStore.getState().adapters.find(a => a.moduleId === catalogId);
-              if (profileAdapter) mockRevokeProfileAdapter(profileAdapter.id);
+              void fetch(`/api/adapters/bindings/${encodeURIComponent(catalogId)}`, { method: "DELETE" });
             }}
           />
         </section>
@@ -115,8 +121,7 @@ export const AdaptersPage = () => {
         }}
         onRevoke={catalogId => {
           mockRevokeConfiguredAdapter(catalogId);
-          const profileAdapter = usePulseStore.getState().adapters.find(a => a.moduleId === catalogId);
-          if (profileAdapter) mockRevokeProfileAdapter(profileAdapter.id);
+          void fetch(`/api/adapters/bindings/${encodeURIComponent(catalogId)}`, { method: "DELETE" });
         }}
       />
     </PageShell>

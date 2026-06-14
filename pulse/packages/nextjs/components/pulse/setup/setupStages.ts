@@ -1,11 +1,11 @@
 import type { SignalAdapter } from "~~/types/pulse";
 import { isSignalsStageReady } from "~~/components/pulse/setup/signals/signalsValidation";
 
-export type SetupStageId = "identity" | "signals" | "rhythm";
+export type SetupStageId = "signals" | "identity" | "rhythm";
 
 export const SETUP_STAGES: { id: SetupStageId; label: string; detail: string }[] = [
-  { id: "identity", label: "Identity", detail: "World ID reference + wallet dev test" },
   { id: "signals", label: "Signals", detail: "Active adapters on this profile" },
+  { id: "identity", label: "Identity", detail: "World ID reference + wallet dev test" },
   { id: "rhythm", label: "Rhythm", detail: "Monitoring cadence & randomness" },
 ];
 
@@ -26,22 +26,22 @@ export const getSetupStageProgress = (state: {
 });
 
 export const isStageUnlocked = (stageId: SetupStageId, progress: SetupStageProgress): boolean => {
-  if (stageId === "identity") return true;
-  if (stageId === "signals") return progress.identityDone;
-  if (stageId === "rhythm") return progress.identityDone && progress.signalsDone;
+  if (stageId === "signals") return true;
+  if (stageId === "identity") return progress.signalsDone;
+  if (stageId === "rhythm") return progress.signalsDone && progress.identityDone;
   return false;
 };
 
 export const isStageComplete = (stageId: SetupStageId, progress: SetupStageProgress): boolean => {
-  if (stageId === "identity") return progress.identityDone;
   if (stageId === "signals") return progress.signalsDone;
+  if (stageId === "identity") return progress.identityDone;
   if (stageId === "rhythm") return progress.rhythmDone;
   return false;
 };
 
 export const getDefaultSetupStage = (progress: SetupStageProgress): SetupStageId => {
-  if (!progress.identityDone) return "identity";
   if (!progress.signalsDone) return "signals";
+  if (!progress.identityDone) return "identity";
   return "rhythm";
 };
 

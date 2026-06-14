@@ -1,77 +1,76 @@
-import type { PersistedPulseProfile } from "~~/services/store/pulseStore";
+import type { ConsumerPulseSnapshot } from "~~/services/store/pulseStore";
 
-const STORAGE_VERSION = 1;
-const STORAGE_PREFIX = "pulse:profile:";
+const STORAGE_VERSION = 2;
+const STORAGE_PREFIX = "pulse:consumer:";
 
-type StoredPulseProfile = {
+type StoredConsumerPulse = {
   version: number;
   updatedAt: string;
-  profile: PersistedPulseProfile;
+  snapshot: ConsumerPulseSnapshot;
 };
 
-const storageKey = (walletAddress: string): string => `${STORAGE_PREFIX}${walletAddress.toLowerCase()}`;
+const storageKey = (consumerAddress: string): string => `${STORAGE_PREFIX}${consumerAddress.toLowerCase()}`;
 
-const loadPulseProfileLocal = (walletAddress: string): PersistedPulseProfile | null => {
+const loadConsumerSnapshotLocal = (consumerAddress: string): ConsumerPulseSnapshot | null => {
   if (typeof window === "undefined") return null;
 
   try {
-    const raw = window.localStorage.getItem(storageKey(walletAddress));
+    const raw = window.localStorage.getItem(storageKey(consumerAddress));
     if (!raw) return null;
 
-    const parsed = JSON.parse(raw) as StoredPulseProfile;
-    if (parsed.version !== STORAGE_VERSION || !parsed.profile) return null;
+    const parsed = JSON.parse(raw) as StoredConsumerPulse;
+    if (parsed.version !== STORAGE_VERSION || !parsed.snapshot) return null;
 
-    return parsed.profile;
+    return parsed.snapshot;
   } catch {
     return null;
   }
 };
 
-const savePulseProfileLocal = (walletAddress: string, profile: PersistedPulseProfile): void => {
+const saveConsumerSnapshotLocal = (consumerAddress: string, snapshot: ConsumerPulseSnapshot): void => {
   if (typeof window === "undefined") return;
 
-  const payload: StoredPulseProfile = {
+  const payload: StoredConsumerPulse = {
     version: STORAGE_VERSION,
     updatedAt: new Date().toISOString(),
-    profile,
+    snapshot,
   };
 
-  window.localStorage.setItem(storageKey(walletAddress), JSON.stringify(payload));
+  window.localStorage.setItem(storageKey(consumerAddress), JSON.stringify(payload));
 };
 
-export const loadPulseProfile = async (walletAddress: string): Promise<PersistedPulseProfile | null> => {
+export const loadConsumerPulseSnapshot = async (consumerAddress: string): Promise<ConsumerPulseSnapshot | null> => {
   try {
-    const response = await fetch(`/api/profile?owner=${encodeURIComponent(walletAddress)}`);
+    const response = await fetch(`/api/profile?owner=${encodeURIComponent(consumerAddress)}`);
 
-    if (response.status === 503) {
-      return loadPulseProfileLocal(walletAddress);
+    if (response.status === 503 || !response.ok) {
+      return loadConsumerSnapshotLocal(consumerAddress);
     }
 
-    if (!response.ok) {
-      return loadPulseProfileLocal(walletAddress);
+    const data = (await response.json()) as { snapshot?: ConsumerPulseSnapshot | null; profile?: unknown };
+
+    if (data.snapshot) {
+      saveConsumerSnapshotLocal(consumerAddress, data.snapshot);
+      return data.snapshot;
     }
 
-    const data = (await response.json()) as { profile: PersistedPulseProfile | null };
-
-    if (!data.profile) {
-      return loadPulseProfileLocal(walletAddress);
-    }
-
-    savePulseProfileLocal(walletAddress, data.profile);
-    return data.profile;
+    return loadConsumerSnapshotLocal(consumerAddress);
   } catch {
-    return loadPulseProfileLocal(walletAddress);
+    return loadConsumerSnapshotLocal(consumerAddress);
   }
 };
 
-export const savePulseProfile = async (walletAddress: string, profile: PersistedPulseProfile): Promise<void> => {
-  savePulseProfileLocal(walletAddress, profile);
+export const saveConsumerPulseSnapshot = async (
+  consumerAddress: string,
+  snapshot: ConsumerPulseSnapshot,
+): Promise<void> => {
+  saveConsumerSnapshotLocal(consumerAddress, snapshot);
 
   try {
     const response = await fetch("/api/profile", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ owner: walletAddress, profile }),
+      body: JSON.stringify({ owner: consumerAddress, snapshot }),
     });
 
     if (response.status === 503 || !response.ok) {

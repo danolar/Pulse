@@ -2,24 +2,23 @@
 
 import { useEffect } from "react";
 import { useParams } from "next/navigation";
-import { useAccount } from "wagmi";
 import { PageShell, SectionHeader } from "~~/components/pulse";
+import { EncryptedSignalFeed } from "~~/components/pulse/explorer/EncryptedSignalFeed";
 import { ExplorerBrowseNote } from "~~/components/pulse/explorer/ExplorerBrowseNote";
-import { PulseHeader } from "~~/components/pulse/explorer/PulseHeader";
-import { ProfileNotFound, ViewingBanner } from "~~/components/pulse/explorer/ProfileBanners";
-import { SignalTimeline } from "~~/components/pulse/explorer/SignalTimeline";
-import { WindowScheduleReadout } from "~~/components/pulse/explorer/WindowScheduleReadout";
-import { useProfileByAddress, useProfileRole } from "~~/hooks/pulse/useProfileByAddress";
+import {
+  ProfileHeader,
+  PublicViewNote,
+  SignalCountByContext,
+} from "~~/components/pulse/explorer/ExplorerPublicProfile";
+import { ProfileNotFound } from "~~/components/pulse/explorer/ProfileBanners";
+import { usePublicSignalFeed } from "~~/hooks/pulse/usePublicSignalFeed";
 import { isEthAddress, pushRecentSearch } from "~~/utils/pulse/explorerAddress";
 
 export const ProfileDetailPage = () => {
   const params = useParams<{ address: string }>();
   const rawAddress = params.address ?? "";
   const profileAddress = isEthAddress(rawAddress) ? rawAddress : "";
-  const { address: connected } = useAccount();
-
-  const profile = useProfileByAddress(profileAddress);
-  const role = useProfileRole(profileAddress, profile.requestors);
+  const feed = usePublicSignalFeed(profileAddress);
 
   useEffect(() => {
     if (profileAddress) pushRecentSearch(profileAddress);
@@ -33,7 +32,7 @@ export const ProfileDetailPage = () => {
     );
   }
 
-  if (!profile.exists) {
+  if (!feed.hasActivity) {
     return (
       <PageShell>
         <SectionHeader title="Profile lookup" eyebrow="explorer" subtitle={profileAddress} />
@@ -42,43 +41,20 @@ export const ProfileDetailPage = () => {
     );
   }
 
-  const isOwner = role === "owner";
-  const showContextBanner = Boolean(connected) && !isOwner;
-
   return (
     <PageShell>
       <SectionHeader
-        title="Pulse profile"
-        eyebrow={profileAddress}
-        subtitle="Onchain state · read-only audit view"
+        title="Pulse activity"
+        eyebrow="public explorer"
+        subtitle="Encrypted Walrus evidence only — no decoded weights or lifecycle"
       />
 
       <div className="space-y-6">
-        {showContextBanner ? <ViewingBanner address={profileAddress} /> : null}
-        {!connected ? <ExplorerBrowseNote /> : null}
-
-        <PulseHeader
-          accumulatedWeight={profile.accumulatedWeight}
-          threshold={profile.config.threshold}
-          lifecycle={profile.lifecycle}
-          epoch={profile.epoch}
-        />
-
-        <SignalTimeline
-          signals={profile.signals}
-          lifecycle={profile.lifecycle}
-          accumulatedWeight={profile.accumulatedWeight}
-          threshold={profile.config.threshold}
-        />
-
-        <WindowScheduleReadout
-          attempts={profile.attempts}
-          lifecycle={profile.lifecycle}
-          epoch={profile.epoch}
-          attemptsPerWindow={profile.config.attemptsPerWindow}
-          responseWindowHours={profile.config.responseWindow}
-          windowDurationDays={profile.config.windowDuration}
-        />
+        <ExplorerBrowseNote />
+        <PublicViewNote />
+        <ProfileHeader ownerAddress={profileAddress} />
+        <EncryptedSignalFeed ownerAddress={profileAddress} />
+        <SignalCountByContext ownerAddress={profileAddress} />
       </div>
     </PageShell>
   );
