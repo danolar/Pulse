@@ -4,8 +4,8 @@ import { Check, HelpCircle, Lock, X } from "lucide-react";
 import { PulseWorldIdButton } from "~~/components/pulse/world-id/PulseWorldIdButton";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
 import {
-  VERIFICATION_WINDOW_OWNER_NOTE,
-  VERIFICATION_WINDOW_READ_ONLY_NOTE,
+  WINDOW_SCHEDULE_FOOTNOTE,
+  WINDOW_SCHEDULE_NOTE,
 } from "~~/constants/explorerCopy";
 import { VERIFICATION_TYPE_LABELS, worldIdActions } from "~~/constants/pulseProtocol";
 import type { ProfileRole } from "~~/hooks/pulse/useProfileByAddress";
@@ -107,7 +107,7 @@ export const AttemptSequence = ({
       />
 
       <p className="mb-4 text-xs leading-relaxed text-pulse-muted">
-        {isOwner ? VERIFICATION_WINDOW_OWNER_NOTE : VERIFICATION_WINDOW_READ_ONLY_NOTE}
+        {isOwner ? WINDOW_SCHEDULE_FOOTNOTE : WINDOW_SCHEDULE_NOTE}
       </p>
 
       <div className="flex gap-3 overflow-x-auto pb-2">

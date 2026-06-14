@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useAccount } from "wagmi";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
-import { PROFILE_NOT_FOUND } from "~~/constants/explorerCopy";
+import { EXPLORER_BROWSE_NOTE, PROFILE_NOT_FOUND } from "~~/constants/explorerCopy";
 import { normalizeAddress } from "~~/utils/pulse/explorerAddress";
 
 export const ProfileNotFound = ({ address }: { address: string }) => {
@@ -28,12 +28,6 @@ export const ViewingBanner = ({ address }: { address: string }) => (
     <span className="font-mono text-xs text-base-content">
       {address.slice(0, 6)}…{address.slice(-4)}
     </span>
-    . Connect this profile&apos;s wallet to enable owner actions.
+    . {EXPLORER_BROWSE_NOTE}
   </div>
-);
-
-export const ConnectToActNote = () => (
-  <p className="rounded-2xl border border-base-content/10 bg-base-200/40 px-4 py-3 text-sm text-pulse-muted">
-    Connect the profile owner&apos;s wallet or a verified requestor wallet to enable actions.
-  </p>
 );

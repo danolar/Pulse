@@ -37,11 +37,19 @@ const initialSignals: ConsoleSignal[] = [
   },
   {
     id: "sig-2",
-    signalType: "Missed attempt",
+    signalType: "Missed scheduled check",
     direction: "negative",
     weight: 15,
     timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
     walrusBlobId: toWalrusBlobRef(WALRUS_DEMO_BLOBS.missedCheckin),
+  },
+  {
+    id: "sig-3",
+    signalType: "Passive inactivity (CRE)",
+    direction: "negative",
+    weight: 0,
+    timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+    walrusBlobId: toWalrusBlobRef(WALRUS_DEMO_BLOBS.onchainActivity),
   },
 ];
 

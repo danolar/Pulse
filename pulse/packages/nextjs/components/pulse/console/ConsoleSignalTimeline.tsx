@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 import { WalrusEvidenceModal } from "~~/components/pulse/walrus/WalrusEvidenceModal";
@@ -11,6 +11,9 @@ import { parseWalrusBlobId } from "~~/utils/walrus";
 
 type ConsoleSignalTimelineProps = {
   signals: ConsoleSignal[];
+  title?: string;
+  subtitle?: string;
+  summary?: ReactNode;
   onViewEvidence?: (blobId: string) => void;
 };
 
@@ -22,7 +25,13 @@ const formatTimestamp = (iso: string) =>
     minute: "2-digit",
   }).format(new Date(iso));
 
-export const ConsoleSignalTimeline = ({ signals, onViewEvidence }: ConsoleSignalTimelineProps) => {
+export const ConsoleSignalTimeline = ({
+  signals,
+  title = "Signal audit trail",
+  subtitle = "Each signal references Walrus evidence (Seal-encrypted in production). Only current-epoch window signals count.",
+  summary,
+  onViewEvidence,
+}: ConsoleSignalTimelineProps) => {
   const reducedMotion = useReducedMotion();
   const [selectedSignal, setSelectedSignal] = useState<ConsoleSignal | null>(null);
 
@@ -37,10 +46,9 @@ export const ConsoleSignalTimeline = ({ signals, onViewEvidence }: ConsoleSignal
   return (
     <>
       <section className="pulse-card p-5 sm:p-6">
-        <h2 className="pulse-section-title mb-1">Signal audit trail</h2>
-        <p className="mb-4 text-sm text-pulse-muted">
-          Each signal references Walrus evidence (Seal-encrypted in production). Only current-epoch window signals count.
-        </p>
+        <h2 className="pulse-section-title mb-1">{title}</h2>
+        <p className="mb-4 text-sm leading-relaxed text-pulse-muted">{subtitle}</p>
+        {summary}
 
         <ol className="space-y-3">
           {signals.map((signal, index) => {

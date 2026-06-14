@@ -10,12 +10,12 @@ type PulseHeaderProps = {
   epoch: number;
 };
 
-/** Region 1 — wraps existing gauge until ConcentricRingsViz subcomponents are split. */
 export const PulseHeader = ({ accumulatedWeight, threshold, lifecycle, epoch }: PulseHeaderProps) => (
   <PulseConsoleGauge
     accumulatedWeight={accumulatedWeight}
     threshold={threshold}
     lifecycle={lifecycle}
     epoch={epoch}
+    layout="explorer"
   />
 );

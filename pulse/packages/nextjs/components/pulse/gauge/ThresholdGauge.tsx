@@ -14,6 +14,7 @@ type ThresholdGaugeProps = {
   compact?: boolean;
   showPulseLine?: boolean;
   showStateLabel?: boolean;
+  showArcLabel?: boolean;
   pulseActive?: boolean;
   pulseDuration?: number;
   pulseOpacity?: number;
@@ -34,6 +35,7 @@ export const ThresholdGauge = ({
   compact = false,
   showPulseLine = false,
   showStateLabel = false,
+  showArcLabel = true,
   pulseActive = true,
   pulseDuration = 2.4,
   pulseOpacity = 1,
@@ -49,15 +51,17 @@ export const ThresholdGauge = ({
     { name: "remaining", value: 100 - percentage },
   ];
 
-  const padding = Math.max(14, Math.round(size * 0.1));
+  const padding = Math.max(16, Math.round(size * 0.11));
   const cx = size / 2;
   const cy = size / 2;
   const outerRadius = size / 2 - padding;
-  const innerRadius = outerRadius * 0.7;
+  const innerRadiusRatio = size >= 260 ? 0.7 : 0.78;
+  const innerRadius = outerRadius * innerRadiusRatio;
 
-  const showLabel = !compact && size >= 180;
-  const percentClass = size >= 260 ? "text-4xl" : size >= 200 ? "text-3xl" : size >= 150 ? "text-2xl" : "text-xl";
-  const markSize = size >= 260 ? 44 : 36;
+  const showLabel = !compact && size >= 180 && showArcLabel;
+  const percentClass =
+    size >= 260 ? "text-4xl" : size >= 220 ? "text-2xl" : size >= 150 ? "text-xl" : "text-lg";
+  const markSize = size >= 260 ? 44 : size >= 220 ? 30 : 28;
 
   return (
     <div
@@ -86,25 +90,24 @@ export const ThresholdGauge = ({
       </PieChart>
 
       <div
-        className="pointer-events-none absolute left-1/2 top-[47%] w-full -translate-x-1/2 -translate-y-1/2 px-4 text-center"
+        className="pointer-events-none absolute left-1/2 top-[51%] w-full max-w-[72%] -translate-x-1/2 -translate-y-1/2 text-center"
         aria-hidden
       >
         <motion.div
-          className="inline-flex flex-col items-center"
+          className="inline-flex flex-col items-center gap-1.5"
           animate={reducedMotion || !pulseActive ? undefined : { scale: [1, 1.02, 1] }}
           transition={reducedMotion ? undefined : { duration: pulseDuration, repeat: Infinity, ease: "easeInOut" }}
         >
           <span className={`${percentClass} font-semibold leading-none text-base-content`}>{percentage}%</span>
           {showStateLabel ? (
-            <span className="pulse-label mt-2" style={{ color: progressColor }}>
+            <span className="pulse-label text-[10px] sm:text-xs" style={{ color: progressColor }}>
               {gaugeState.label}
             </span>
           ) : null}
-          {showLabel ? <span className="mt-2 max-w-[9rem] text-xs leading-snug text-pulse-muted">{label}</span> : null}
+          {showLabel ? <span className="max-w-[9rem] text-xs leading-snug text-pulse-muted">{label}</span> : null}
 
           {showPulseLine ? (
             <motion.div
-              className="mt-3"
               style={{ opacity: pulseOpacity }}
               animate={reducedMotion || !pulseActive ? undefined : { opacity: [0.45, 1, 0.45] }}
               transition={reducedMotion ? undefined : { duration: pulseDuration, repeat: Infinity, ease: "easeInOut" }}

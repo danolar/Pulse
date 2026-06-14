@@ -4,13 +4,11 @@ import { useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useAccount } from "wagmi";
 import { PageShell, SectionHeader } from "~~/components/pulse";
-import { AttemptSequence } from "~~/components/pulse/console/AttemptSequence";
 import { ExplorerBrowseNote } from "~~/components/pulse/explorer/ExplorerBrowseNote";
-import { ProfileActions } from "~~/components/pulse/explorer/ProfileActions";
-import { ProfileRequestorActions } from "~~/components/pulse/explorer/ProfileRequestorActions";
 import { PulseHeader } from "~~/components/pulse/explorer/PulseHeader";
 import { ProfileNotFound, ViewingBanner } from "~~/components/pulse/explorer/ProfileBanners";
 import { SignalTimeline } from "~~/components/pulse/explorer/SignalTimeline";
+import { WindowScheduleReadout } from "~~/components/pulse/explorer/WindowScheduleReadout";
 import { useProfileByAddress, useProfileRole } from "~~/hooks/pulse/useProfileByAddress";
 import { isEthAddress, pushRecentSearch } from "~~/utils/pulse/explorerAddress";
 
@@ -22,10 +20,6 @@ export const ProfileDetailPage = () => {
 
   const profile = useProfileByAddress(profileAddress);
   const role = useProfileRole(profileAddress, profile.requestors);
-  const profileKey = profile.profileId ?? profileAddress;
-  const hasActiveAttempt = profile.attempts.some(
-    attempt => attempt.isActive && attempt.status === "revealed",
-  );
 
   useEffect(() => {
     if (profileAddress) pushRecentSearch(profileAddress);
@@ -49,19 +43,19 @@ export const ProfileDetailPage = () => {
   }
 
   const isOwner = role === "owner";
-  const isRequestor = role === "requestor";
-  const showViewingBanner = Boolean(connected) && !isOwner && !isRequestor;
+  const showContextBanner = Boolean(connected) && !isOwner;
 
   return (
     <PageShell>
       <SectionHeader
         title="Pulse profile"
         eyebrow={profileAddress}
-        subtitle={`epoch ${profile.epoch} · ${profile.lifecycle}`}
+        subtitle="Onchain state · read-only audit view"
       />
 
       <div className="space-y-6">
-        {showViewingBanner ? <ViewingBanner address={profileAddress} /> : null}
+        {showContextBanner ? <ViewingBanner address={profileAddress} /> : null}
+        {!connected ? <ExplorerBrowseNote /> : null}
 
         <PulseHeader
           accumulatedWeight={profile.accumulatedWeight}
@@ -70,31 +64,21 @@ export const ProfileDetailPage = () => {
           epoch={profile.epoch}
         />
 
-        <AttemptSequence
-          attempts={profile.attempts}
-          profileRole={role}
+        <SignalTimeline
+          signals={profile.signals}
           lifecycle={profile.lifecycle}
-          epoch={profile.epoch}
-          responseWindowHours={profile.config.responseWindow}
-          profileKey={profileKey}
+          accumulatedWeight={profile.accumulatedWeight}
+          threshold={profile.config.threshold}
         />
 
-        <SignalTimeline signals={profile.signals} lifecycle={profile.lifecycle} />
-
-        {isOwner ? (
-          <ProfileActions
-            profileKey={profileKey}
-            lifecycle={profile.lifecycle}
-            orbBound={profile.orbBound}
-            hasActiveAttempt={hasActiveAttempt}
-          />
-        ) : null}
-
-        {isRequestor ? (
-          <ProfileRequestorActions profileKey={profileKey} lifecycle={profile.lifecycle} />
-        ) : null}
-
-        {role === "none" ? <ExplorerBrowseNote /> : null}
+        <WindowScheduleReadout
+          attempts={profile.attempts}
+          lifecycle={profile.lifecycle}
+          epoch={profile.epoch}
+          attemptsPerWindow={profile.config.attemptsPerWindow}
+          responseWindowHours={profile.config.responseWindow}
+          windowDurationDays={profile.config.windowDuration}
+        />
       </div>
     </PageShell>
   );

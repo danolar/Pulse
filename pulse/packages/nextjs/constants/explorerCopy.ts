@@ -19,20 +19,24 @@ export const REQUESTORS_CONFIG_CALLOUT =
 export const PROFILE_NOT_FOUND = (address: string) =>
   `No Pulse profile found for ${address}.`;
 
-export const VIEWING_BANNER = (address: string) =>
-  `Viewing ${address}. Connect this profile's wallet to enable owner actions.`;
-
-export const CONNECT_TO_ACT_NOTE =
-  "Connect the profile owner's wallet or a verified requestor wallet to enable actions.";
+export const VIEWING_BANNER =
+  "Read-only profile view. Verification and owner actions run in the consumer app, not Explorer.";
 
 export const EXPLORER_BROWSE_NOTE =
-  "You are viewing this profile in read-only mode. Connect the owner wallet to respond to verification attempts or run owner actions.";
+  "Explorer shows onchain protocol state for audit. It is not where owners or requestors act.";
 
-export const VERIFICATION_WINDOW_OWNER_NOTE =
-  "Respond to the active attempt here when its window opens. Proactive check-ins and Orb-gated controls are below.";
+export const SIGNAL_ACTIVITY_TITLE = "Signal activity";
 
-export const VERIFICATION_WINDOW_READ_ONLY_NOTE =
-  "Verification attempts are visible onchain. Only the profile owner can respond during an open window.";
+export const SIGNAL_ACTIVITY_NOTE =
+  "Weighted evidence from authorized adapters and attempt outcomes accumulates toward threshold. Multiple sources can report in parallel during the same window — this is what drives the gauge above.";
+
+export const WINDOW_SCHEDULE_TITLE = "Scheduled checks (this window)";
+
+export const WINDOW_SCHEDULE_NOTE =
+  "Separate from passive signals: the protocol commits a random sequence of owner response windows (commit-reveal). Adapters keep reporting in the background; at most one scheduled check typically expects an owner response at a given time.";
+
+export const WINDOW_SCHEDULE_FOOTNOTE =
+  "Owners respond to scheduled checks in their consumer app. Explorer shows both layers read-only for audit.";
 
 export const REQUESTOR_ACTIONS_NOTE =
   "Verified requestor actions for this profile. Requestors are authorized per user in the consumer app.";
