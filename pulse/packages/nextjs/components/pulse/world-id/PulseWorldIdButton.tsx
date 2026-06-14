@@ -21,7 +21,7 @@ type PulseWorldIdButtonProps = {
   signal: string;
   label: string;
   disabled?: boolean;
-  onVerified: (verification: PulseWorldIdVerification) => void;
+  onVerified: (verification: PulseWorldIdVerification, idkitResult?: IDKitResult) => void;
 };
 
 type RpContextPayload = {
@@ -150,7 +150,7 @@ export const PulseWorldIdButton = ({ level, action, signal, label, disabled, onV
   const handleProof = (result: IDKitResult) => {
     try {
       const validated = validateWorldIdProof(result, { level, action });
-      onVerified(validated);
+      onVerified(validated, result);
       setOpen(false);
       setRpContext(null);
     } catch (error) {

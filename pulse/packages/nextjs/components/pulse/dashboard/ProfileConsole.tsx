@@ -99,6 +99,7 @@ export const ProfileConsole = () => {
         {isOwner ? (
           <ProfileActions
             profileKey={ownerKey}
+            consumerAddress={profile.consumerAddress ?? address}
             lifecycle={profile.lifecycle}
             orbBound={profile.orbBound}
             hasActiveAttempt={hasActiveAttempt}
