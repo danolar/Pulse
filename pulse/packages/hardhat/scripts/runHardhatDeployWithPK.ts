@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { Wallet } from "ethers";
 import password from "@inquirer/password";
+import { readDeployerKeystoreJson } from "./keystoreFiles.js";
 import { spawn } from "child_process";
 
 /**
@@ -14,10 +15,11 @@ async function main() {
   const isLocalNetwork = networkName === "default" || networkName === "hardhat";
 
   if (!isLocalNetwork) {
-    const encryptedKey = process.env.DEPLOYER_PRIVATE_KEY_ENCRYPTED;
-
+    const encryptedKey = readDeployerKeystoreJson();
     if (!encryptedKey) {
-      console.log("🚫️ You don't have a deployer account. Run `yarn generate` or `yarn account:import` first");
+      console.log(
+        "🚫 Missing deployer keystore. Run `yarn account:reimport-deployer` or `yarn account:import` first",
+      );
       return;
     }
 

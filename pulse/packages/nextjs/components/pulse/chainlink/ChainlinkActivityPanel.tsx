@@ -81,8 +81,8 @@ export const ChainlinkActivityPanel = () => {
 
       <p className="mb-3 text-xs text-pulse-muted">
         Onchain broadcast uses the dedicated hackathon CRE wallet (Hardhat account #3), not your deployer. From repo
-        root: <code className="text-[11px]">yarn cre:report -- --force</code> after funding{" "}
-        <code className="text-[11px]">0x90F79…3b906</code> on Sepolia.
+        root: <code className="text-[11px]">yarn cre:adapter:generate</code>, fund, authorize, then{" "}
+        <code className="text-[11px]">yarn cre:report -- --force</code>.
       </p>
 
       {error ? <p className="mb-3 text-sm text-error">{error}</p> : null}

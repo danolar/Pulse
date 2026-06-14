@@ -1,16 +1,17 @@
 import { spawn } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
-import { getHackathonCreAdapterWallet } from "./creHackathonAdapter.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pulseRoot = path.resolve(__dirname, "../../..");
 
-/**
- * Runs Next.js CRE simulate with the hackathon adapter PK injected at runtime (never written to .env.local).
- */
 async function main() {
-  const wallet = getHackathonCreAdapterWallet();
+  const privateKey = process.env.__RUNTIME_CRE_ADAPTER_PRIVATE_KEY?.trim();
+  if (!privateKey) {
+    console.error("Missing decrypted CRE adapter key. Run via: yarn cre:report");
+    process.exit(1);
+  }
+
   const forwardArgs = process.argv.slice(2);
   if (!forwardArgs.includes("--broadcast")) {
     forwardArgs.push("--broadcast");
@@ -18,11 +19,10 @@ async function main() {
 
   const env = {
     ...process.env,
-    CRE_ADAPTER_PRIVATE_KEY: wallet.privateKey,
+    CRE_ADAPTER_PRIVATE_KEY: privateKey,
   };
 
-  console.log("CRE adapter:", wallet.address);
-  console.log("Running simulate:onchain-activity with ephemeral adapter key (not stored in .env.local)\n");
+  console.log("Running simulate:onchain-activity with CRE adapter key (already decrypted)\n");
 
   const child = spawn("yarn", ["simulate:onchain-activity", "--", ...forwardArgs], {
     cwd: pulseRoot,
@@ -35,6 +35,6 @@ async function main() {
 }
 
 main().catch(error => {
-  console.error(error);
+  console.error(error instanceof Error ? error.message : error);
   process.exit(1);
 });

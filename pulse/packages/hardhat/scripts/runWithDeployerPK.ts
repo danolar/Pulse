@@ -1,7 +1,7 @@
-import "dotenv/config";
 import { Wallet } from "ethers";
 import password from "@inquirer/password";
 import { spawn } from "child_process";
+import { readDeployerKeystoreJson } from "./keystoreFiles.js";
 
 /**
  * Decrypts DEPLOYER_PRIVATE_KEY_ENCRYPTED and runs `tsx <script> ...` with __RUNTIME_DEPLOYER_PRIVATE_KEY set.
@@ -19,18 +19,21 @@ async function main() {
   const isLocalNetwork = networkName === "default" || networkName === "hardhat";
 
   if (!isLocalNetwork) {
-    const encryptedKey = process.env.DEPLOYER_PRIVATE_KEY_ENCRYPTED;
+    const encryptedKey = readDeployerKeystoreJson();
     if (!encryptedKey) {
-      console.error("Missing DEPLOYER_PRIVATE_KEY_ENCRYPTED — run yarn account:import first.");
+      console.error(
+        "Missing deployer keystore. Run: yarn account:reimport-deployer (your .env keystore may be corrupted).",
+      );
       process.exit(1);
     }
 
-    const pass = await password({ message: "Enter password to decrypt deployer private key:" });
+    const pass = await password({ message: "Enter password to decrypt deployer private key (from account:import):" });
     try {
       const wallet = await Wallet.fromEncryptedJson(encryptedKey, pass);
       process.env.__RUNTIME_DEPLOYER_PRIVATE_KEY = wallet.privateKey;
-    } catch {
-      console.error("Failed to decrypt private key. Wrong password?");
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      console.error(`Failed to decrypt deployer key. ${detail}`);
       process.exit(1);
     }
   }

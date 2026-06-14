@@ -1,6 +1,5 @@
 import "dotenv/config";
-import { Contract, JsonRpcProvider, formatEther } from "ethers";
-import { getHackathonCreAdapterWallet, HACKATHON_CRE_ADAPTER_ADDRESS } from "./creHackathonAdapter.js";
+import { Contract, JsonRpcProvider, formatEther, getAddress } from "ethers";
 
 const SEPOLIA_ORACLE = "0x41e60b7c2f067a3bb5a655959c944f7f28bd66e3";
 const PROFILE_OWNER = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
@@ -12,32 +11,39 @@ const pulseOracleAbi = [
 ] as const;
 
 async function main() {
-  const wallet = getHackathonCreAdapterWallet();
+  const addressRaw = process.env.CRE_ADAPTER_ADDRESS?.trim();
+  if (!addressRaw) {
+    console.log("No CRE_ADAPTER_ADDRESS in packages/hardhat/.env — run yarn cre:adapter:generate first.");
+    process.exit(1);
+  }
+
+  const adapterAddress = getAddress(addressRaw);
   const rpc =
     process.env.SEPOLIA_RPC_URL ??
     `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY ?? "IZYEU2cWBgnFmgiTAgpWD"}`;
   const provider = new JsonRpcProvider(rpc);
 
-  const balance = await provider.getBalance(wallet.address);
   const oracle = new Contract(SEPOLIA_ORACLE, pulseOracleAbi, provider);
   const profileId = await oracle.computeProfileId(PROFILE_OWNER, PROFILE_CONSUMER);
-  const adapterAuth = await oracle.adapters(profileId, wallet.address);
+  const adapterAuth = await oracle.adapters(profileId, adapterAddress);
 
-  console.log("Pulse hackathon CRE adapter (Hardhat mnemonic account #3)");
-  console.log("Address:", wallet.address);
-  console.log("Expected:", HACKATHON_CRE_ADAPTER_ADDRESS);
-  console.log("Sepolia balance:", formatEther(balance), "ETH");
+  const code = await provider.getCode(adapterAddress);
+  const isDelegated = code !== "0x" && code.startsWith("0xef0100");
+
+  console.log("Pulse CRE adapter (private generated wallet)");
+  console.log("Address:", adapterAddress);
+  console.log("Sepolia balance:", formatEther(await provider.getBalance(adapterAddress)), "ETH");
+  console.log("Account type:", isDelegated ? "⚠️ EIP-7702 delegated (do not use)" : "EOA (OK)");
   console.log("Authorized on PulseOracleV2:", adapterAuth.authorized);
   if (adapterAuth.authorized) {
     console.log("Adapter weight:", adapterAuth.weight.toString());
   }
   console.log("");
-  console.log("Fund this address on Sepolia (~0.05 ETH is enough for many reportSignal txs).");
-  console.log("Authorize (once, uses your deployer wallet): yarn cre:adapter:authorize --network sepolia");
-  console.log("Broadcast signal: yarn cre:report -- --force");
+  console.log("Fund: yarn cre:adapter:fund --network sepolia");
+  console.log("Authorize: yarn cre:adapter:authorize --network sepolia");
+  console.log("Broadcast: yarn cre:report -- --force");
   console.log("");
-  console.log("Private key: derived locally from the public Hardhat test mnemonic — never use on mainnet.");
-  console.log("Show locally only: yarn cre:adapter:reveal-key");
+  console.log("Password note: fund/authorize use DEPLOYER password; cre:report uses CRE adapter password from generate.");
 }
 
 main().catch(error => {

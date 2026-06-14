@@ -1,6 +1,6 @@
 import "dotenv/config";
-import { Contract, JsonRpcProvider, Wallet, encodeBytes32String, keccak256, solidityPacked } from "ethers";
-import { getHackathonCreAdapterWallet } from "./creHackathonAdapter.js";
+import { Contract, JsonRpcProvider, Wallet, encodeBytes32String } from "ethers";
+import { getCreAdapterAddress } from "./creAdapterWallet.js";
 
 const SEPOLIA_ORACLE = "0x41e60b7c2f067a3bb5a655959c944f7f28bd66e3";
 const PROFILE_OWNER = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
@@ -25,17 +25,17 @@ async function main() {
 
   const provider = new JsonRpcProvider(rpc);
   const consumer = new Wallet(deployerKey, provider);
-  const creAdapter = getHackathonCreAdapterWallet();
+  const creAdapterAddress = await getCreAdapterAddress();
 
   console.log("PulseOracleV2:", SEPOLIA_ORACLE);
   console.log("Profile consumer (signer):", consumer.address);
-  console.log("CRE adapter to authorize:", creAdapter.address);
+  console.log("CRE adapter to authorize:", creAdapterAddress);
 
   const oracle = new Contract(SEPOLIA_ORACLE, pulseOracleAbi, consumer);
   const profileId = await oracle.computeProfileId(PROFILE_OWNER, consumer.address);
   console.log("ProfileId:", profileId);
 
-  const existing = await oracle.adapters(profileId, creAdapter.address);
+  const existing = await oracle.adapters(profileId, creAdapterAddress);
   if (existing.authorized) {
     console.log("CRE adapter already authorized with weight", existing.weight.toString());
     return;
@@ -43,14 +43,14 @@ async function main() {
 
   const tx = await oracle.authorizeAdapter(
     profileId,
-    creAdapter.address,
+    creAdapterAddress,
     ADAPTER_WEIGHT,
     CAP_NEGATIVE,
     ONCHAIN_TX_LABEL,
   );
   console.log("authorizeAdapter tx:", tx.hash);
   await tx.wait();
-  console.log("Authorized hackathon CRE adapter on Sepolia.");
+  console.log("Authorized CRE adapter on Sepolia.");
 }
 
 main().catch(error => {
