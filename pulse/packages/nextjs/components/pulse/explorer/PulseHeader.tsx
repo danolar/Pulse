@@ -11,11 +11,16 @@ type PulseHeaderProps = {
 };
 
 export const PulseHeader = ({ accumulatedWeight, threshold, lifecycle, epoch }: PulseHeaderProps) => (
-  <PulseConsoleGauge
-    accumulatedWeight={accumulatedWeight}
-    threshold={threshold}
-    lifecycle={lifecycle}
-    epoch={epoch}
-    layout="explorer"
-  />
+  <div className="space-y-2">
+    <PulseConsoleGauge
+      accumulatedWeight={accumulatedWeight}
+      threshold={threshold}
+      lifecycle={lifecycle}
+      epoch={epoch}
+      layout="explorer"
+    />
+    <p className="text-xs text-pulse-muted">
+      Private progress — weight ratio is never shown in the public Explorer.
+    </p>
+  </div>
 );

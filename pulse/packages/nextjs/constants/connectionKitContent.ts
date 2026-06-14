@@ -94,14 +94,12 @@ const profileId = keccak256(
 
 const profile = await pulseOracle.read.profiles([profileId]);
 // profile.lifecycle, profile.accumulatedWeight, profile.threshold — decoded in your app only`,
-    outcomes: `// Push: implement IThresholdConsumer
+    outcomes: `// Public: ThresholdReached(profileId indexed) + lifecycle state — auditable by anyone
+// Private: accumulatedWeight, threshold, signal direction — consumer dashboard only
+
 interface IThresholdConsumer {
   function onThresholdReached(bytes32 profileId, string calldata auditBlobId) external;
-}
-
-// Pull: watch ThresholdReached(profileId indexed, epoch, auditBlobId)
-
-// Explorer shows only encrypted Walrus blobs — never decoded weights`,
+}`,
   };
 };
 

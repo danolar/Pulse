@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useAccount } from "wagmi";
 import { PageShell, SectionHeader } from "~~/components/pulse";
+import { LifecycleStateBadge } from "~~/components/pulse/ui/LifecycleStateBadge";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
-import { StatusTag } from "~~/components/pulse/ui/StatusTag";
+import { DASHBOARD_PRIVATE_NOTE } from "~~/constants/explorerCopy";
 import { useProfilesByConsumer } from "~~/hooks/pulse/useProfileConsole";
-import { LIFECYCLE_LABELS } from "~~/types/pulse";
 import { normalizeAddress, truncateAddress } from "~~/utils/pulse/explorerAddress";
 
 const ConsumerIdentity = () => {
@@ -31,8 +31,8 @@ export const DevDashboard = () => {
     <PageShell>
       <SectionHeader
         title="Developer dashboard"
-        eyebrow="consumer context"
-        subtitle="Manage profiles keyed by profileId = keccak256(owner, your wallet)."
+        eyebrow="private · consumer context"
+        subtitle={DASHBOARD_PRIVATE_NOTE}
       />
 
       <div className="space-y-6">
@@ -78,7 +78,7 @@ export const DevDashboard = () => {
                         <span className="font-mono text-xs">{truncateAddress(profile.ownerAddress)}</span>
                       </td>
                       <td>
-                        <StatusTag label={LIFECYCLE_LABELS[profile.lifecycle]} tone="neutral" />
+                        <LifecycleStateBadge state={profile.lifecycle} />
                       </td>
                       <td className="hidden font-mono text-xs md:table-cell">
                         {profile.accumulatedWeight} / {profile.config.threshold}

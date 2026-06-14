@@ -1,6 +1,6 @@
 /**
- * @deprecated Use usePublicSignalFeed for Explorer and useProfileConsole for dashboard.
+ * @deprecated Use useExplorerOwnerView for Explorer and useProfileConsole for dashboard.
  */
-export { usePublicSignalFeed as useProfileByAddress } from "~~/hooks/pulse/usePublicSignalFeed";
+export { useExplorerOwnerView as useProfileByAddress } from "~~/hooks/pulse/useExplorerOwnerView";
 export type { ProfileRole } from "~~/hooks/pulse/useProfileConsole";
 export { useProfileRole } from "~~/hooks/pulse/useProfileConsole";

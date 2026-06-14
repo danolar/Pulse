@@ -16,7 +16,7 @@ export const validateEnabledModulesForActivation = (): boolean => {
   if (isSignalsStageReady()) return true;
 
   notification.error(
-    "Authorize at least one signal adapter on your profile. Configure credentials in Adapters first.",
+    "Activate at least one configured adapter on this profile (Add in the Signals table).",
   );
   return false;
 };

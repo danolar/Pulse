@@ -14,6 +14,7 @@ import {
   type VerificationAttempt,
   type VerificationType,
 } from "~~/types/pulse";
+import { upsertPublicOwnerProfile } from "~~/services/store/publicExplorerIndex";
 import { normalizeAddress } from "~~/utils/pulse/explorerAddress";
 import { computeConsumerContextHash, resolveProfileIdentity, type ProfileId } from "~~/utils/pulse/profileId";
 import type { PulseWorldIdVerification } from "~~/utils/worldIdProof";
@@ -139,10 +140,14 @@ const toPublicSignal = (signal: ConsoleSignal, status: PublicSignalRecord["statu
 
 const syncActiveToProfiles = (state: PulseState): Partial<PulseState> => {
   if (!state.profileId) return {};
+  const persisted = toPersistedProfile(state);
+  if (persisted.setupComplete) {
+    upsertPublicOwnerProfile(persisted);
+  }
   return {
     profiles: {
       ...state.profiles,
-      [state.profileId]: toPersistedProfile(state),
+      [state.profileId]: persisted,
     },
   };
 };
@@ -287,6 +292,9 @@ export const usePulseStore = create<PulseState>((set, get) => ({
 
   importConsumerSnapshot: snapshot => {
     const active = snapshot.activeProfileId ? snapshot.profiles[snapshot.activeProfileId] : null;
+    for (const profile of Object.values(snapshot.profiles)) {
+      if (profile.setupComplete) upsertPublicOwnerProfile(profile);
+    }
     set({
       configuredAdapters: snapshot.configuredAdapters,
       profiles: snapshot.profiles,
@@ -552,6 +560,7 @@ export const usePulseStore = create<PulseState>((set, get) => ({
         const ownerKey = normalizeAddress(ownerAddress);
         publicSignalsByOwner[ownerKey] = demoSignals.map(signal => toPublicSignal(signal));
       }
+      upsertPublicOwnerProfile(toPersistedProfile(merged));
       return { ...next, profiles, publicSignalsByOwner };
     });
   },

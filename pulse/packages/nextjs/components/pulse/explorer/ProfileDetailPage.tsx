@@ -3,22 +3,18 @@
 import { useEffect } from "react";
 import { useParams } from "next/navigation";
 import { PageShell, SectionHeader } from "~~/components/pulse";
-import { EncryptedSignalFeed } from "~~/components/pulse/explorer/EncryptedSignalFeed";
 import { ExplorerBrowseNote } from "~~/components/pulse/explorer/ExplorerBrowseNote";
-import {
-  ProfileHeader,
-  PublicViewNote,
-  SignalCountByContext,
-} from "~~/components/pulse/explorer/ExplorerPublicProfile";
+import { ExplorerProfileList } from "~~/components/pulse/explorer/ExplorerProfileList";
+import { ProfileHeader, PublicViewNote } from "~~/components/pulse/explorer/ExplorerPublicProfile";
 import { ProfileNotFound } from "~~/components/pulse/explorer/ProfileBanners";
-import { usePublicSignalFeed } from "~~/hooks/pulse/usePublicSignalFeed";
+import { useExplorerOwnerView } from "~~/hooks/pulse/useExplorerOwnerView";
 import { isEthAddress, pushRecentSearch } from "~~/utils/pulse/explorerAddress";
 
 export const ProfileDetailPage = () => {
   const params = useParams<{ address: string }>();
   const rawAddress = params.address ?? "";
   const profileAddress = isEthAddress(rawAddress) ? rawAddress : "";
-  const feed = usePublicSignalFeed(profileAddress);
+  const view = useExplorerOwnerView(profileAddress);
 
   useEffect(() => {
     if (profileAddress) pushRecentSearch(profileAddress);
@@ -32,7 +28,7 @@ export const ProfileDetailPage = () => {
     );
   }
 
-  if (!feed.hasActivity) {
+  if (!view.hasActivity) {
     return (
       <PageShell>
         <SectionHeader title="Profile lookup" eyebrow="explorer" subtitle={profileAddress} />
@@ -44,17 +40,16 @@ export const ProfileDetailPage = () => {
   return (
     <PageShell>
       <SectionHeader
-        title="Pulse activity"
+        title="Pulse oracle activity"
         eyebrow="public explorer"
-        subtitle="Encrypted Walrus evidence only — no decoded weights or lifecycle"
+        subtitle="Verifiable results and audit trail — like a block explorer for attestation outcomes"
       />
 
       <div className="space-y-6">
         <ExplorerBrowseNote />
         <PublicViewNote />
         <ProfileHeader ownerAddress={profileAddress} />
-        <EncryptedSignalFeed ownerAddress={profileAddress} />
-        <SignalCountByContext ownerAddress={profileAddress} />
+        <ExplorerProfileList profiles={view.profiles} />
       </div>
     </PageShell>
   );

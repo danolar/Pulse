@@ -96,6 +96,27 @@ export type PulseProfileSummary = {
   lastSignalAt: string | null;
 };
 
+export type PublicThresholdEvent = {
+  id: string;
+  kind: "THRESHOLD_REACHED" | "FINALIZED";
+  timestamp: string;
+  auditBlobId: string;
+  epoch: number;
+};
+
+/** Public Explorer card — oracle results and activity, never progress toward threshold. */
+export type PublicOwnerProfileView = {
+  profileId: string;
+  consumerContextHash: string;
+  lifecycle: LifecycleState;
+  adapterTypes: string[];
+  signalCount: number;
+  lastSignalAt: string | null;
+  firstSignalAt: string | null;
+  signalTimestamps: string[];
+  thresholdEvents: PublicThresholdEvent[];
+};
+
 /** Demo-friendly defaults; production profiles use longer windows (spec example: 60 days). */
 export const DEFAULT_PROFILE_CONFIG: ProfileConfig = {
   windowDuration: 60,
