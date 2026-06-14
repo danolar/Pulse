@@ -53,6 +53,7 @@
     "verify:world-id-env": "yarn workspace @se-2/nextjs verify:world-id-env",
     "verify:walrus": "yarn workspace @se-2/nextjs verify:walrus",
     "test:walrus-roundtrip": "yarn workspace @se-2/nextjs test:walrus-roundtrip",
+    "test:walrus-pipeline": "yarn workspace @se-2/nextjs test:walrus-pipeline",
     "verify:cre": "node scripts/verify-cre.mjs",
     "simulate:onchain-activity": "yarn workspace @se-2/nextjs simulate:onchain-activity",
     "cre:simulate:keeper": "cre workflow simulate pulse-keeper --target local-settings --project-root cre",

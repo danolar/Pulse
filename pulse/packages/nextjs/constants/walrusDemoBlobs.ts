@@ -8,4 +8,4 @@ export const WALRUS_DEMO_BLOBS = {
   missedCheckin: "0WNHZ2yN-GfMvWe79IwDYJ6Fte8zR9xw2zJ8fb8hZa0",
 } as const;
 
-export const toWalrusBlobRef = (blobId: string) => `walrus://blob/${blobId}`;
+export { toWalrusBlobRef } from "~~/utils/walrus";

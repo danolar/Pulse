@@ -22,6 +22,7 @@
     "tunnel:ngrok:sync": "node scripts/sync-ngrok-url.mjs",
     "verify:walrus": "node scripts/verify-walrus.mjs",
     "test:walrus-roundtrip": "node scripts/test-walrus-roundtrip.mjs",
+    "test:walrus-pipeline": "tsx scripts/test-walrus-pipeline.ts",
     "simulate:onchain-activity": "node scripts/simulate-onchain-activity.mjs",
     "vercel": "vercel --build-env YARN_ENABLE_IMMUTABLE_INSTALLS=false --build-env ENABLE_EXPERIMENTAL_COREPACK=1 --build-env VERCEL_TELEMETRY_DISABLED=1",
     "vercel:login": "vercel login",
