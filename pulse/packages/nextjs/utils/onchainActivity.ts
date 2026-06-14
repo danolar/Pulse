@@ -19,22 +19,26 @@ export const evaluateOnchainInactivity = (
   lastActivityTimestamp: number | null,
   nowSeconds: number,
 ): ActivityEvaluation => {
-  const inactiveSeconds =
-    lastActivityTimestamp === null ? Number.POSITIVE_INFINITY : Math.max(0, nowSeconds - lastActivityTimestamp);
+  const hasNoOnchainActivity = lastActivityTimestamp === null;
+  const inactiveSeconds = hasNoOnchainActivity
+    ? profile.inactivityThresholdSeconds + 1
+    : Math.max(0, nowSeconds - lastActivityTimestamp);
 
   const shouldReportInactive = inactiveSeconds >= profile.inactivityThresholdSeconds;
 
   return {
     profileAddress: profile.address,
     lastActivityTimestamp,
-    inactiveSeconds: Number.isFinite(inactiveSeconds) ? inactiveSeconds : profile.inactivityThresholdSeconds + 1,
+    inactiveSeconds,
     shouldReportInactive,
     weight: shouldReportInactive ? profile.inactiveSignalWeight : 0,
     walrusBlobRef: shouldReportInactive
       ? `walrus://pulse/evidence/onchain-inactivity/${profile.address.toLowerCase()}`
       : "",
     reason: shouldReportInactive
-      ? `Inactive for ${Math.floor(inactiveSeconds)}s (threshold ${profile.inactivityThresholdSeconds}s)`
+      ? hasNoOnchainActivity
+        ? `No outgoing txs in recent blocks (threshold ${profile.inactivityThresholdSeconds}s)`
+        : `Inactive for ${Math.floor(inactiveSeconds)}s (threshold ${profile.inactivityThresholdSeconds}s)`
       : `Active within threshold (${Math.floor(inactiveSeconds)}s)`,
   };
 };
