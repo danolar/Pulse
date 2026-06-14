@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 
 const databaseUnavailable = () =>
   NextResponse.json(
-    { error: "Database is not configured. Set POSTGRES_URL in packages/nextjs/.env.local." },
+    { error: "Configuration storage is unavailable." },
     { status: 503 },
   );
 
@@ -36,7 +36,7 @@ export async function GET(request: Request) {
       found: Boolean(config),
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to load consumer config.";
+    const message = error instanceof Error ? error.message : "Could not load configuration.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
@@ -85,7 +85,7 @@ export async function PUT(request: Request) {
       saved: true,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to save consumer config.";
+    const message = error instanceof Error ? error.message : "Could not save configuration.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

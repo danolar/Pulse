@@ -46,10 +46,8 @@ export const ProfileConsole = () => {
   if (!canAccess || !profile.exists) {
     return (
       <PageShell>
-        <SectionHeader title="Profile console" eyebrow="access denied" />
-        <p className="text-sm text-pulse-muted">
-          This profile is not in your consumer context or does not exist.
-        </p>
+        <SectionHeader title="Profile" eyebrow="not found" />
+        <p className="text-sm text-pulse-muted">Profile not found or access denied.</p>
       </PageShell>
     );
   }
@@ -63,15 +61,15 @@ export const ProfileConsole = () => {
   return (
     <PageShell>
       <SectionHeader
-        title="Profile console"
+        title="Profile"
         eyebrow={profile.profileId ?? profileId}
-        subtitle={`Owner ${profile.ownerAddress ? normalizeAddress(profile.ownerAddress) : "—"} · decoded consumer view`}
+        subtitle={profile.ownerAddress ? `Owner ${normalizeAddress(profile.ownerAddress)}` : undefined}
       />
 
       <div className="space-y-6">
         {isConsumerReadOnly ? (
           <p className="rounded-2xl border border-base-content/10 bg-base-200/40 px-4 py-3 text-sm text-pulse-muted">
-            Monitoring another user&apos;s profile — read-only. Owner and requestor actions require their wallets.
+            Read-only — you are monitoring this profile as the integrating app.
           </p>
         ) : null}
 

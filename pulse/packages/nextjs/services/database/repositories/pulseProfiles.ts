@@ -21,7 +21,7 @@ export const getPulseProfileByWallet = async (
     return null;
   }
 
-  return row.profileData;
+  return row.profileData as PersistedPulseProfile;
 };
 
 export const upsertPulseProfile = async (

@@ -5,7 +5,7 @@ export const twilioVoiceModule: PulseVerificationModule = {
   name: "Voice agent",
   category: "active",
   status: "implemented",
-  summary: "Voice check-in adapter signer — authorize the adapter address here; users link phone numbers inside consumer apps.",
+  summary: "Voice check-in signals. Users link phone numbers in your app.",
   provider: "Twilio",
   signalDirection: "both",
   complements: ["world-id"],

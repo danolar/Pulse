@@ -125,8 +125,7 @@ export const AdapterSetupFlow = ({ entry, onClose, onComplete }: AdapterSetupFlo
           ) : (
             <>
               <p className="text-sm text-pulse-muted">
-                The adapter suggests {entry.suggestedWeight}. Adjust how much this source counts when activated on a
-                profile in Setup.
+                Default is {entry.suggestedWeight}. Adjust how much this source contributes toward threshold.
               </p>
               <NumberField label="Suggested weight" unit="points" value={weight} onChange={setWeight} />
             </>
@@ -162,9 +161,7 @@ export const AdapterSetupFlow = ({ entry, onClose, onComplete }: AdapterSetupFlo
 
       {step === 3 ? (
         <div className="space-y-3 text-sm">
-          <p className="text-pulse-muted">
-            Saves adapter credentials for your consumer context. Activate on a profile in Setup — not here.
-          </p>
+          <p className="text-pulse-muted">Review and save this adapter to your integration.</p>
           <dl className="space-y-2 rounded-2xl border border-base-content/10 p-4">
             <div className="flex justify-between gap-4">
               <dt className="text-pulse-muted">Adapter</dt>

@@ -20,12 +20,10 @@ const LabIdentityStep = () => {
   return (
     <div className="space-y-6">
       <ProfileTargetInput ownerAddress={ownerDraft} onOwnerAddressChange={setOwnerDraft} />
-      <section className="pulse-card border-dashed border-warning/40 p-5 sm:p-6">
-        <p className="pulse-label mb-2 text-warning">Integration lab only</p>
+      <section className="pulse-card p-5 sm:p-6">
+        <h2 className="pulse-section-title mb-1">Onchain flows</h2>
         <p className="mb-4 text-sm text-pulse-muted">
-          Simulates what your consumer app does when a user onboards:{" "}
-          <span className="font-mono text-xs">createProfile</span> + optional Orb bind. Does not modify your
-          consumer configuration in Neon.
+          Exercise profile creation and Orb binding before shipping in your app. Does not change Setup.
         </p>
         <div className="flex flex-wrap gap-3">
           <PulseButton
@@ -33,20 +31,20 @@ const LabIdentityStep = () => {
             disabled={!isAddress(ownerDraft) || deviceVerified}
             onClick={() => mockCreateProfile(ownerDraft, address, { mock: true, level: "device" })}
           >
-            Mock createProfile
+            Create profile
           </PulseButton>
           <PulseButton
             variant="secondary"
             disabled={!deviceVerified || orbBound}
             onClick={() => mockBindOrb({ mock: true, level: "orb" })}
           >
-            Mock bind Orb
+            Bind Orb
           </PulseButton>
           <PulseButton
             disabled={!isAddress(ownerDraft)}
             onClick={() => mockSeedLabProfile(ownerDraft, address)}
           >
-            Seed demo profile + signals
+            Load demo profile
           </PulseButton>
         </div>
       </section>
@@ -57,16 +55,16 @@ const LabIdentityStep = () => {
 const IntegrationLabContent = () => (
   <PageShell>
     <SectionHeader
-      title="Integration lab"
-      eyebrow="not configuration"
-      subtitle="Contract writes and demo profiles for testing — separate from your consumer setup stored in Neon."
+      title="Test integration"
+      eyebrow="sandbox"
+      subtitle="Try onchain profile flows before wiring them in your app."
     />
     <div className="mb-4 rounded-2xl border border-base-content/10 bg-base-200/40 px-4 py-3 text-sm text-pulse-muted">
       Complete{" "}
       <Link href="/setup" className="link link-primary">
-        consumer setup
+        Setup
       </Link>{" "}
-      first. Use this page to validate onchain flows before wiring them in your app.
+      first.
     </div>
     <LabIdentityStep />
   </PageShell>

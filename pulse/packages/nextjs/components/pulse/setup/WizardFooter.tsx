@@ -99,7 +99,7 @@ export const WizardFooter = ({
 
           <WizardNavArrow
             direction="forward"
-            label={isLastStage ? "View profile" : "Next stage"}
+            label={isLastStage ? "Finish setup" : "Next stage"}
             disabled={forwardDisabled}
             finish={isLastStage}
             onClick={isLastStage ? onFinish : onNext}

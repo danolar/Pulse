@@ -40,7 +40,7 @@ export const TrustedRequestorsSection = () => {
       <h2 className="pulse-section-title mb-1">Trusted requestors</h2>
       <p className="mb-2 text-sm text-pulse-muted">{REQUESTORS_CONFIG_CALLOUT}</p>
       <p className="mb-4 text-xs text-pulse-muted">
-        Mock authorizeRequestor — each requestor claims their slot with World ID in your consumer app.
+        Authorize requestors per profile in your app. Each requestor claims their slot with World ID.
       </p>
 
       <div className="mb-4 flex flex-wrap gap-2">

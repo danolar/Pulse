@@ -14,20 +14,19 @@ export const StageIdentity = () => {
       <section className="pulse-card p-5 sm:p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="pulse-section-title">World ID in your app</h2>
+            <h2 className="pulse-section-title">Confirm integration</h2>
             <p className="mt-1 text-sm text-pulse-muted">
-              Your users complete Device and Orb verifications inside your consumer app (for example Legacy
-              Ledger). Pulse Explorer only documents the action strings — it does not perform user onboarding.
+              Mark this step complete once World ID is wired in your app.
             </p>
           </div>
-          <VerifiedCheck verified={identityIntegrated} label="Documented in my app" />
+          <VerifiedCheck verified={identityIntegrated} label="Integrated" />
         </div>
         <PulseButton
           variant="secondary"
           disabled={identityIntegrated}
           onClick={() => mockAcknowledgeIdentity()}
         >
-          I have integrated these actions in my app
+          World ID is integrated in my app
         </PulseButton>
       </section>
     </div>

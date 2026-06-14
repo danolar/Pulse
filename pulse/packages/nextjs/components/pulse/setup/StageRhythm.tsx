@@ -158,9 +158,7 @@ const NotificationTargetField = ({
   <div className="rounded-2xl border border-base-content/10 bg-base-100/60 p-4">
     <label className="form-control">
       <span className="mb-1 text-sm font-medium text-base-content">Notification target</span>
-      <span className="mb-3 block text-xs text-pulse-muted">
-        Optional consumer contract for active push notifications (advanced).
-      </span>
+      <span className="mb-3 block text-xs text-pulse-muted">Optional contract for threshold notifications.</span>
       <input
         className="input input-bordered h-10 min-h-10 w-full rounded-xl font-mono text-sm"
         placeholder="0x… IThresholdConsumer (optional)"
@@ -169,7 +167,7 @@ const NotificationTargetField = ({
         onChange={event => onChange(event.target.value)}
       />
       <span className="mt-2 text-xs leading-relaxed text-pulse-muted">
-        Leave empty for passive ThresholdReached events only.
+        Leave empty to rely on ThresholdReached events only.
       </span>
     </label>
   </div>
@@ -261,7 +259,7 @@ export const StageRhythm = ({
           Load demo preset
         </PulseButton>
         {isDemoPreset ? (
-          <span className="text-xs text-pulse-muted">Compressed values for Explorer testing</span>
+          <span className="text-xs text-pulse-muted">Compressed values for testing</span>
         ) : null}
       </div>
 

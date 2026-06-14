@@ -36,10 +36,10 @@ export const ADAPTER_CATALOG: AdapterCatalogEntry[] = moduleEntries.flatMap(id =
             : "both",
       dataPlaneFields:
         id === "google-activity"
-          ? [{ key: "oauthToken", label: "OAuth token (mock)", placeholder: "mock-token", secret: true }]
+          ? [{ key: "oauthToken", label: "OAuth token", placeholder: "Token from your OAuth flow", secret: true }]
           : id === "twilio-voice"
-            ? [{ key: "accountSid", label: "Twilio Account SID (mock)", placeholder: "AC…", secret: true }]
-            : [{ key: "signerKey", label: "CRE signer key (mock)", placeholder: "0x… or key ref", secret: true }],
+            ? [{ key: "accountSid", label: "Twilio Account SID", placeholder: "AC…", secret: true }]
+            : [{ key: "signerKey", label: "Signer key", placeholder: "0x… or key ref", secret: true }],
     },
   ];
 });
@@ -53,7 +53,7 @@ export const AI_DECISION_CATALOG_ENTRY: AdapterCatalogEntry = {
   suggestedWeight: 0,
   capabilities: "both",
   isDecisionLayer: true,
-  dataPlaneFields: [{ key: "attestationKey", label: "Confidential AI key (mock)", placeholder: "key…", secret: true }],
+  dataPlaneFields: [{ key: "attestationKey", label: "Attestation key", placeholder: "key…", secret: true }],
 };
 
 export const getCatalogEntry = (id: string): AdapterCatalogEntry | undefined =>

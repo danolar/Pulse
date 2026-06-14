@@ -23,16 +23,14 @@ export const DecisionLayerSection = ({ onSetup }: DecisionLayerSectionProps) => 
         <div>
           <h2 className="pulse-section-title">Evaluation gate (AI decision)</h2>
           <p className="mt-1 text-sm text-pulse-muted">
-            Authorizes the confidential AI signer that gates formal evaluation requests. Weight 0 — not a weighted
-            signal source.
+            Gates formal evaluation requests. Does not contribute weight toward threshold.
           </p>
         </div>
         {authorized ? <StatusTag label="Authorized on profile" tone="success" /> : null}
       </div>
 
       <p className="mb-4 text-xs text-pulse-muted">
-        Randomness and attempt sequencing are configured in Configure → Rhythm. This step only binds the decision agent
-        signer.
+        Randomness is configured in Setup → Rhythm. This step binds the decision agent only.
       </p>
 
       <PulseButton variant="secondary" onClick={onSetup} disabled={Boolean(configured && authorized)}>

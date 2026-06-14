@@ -15,11 +15,8 @@ const ConsumerIdentity = () => {
 
   return (
     <div className="pulse-card p-5 sm:p-6">
-      <p className="pulse-label mb-1">Consumer wallet</p>
+      <p className="pulse-label mb-1">Integration wallet</p>
       <p className="font-mono text-sm">{normalizeAddress(address)}</p>
-      <p className="mt-2 text-sm text-pulse-muted">
-        Profiles you manage as a consumer app (for example Legacy Ledger integration testing).
-      </p>
     </div>
   );
 };
@@ -29,11 +26,7 @@ export const DevDashboard = () => {
 
   return (
     <PageShell>
-      <SectionHeader
-        title="Developer dashboard"
-        eyebrow="private · consumer context"
-        subtitle={DASHBOARD_PRIVATE_NOTE}
-      />
+      <SectionHeader title="Dashboard" eyebrow="private" subtitle={DASHBOARD_PRIVATE_NOTE} />
 
       <div className="space-y-6">
         <ConsumerIdentity />
@@ -41,22 +34,15 @@ export const DevDashboard = () => {
         <section className="pulse-card overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-base-content/10 px-5 py-4 sm:px-6">
             <div>
-              <h2 className="pulse-section-title">Monitored profiles</h2>
-              <p className="mt-1 text-sm text-pulse-muted">
-                Profiles created by your app via onchain <span className="font-mono text-xs">createProfile</span>.
-                Configure integration defaults in Setup; test writes in{" "}
-                <Link href="/lab" className="link link-primary">
-                  Integration lab
-                </Link>
-                .
-              </p>
+              <h2 className="pulse-section-title">Profiles</h2>
+              <p className="mt-1 text-sm text-pulse-muted">Profiles your app has created.</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Link href="/lab">
-                <PulseButton variant="secondary">Integration lab</PulseButton>
+                <PulseButton variant="secondary">Test integration</PulseButton>
               </Link>
               <Link href="/setup">
-                <PulseButton>Edit consumer setup</PulseButton>
+                <PulseButton>Edit setup</PulseButton>
               </Link>
             </div>
           </div>
@@ -65,15 +51,14 @@ export const DevDashboard = () => {
             <div className="px-5 py-12 text-center sm:px-6">
               <p className="mb-2 text-sm font-medium">No profiles yet</p>
               <p className="mb-4 text-sm text-pulse-muted">
-                Complete consumer setup, then create profiles from your app or use Integration lab to seed a
-                demo profile.
+                Create profiles from your app, or load a demo from Test integration.
               </p>
               <div className="flex flex-wrap justify-center gap-2">
                 <Link href="/lab">
-                  <PulseButton variant="secondary">Integration lab</PulseButton>
+                  <PulseButton variant="secondary">Test integration</PulseButton>
                 </Link>
                 <Link href="/setup">
-                  <PulseButton>Consumer setup</PulseButton>
+                  <PulseButton>Setup</PulseButton>
                 </Link>
               </div>
             </div>

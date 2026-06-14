@@ -62,13 +62,13 @@ export const EvidenceViewer = ({ blobId, onClose, mode = "private" }: EvidenceVi
 
   return (
     <PulseModal open={Boolean(blobId)} title="Signal evidence" onClose={onClose} size="lg">
-      {loading ? <p className="text-sm text-pulse-muted">Loading from Walrus…</p> : null}
+      {loading ? <p className="text-sm text-pulse-muted">Loading evidence…</p> : null}
       {error ? <p className="text-sm text-warning">{error}</p> : null}
       {content ? (
         <pre className="max-h-[50vh] overflow-auto rounded-xl bg-base-200/80 p-3 font-mono text-xs">{content}</pre>
       ) : null}
       {!loading && !error && !content && blobId && mode === "private" ? (
-        <p className="text-sm text-pulse-muted">No decoded payload (mock blob reference only).</p>
+        <p className="text-sm text-pulse-muted">Evidence not available.</p>
       ) : null}
     </PulseModal>
   );

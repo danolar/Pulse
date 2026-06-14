@@ -50,7 +50,7 @@ const DevEntryPoint = () => {
   return (
     <div className="mx-auto max-w-md rounded-2xl border border-base-content/10 bg-base-200/40 px-5 py-4 text-center">
       <p className="mb-3 text-sm text-pulse-muted">
-        Building with Pulse? Connect your wallet to manage your integration.
+        Building with Pulse? Connect your wallet to configure your integration.
       </p>
       <Link href={address ? "/dashboard" : "/setup"}>
         <PulseButton variant="secondary" className="w-full sm:w-auto">

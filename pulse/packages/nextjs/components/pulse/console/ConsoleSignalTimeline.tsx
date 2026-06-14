@@ -28,7 +28,7 @@ const formatTimestamp = (iso: string) =>
 export const ConsoleSignalTimeline = ({
   signals,
   title = "Signal audit trail",
-  subtitle = "Each signal references Walrus evidence (Seal-encrypted in production). Only current-epoch window signals count.",
+  subtitle = "Decoded signals for this profile. Only current-epoch window signals count toward threshold.",
   summary,
   onViewEvidence,
 }: ConsoleSignalTimelineProps) => {
@@ -79,7 +79,7 @@ export const ConsoleSignalTimeline = ({
                   <ExternalLink className="h-3.5 w-3.5" />
                 </button>
                 {!hasBlob ? (
-                  <p className="mt-1 text-xs text-pulse-muted">Evidence blob pending (mock ref only)</p>
+                  <p className="mt-1 text-xs text-pulse-muted">Evidence pending</p>
                 ) : null}
               </motion.li>
             );

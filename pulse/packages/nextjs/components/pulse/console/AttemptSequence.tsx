@@ -97,7 +97,7 @@ export const AttemptSequence = ({
       <div className="mb-4">
         <h2 className="pulse-section-title">Verification window</h2>
         <p className="mt-1 text-sm text-pulse-muted">
-          Current epoch attempts — commit-revealed onchain. Owner responds during the open card.
+          Current epoch attempts. Respond during the open card.
         </p>
       </div>
 
@@ -197,10 +197,10 @@ export const AttemptSequence = ({
       {showKeeperActions && hasExpiredUnopened ? (
         <div className="mt-4 flex flex-wrap gap-2">
           <PulseButton variant="secondary" className="btn-sm" onClick={() => mockForceOpenAttempt()}>
-            Open next attempt (mock keeper)
+            Open next attempt
           </PulseButton>
           <PulseButton variant="ghost" className="btn-sm" onClick={() => mockResolveExpiredAttempt()}>
-            Resolve expired (mock keeper)
+            Resolve expired
           </PulseButton>
         </div>
       ) : null}

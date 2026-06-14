@@ -42,13 +42,12 @@ export const ProfileActions = ({
     <section className="pulse-card p-5 sm:p-6">
       <h2 className="pulse-section-title mb-1">Owner actions</h2>
       <p className="mb-4 text-sm text-pulse-muted">
-        World ID–gated writes for this profile. Only available when your connected wallet owns this address.
+        World ID–gated actions for the profile owner.
       </p>
 
       {hasActiveAttempt ? (
         <p className="mb-4 rounded-2xl border border-primary/20 bg-primary/5 px-4 py-3 text-xs leading-relaxed text-pulse-muted">
-          An attempt is open in the verification window above — respond there first. Check-in below is for
-          proactive proof-of-life outside an attempt window.
+          An attempt is open — respond in the verification window above first.
         </p>
       ) : null}
 

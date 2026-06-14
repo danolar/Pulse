@@ -92,7 +92,7 @@ export const SetupWizard = () => {
       <PageShell className={scrollClearance}>
         <SectionHeader
           title={CONFIGURATION_PAGE_TITLE}
-          eyebrow="consumer setup"
+          eyebrow="integration"
           subtitle={CONFIGURATION_PAGE_SUBTITLE}
         />
 

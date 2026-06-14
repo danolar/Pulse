@@ -17,7 +17,7 @@ export function getDb(): PulseDb {
 
   const connectionString = process.env.POSTGRES_URL?.trim();
   if (!connectionString) {
-    throw new Error("Missing POSTGRES_URL. Add your Neon connection string to packages/nextjs/.env.local");
+    throw new Error("Missing POSTGRES_URL. Add your database connection string to packages/nextjs/.env.local");
   }
 
   const sql = neon(connectionString);

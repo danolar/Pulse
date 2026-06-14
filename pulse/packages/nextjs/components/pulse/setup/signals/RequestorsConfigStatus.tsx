@@ -12,7 +12,7 @@ export const RequestorsConfigStatus = () => {
 
   return (
     <section className="pulse-card p-5 sm:p-6">
-      <h2 className="pulse-section-title mb-1">Trusted requestors (consumer app)</h2>
+      <h2 className="pulse-section-title mb-1">Trusted requestors</h2>
       <p className="mb-4 text-sm text-pulse-muted">
         Per-profile authorization — handled by your connected app, not configured globally here.
       </p>

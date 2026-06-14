@@ -10,7 +10,7 @@ import type { PublicOwnerProfileView, PublicThresholdEvent } from "~~/types/puls
 import { truncateHash } from "~~/utils/pulse/profileId";
 
 const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString(undefined, { dateStyle: "medium", timeStyle: "short" });
+  new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 
 const SparseTimeline = ({ timestamps }: { timestamps: string[] }) => {
   if (timestamps.length === 0) {
@@ -156,10 +156,9 @@ const ProfileCard = ({ profile }: { profile: PublicOwnerProfileView }) => (
 export const ExplorerProfileList = ({ profiles }: { profiles: PublicOwnerProfileView[] }) => (
   <section className="space-y-4">
     <div>
-      <h2 className="pulse-section-title">Profiles by consumer context</h2>
+      <h2 className="pulse-section-title">Profiles</h2>
       <p className="mt-1 text-sm text-pulse-muted">
-        One card per monitoring relationship. Oracle state and activity are public; accumulated weight and signal
-        details stay private to each consumer.
+        One card per integration context. Oracle state is public; weights and signal detail stay private.
       </p>
     </div>
     {profiles.map(profile => (

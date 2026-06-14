@@ -37,8 +37,7 @@ export const ConsumerAdaptersSection = () => {
           <div>
             <h2 className="pulse-section-title">Signal adapters</h2>
             <p className="mt-1 text-sm text-pulse-muted">
-              Select adapters from the catalog, configure API credentials, and set the weight each source
-              contributes. These defaults apply to profiles your app creates onchain.
+              Select adapters, add credentials, and set weights. Defaults apply to every profile you create.
             </p>
           </div>
           <PulseButton onClick={() => setCatalogOpen(true)}>Add from catalog</PulseButton>

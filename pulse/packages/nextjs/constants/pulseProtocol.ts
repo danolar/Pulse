@@ -24,16 +24,16 @@ export const LIFECYCLE_DESCRIPTIONS: Record<LifecycleState, string> = {
   CREATED: "Profile registered. Finish setup to enter active monitoring.",
   ACTIVE: "Passive signals accumulate silently. Act when an attempt opens or you choose to check in.",
   EVALUATING: "Authorized evaluation in progress — attempt frequency intensifies.",
-  THRESHOLD_REACHED: "Unresponsiveness threshold crossed. Consumers may act after validating Walrus evidence.",
+  THRESHOLD_REACHED: "Threshold crossed. Integrating apps may act after reviewing evidence.",
   BLOCKED: "Owner froze evaluation with Orb verification.",
 };
 
 export const CONFIG_FIELD_HINTS = {
-  windowDuration: "Evaluation window length (days). Random attempts are scheduled inside this period.",
-  attemptsPerWindow: "Number of randomized verification attempts per window.",
-  responseWindow: "Hours the owner has to respond once an attempt opens.",
-  missedAttemptWeight: "Unresponsiveness weight added when an attempt expires unanswered.",
-  threshold: "Total unresponsiveness weight that emits ThresholdReached.",
+  windowDuration: "Length of each monitoring window in days.",
+  attemptsPerWindow: "Random verification attempts scheduled per window.",
+  responseWindow: "Hours to respond once an attempt opens.",
+  missedAttemptWeight: "Weight added when an attempt expires unanswered.",
+  threshold: "Total weight that triggers ThresholdReached.",
 } as const;
 
 export const formatSignalWeight = (direction: "positive" | "negative", weight: number): string => {

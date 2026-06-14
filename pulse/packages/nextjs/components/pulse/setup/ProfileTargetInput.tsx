@@ -30,10 +30,9 @@ export const ProfileTargetInput = ({
 
   return (
     <section className="pulse-card p-5 sm:p-6">
-      <h2 className="pulse-section-title mb-1">Profile target</h2>
+      <h2 className="pulse-section-title mb-1">Profile</h2>
       <p className="mb-4 text-sm text-pulse-muted">
-        Which user address is this profile for? Combined with your connected wallet (consumer), this determines the
-        profileId.
+        Owner address for this profile. Combined with your wallet, this determines profileId.
       </p>
 
       <label className="form-control w-full">
@@ -59,7 +58,7 @@ export const ProfileTargetInput = ({
 
       {consumerAddress ? (
         <p className="mt-3 text-xs text-pulse-muted">
-          Consumer: <span className="font-mono">{normalizeAddress(consumerAddress)}</span>
+          Integration wallet: <span className="font-mono">{normalizeAddress(consumerAddress)}</span>
         </p>
       ) : null}
     </section>

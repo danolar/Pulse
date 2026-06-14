@@ -42,7 +42,7 @@ export const ProfileDetailPage = () => {
       <SectionHeader
         title="Pulse oracle activity"
         eyebrow="public explorer"
-        subtitle="Verifiable results and audit trail — like a block explorer for attestation outcomes"
+        subtitle="Public oracle activity for this address"
       />
 
       <div className="space-y-6">
