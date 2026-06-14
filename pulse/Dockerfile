@@ -1,12 +1,13 @@
 # Pulse Next.js — Coolify / Docker
 #
-# Coolify settings:
+# Coolify:
 #   Base Directory: pulse
+#   Build pack: Dockerfile
 #   Port: 3000
-#   Build args + runtime env: NEXT_PUBLIC_* (see packages/nextjs/.env.example)
-#   Server secrets at runtime: APP_BASE_URL, WORLD_RP_SIGNING_KEY, POSTGRES_URL, etc.
+#   Build args: NEXT_PUBLIC_* only (see below)
+#   Runtime env: APP_BASE_URL, WORLD_RP_SIGNING_KEY, POSTGRES_URL, etc.
 #
-# Do NOT put CRE_ADAPTER_PRIVATE_KEY or Hardhat keystores in the container.
+# Do NOT put private keys or Hardhat keystores in build args.
 
 FROM node:22-bookworm-slim AS base
 
@@ -18,7 +19,6 @@ WORKDIR /app
 
 ENV HUSKY=0
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NODE_ENV=production
 
 FROM base AS deps
 
@@ -45,18 +45,16 @@ COPY --from=deps /app/packages/hardhat/node_modules ./packages/hardhat/node_modu
 
 COPY . .
 
-# NEXT_PUBLIC_* are baked into the client bundle at build time.
-ARG NEXT_PUBLIC_ALCHEMY_API_KEY
-ARG NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID
-ARG NEXT_PUBLIC_PULSE_ORACLE_ADDRESS
-ARG NEXT_PUBLIC_PULSE_ORACLE_LEGACY_ADDRESS
-ARG NEXT_PUBLIC_PULSE_CRE_ADAPTER_ADDRESS
-ARG NEXT_PUBLIC_WORLD_APP_ID
-ARG NEXT_PUBLIC_WORLD_RP_ID
+ARG NEXT_PUBLIC_ALCHEMY_API_KEY=""
+ARG NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=""
+ARG NEXT_PUBLIC_PULSE_ORACLE_ADDRESS=""
+ARG NEXT_PUBLIC_PULSE_ORACLE_LEGACY_ADDRESS=""
+ARG NEXT_PUBLIC_PULSE_CRE_ADAPTER_ADDRESS=""
+ARG NEXT_PUBLIC_WORLD_APP_ID=""
+ARG NEXT_PUBLIC_WORLD_RP_ID=""
 ARG NEXT_PUBLIC_WORLD_ID_ENVIRONMENT=staging
 ARG NEXT_PUBLIC_SHOW_SCAFFOLD_DEV_UI=false
 ARG NEXT_PUBLIC_WALRUS_AGGREGATOR_URL=https://aggregator.walrus-testnet.walrus.space
-ARG NEXT_PUBLIC_IGNORE_BUILD_ERROR=false
 
 ENV NEXT_PUBLIC_ALCHEMY_API_KEY=$NEXT_PUBLIC_ALCHEMY_API_KEY
 ENV NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=$NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID
@@ -68,7 +66,6 @@ ENV NEXT_PUBLIC_WORLD_RP_ID=$NEXT_PUBLIC_WORLD_RP_ID
 ENV NEXT_PUBLIC_WORLD_ID_ENVIRONMENT=$NEXT_PUBLIC_WORLD_ID_ENVIRONMENT
 ENV NEXT_PUBLIC_SHOW_SCAFFOLD_DEV_UI=$NEXT_PUBLIC_SHOW_SCAFFOLD_DEV_UI
 ENV NEXT_PUBLIC_WALRUS_AGGREGATOR_URL=$NEXT_PUBLIC_WALRUS_AGGREGATOR_URL
-ENV NEXT_PUBLIC_IGNORE_BUILD_ERROR=$NEXT_PUBLIC_IGNORE_BUILD_ERROR
 ENV DOCKER_BUILD=1
 
 RUN yarn next:build:docker
@@ -79,6 +76,10 @@ RUN corepack enable && corepack prepare yarn@4.13.0 --activate
 
 WORKDIR /app
 
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/yarn.lock ./yarn.lock
 COPY --from=builder /app/.yarnrc.yml ./.yarnrc.yml
@@ -87,9 +88,9 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/packages/nextjs ./packages/nextjs
 COPY --from=builder /app/packages/hardhat/package.json ./packages/hardhat/package.json
 
-ENV PORT=3000
-ENV HOSTNAME=0.0.0.0
-
 EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
 CMD ["yarn", "next:serve"]

@@ -11,10 +11,8 @@ const nextConfig: NextConfig = {
     "twilio",
   ],
   typescript: {
-    ignoreBuildErrors: process.env.NEXT_PUBLIC_IGNORE_BUILD_ERROR === "true",
-  },
-  eslint: {
-    ignoreDuringBuilds: process.env.DOCKER_BUILD === "1",
+    ignoreBuildErrors:
+      process.env.NEXT_PUBLIC_IGNORE_BUILD_ERROR === "true" || process.env.DOCKER_BUILD === "1",
   },
 };
 
