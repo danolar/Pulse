@@ -491,6 +491,1392 @@ const deployedContracts = {
       deployedOnBlock: 1,
     },
   },
+  11155111: {
+    PulseOracle: {
+      address: "0xf954586747b7361f9deac0f943160a2d66ec8e5f",
+      abi: [
+        {
+          inputs: [],
+          name: "AdapterNotAuthorized",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "CapabilityNotAllowed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotAuthorizedAdapter",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotConsumer",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotOwner",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ProfileExists",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ProfileMissing",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "WeightExceedsThreshold",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "enum PulseOracle.LifecycleState",
+              name: "current",
+              type: "uint8",
+            },
+          ],
+          name: "WrongState",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ZeroAddress",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ZeroThreshold",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ZeroWeight",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "adapter",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint8",
+              name: "capabilities",
+              type: "uint8",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "typeLabel",
+              type: "bytes32",
+            },
+          ],
+          name: "AdapterAuthorized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "adapter",
+              type: "address",
+            },
+          ],
+          name: "AdapterRevoked",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "threshold",
+              type: "uint32",
+            },
+          ],
+          name: "ConfigUpdated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "epoch",
+              type: "uint32",
+            },
+          ],
+          name: "Finalized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "target",
+              type: "address",
+            },
+          ],
+          name: "NotificationTargetSet",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "consumer",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "timestamp",
+              type: "uint64",
+            },
+          ],
+          name: "ProfileCreated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "reporter",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "walrusBlobId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "epoch",
+              type: "uint32",
+            },
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "timestamp",
+              type: "uint64",
+            },
+          ],
+          name: "SignalReported",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "epoch",
+              type: "uint32",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "auditBlobId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "timestamp",
+              type: "uint64",
+            },
+          ],
+          name: "ThresholdReached",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "epoch",
+              type: "uint32",
+            },
+          ],
+          name: "WeightReset",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "CAP_NEGATIVE",
+          outputs: [
+            {
+              internalType: "uint8",
+              name: "",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "CAP_POSITIVE",
+          outputs: [
+            {
+              internalType: "uint8",
+              name: "",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "adapters",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "authorized",
+              type: "bool",
+            },
+            {
+              internalType: "uint32",
+              name: "weight",
+              type: "uint32",
+            },
+            {
+              internalType: "uint8",
+              name: "capabilities",
+              type: "uint8",
+            },
+            {
+              internalType: "bytes32",
+              name: "typeLabel",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              internalType: "address",
+              name: "adapter",
+              type: "address",
+            },
+            {
+              internalType: "uint32",
+              name: "weight",
+              type: "uint32",
+            },
+            {
+              internalType: "uint8",
+              name: "capabilities",
+              type: "uint8",
+            },
+            {
+              internalType: "bytes32",
+              name: "typeLabel",
+              type: "bytes32",
+            },
+          ],
+          name: "authorizeAdapter",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+          ],
+          name: "checkin",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "consumer",
+              type: "address",
+            },
+          ],
+          name: "computeProfileId",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              internalType: "uint32",
+              name: "threshold",
+              type: "uint32",
+            },
+          ],
+          name: "createProfile",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+          ],
+          name: "finalize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+          ],
+          name: "getAdapters",
+          outputs: [
+            {
+              internalType: "address[]",
+              name: "",
+              type: "address[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          name: "profiles",
+          outputs: [
+            {
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "consumer",
+              type: "address",
+            },
+            {
+              internalType: "enum PulseOracle.LifecycleState",
+              name: "state",
+              type: "uint8",
+            },
+            {
+              internalType: "uint32",
+              name: "epoch",
+              type: "uint32",
+            },
+            {
+              internalType: "uint32",
+              name: "accumulatedWeight",
+              type: "uint32",
+            },
+            {
+              internalType: "address",
+              name: "notificationTarget",
+              type: "address",
+            },
+            {
+              components: [
+                {
+                  internalType: "uint32",
+                  name: "threshold",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "missedAttemptWeight",
+                  type: "uint32",
+                },
+              ],
+              internalType: "struct PulseOracle.Config",
+              name: "config",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              internalType: "enum PulseOracle.SignalDirection",
+              name: "direction",
+              type: "uint8",
+            },
+            {
+              internalType: "bytes32",
+              name: "walrusBlobId",
+              type: "bytes32",
+            },
+          ],
+          name: "reportSignal",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              internalType: "address",
+              name: "adapter",
+              type: "address",
+            },
+          ],
+          name: "revokeAdapter",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              internalType: "uint32",
+              name: "threshold",
+              type: "uint32",
+            },
+          ],
+          name: "setConfig",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              internalType: "address",
+              name: "target",
+              type: "address",
+            },
+          ],
+          name: "setNotificationTarget",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+      ],
+      inheritedFunctions: {},
+      deployedOnBlock: 11056348,
+    },
+    PulseOracleV2: {
+      address: "0x41e60b7c2f067a3bb5a655959c944f7f28bd66e3",
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: "contract IWorldID",
+              name: "worldId_",
+              type: "address",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "constructor",
+        },
+        {
+          inputs: [],
+          name: "AdapterNotAuthorized",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "CapabilityNotAllowed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "EmptyWalrusBlobId",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidExternalNullifier",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "InvalidSignalHash",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotAuthorizedAdapter",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotConsumer",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NotOwner",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "NullifierAlreadyUsed",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ProfileExists",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ProfileMissing",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ReentrancyGuardReentrantCall",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "WeightExceedsThreshold",
+          type: "error",
+        },
+        {
+          inputs: [
+            {
+              internalType: "enum PulseOracleV2.LifecycleState",
+              name: "current",
+              type: "uint8",
+            },
+          ],
+          name: "WrongState",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ZeroAddress",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ZeroThreshold",
+          type: "error",
+        },
+        {
+          inputs: [],
+          name: "ZeroWeight",
+          type: "error",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "adapter",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint8",
+              name: "capabilities",
+              type: "uint8",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "typeLabel",
+              type: "bytes32",
+            },
+          ],
+          name: "AdapterAuthorized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "adapter",
+              type: "address",
+            },
+          ],
+          name: "AdapterRevoked",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "threshold",
+              type: "uint32",
+            },
+          ],
+          name: "ConfigUpdated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "epoch",
+              type: "uint32",
+            },
+          ],
+          name: "Finalized",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "address",
+              name: "target",
+              type: "address",
+            },
+          ],
+          name: "NotificationTargetSet",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "consumer",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "timestamp",
+              type: "uint64",
+            },
+          ],
+          name: "ProfileCreated",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: true,
+              internalType: "address",
+              name: "reporter",
+              type: "address",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "walrusBlobId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "epoch",
+              type: "uint32",
+            },
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "timestamp",
+              type: "uint64",
+            },
+          ],
+          name: "SignalReported",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "epoch",
+              type: "uint32",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "auditBlobId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint64",
+              name: "timestamp",
+              type: "uint64",
+            },
+          ],
+          name: "ThresholdReached",
+          type: "event",
+        },
+        {
+          anonymous: false,
+          inputs: [
+            {
+              indexed: true,
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              indexed: false,
+              internalType: "uint32",
+              name: "epoch",
+              type: "uint32",
+            },
+          ],
+          name: "WeightReset",
+          type: "event",
+        },
+        {
+          inputs: [],
+          name: "CAP_NEGATIVE",
+          outputs: [
+            {
+              internalType: "uint8",
+              name: "",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "CAP_POSITIVE",
+          outputs: [
+            {
+              internalType: "uint8",
+              name: "",
+              type: "uint8",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "WORLD_ID_GROUP_ID",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+            {
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
+          ],
+          name: "adapters",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "authorized",
+              type: "bool",
+            },
+            {
+              internalType: "uint32",
+              name: "weight",
+              type: "uint32",
+            },
+            {
+              internalType: "uint8",
+              name: "capabilities",
+              type: "uint8",
+            },
+            {
+              internalType: "bytes32",
+              name: "typeLabel",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              internalType: "address",
+              name: "adapter",
+              type: "address",
+            },
+            {
+              internalType: "uint32",
+              name: "weight",
+              type: "uint32",
+            },
+            {
+              internalType: "uint8",
+              name: "capabilities",
+              type: "uint8",
+            },
+            {
+              internalType: "bytes32",
+              name: "typeLabel",
+              type: "bytes32",
+            },
+          ],
+          name: "authorizeAdapter",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              internalType: "uint256",
+              name: "root",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "nullifierHash",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "externalNullifierHash",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "signalHash",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256[8]",
+              name: "proof",
+              type: "uint256[8]",
+            },
+          ],
+          name: "checkin",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "consumer",
+              type: "address",
+            },
+          ],
+          name: "computeProfileId",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "pure",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              internalType: "uint32",
+              name: "threshold",
+              type: "uint32",
+            },
+          ],
+          name: "createProfile",
+          outputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+          ],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+          ],
+          name: "finalize",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+          ],
+          name: "getAdapters",
+          outputs: [
+            {
+              internalType: "address[]",
+              name: "",
+              type: "address[]",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+          ],
+          name: "getCheckinWorldIdParams",
+          outputs: [
+            {
+              internalType: "uint256",
+              name: "signalHash",
+              type: "uint256",
+            },
+            {
+              internalType: "uint256",
+              name: "externalNullifierHash",
+              type: "uint256",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
+          ],
+          name: "nullifierUsed",
+          outputs: [
+            {
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
+          ],
+          name: "profiles",
+          outputs: [
+            {
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "consumer",
+              type: "address",
+            },
+            {
+              internalType: "enum PulseOracleV2.LifecycleState",
+              name: "state",
+              type: "uint8",
+            },
+            {
+              internalType: "uint32",
+              name: "epoch",
+              type: "uint32",
+            },
+            {
+              internalType: "uint32",
+              name: "accumulatedWeight",
+              type: "uint32",
+            },
+            {
+              internalType: "address",
+              name: "notificationTarget",
+              type: "address",
+            },
+            {
+              components: [
+                {
+                  internalType: "uint32",
+                  name: "threshold",
+                  type: "uint32",
+                },
+                {
+                  internalType: "uint32",
+                  name: "missedAttemptWeight",
+                  type: "uint32",
+                },
+              ],
+              internalType: "struct PulseOracleV2.Config",
+              name: "config",
+              type: "tuple",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              internalType: "enum PulseOracleV2.SignalDirection",
+              name: "direction",
+              type: "uint8",
+            },
+            {
+              internalType: "bytes32",
+              name: "walrusBlobId",
+              type: "bytes32",
+            },
+          ],
+          name: "reportSignal",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              internalType: "address",
+              name: "adapter",
+              type: "address",
+            },
+          ],
+          name: "revokeAdapter",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              internalType: "uint32",
+              name: "threshold",
+              type: "uint32",
+            },
+          ],
+          name: "setConfig",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [
+            {
+              internalType: "bytes32",
+              name: "profileId",
+              type: "bytes32",
+            },
+            {
+              internalType: "address",
+              name: "target",
+              type: "address",
+            },
+          ],
+          name: "setNotificationTarget",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
+        },
+        {
+          inputs: [],
+          name: "worldId",
+          outputs: [
+            {
+              internalType: "contract IWorldID",
+              name: "",
+              type: "address",
+            },
+          ],
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+      inheritedFunctions: {},
+      deployedOnBlock: 11056445,
+    },
+  },
 } as const;
 
 export default deployedContracts satisfies GenericContractsDeclaration;

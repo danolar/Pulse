@@ -58,6 +58,8 @@
     "cre:simulate:keeper": "cre workflow simulate pulse-keeper --target local-settings --project-root cre",
     "cre:simulate:onchain": "cre workflow simulate pulse-onchain-activity --target local-settings --project-root cre",
     "deploy:pulse-oracle": "yarn hardhat:deploy --tags PulseOracle",
+    "deploy:pulse-oracle-v2": "yarn hardhat:deploy --tags PulseOracleV2",
+    "deploy:pulse-oracle-v2:fresh": "rm -f packages/hardhat/deployments/sepolia/PulseOracleV2.json packages/hardhat/deployments/sepolia/MockWorldID.json && yarn deploy:pulse-oracle-v2 --network sepolia",
     "drizzle-kit": "yarn workspace @se-2/nextjs drizzle-kit",
     "db:push": "yarn workspace @se-2/nextjs db:push",
     "db:studio": "yarn workspace @se-2/nextjs db:studio",
