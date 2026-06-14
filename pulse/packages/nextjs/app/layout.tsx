@@ -27,9 +27,9 @@ export const metadata = getMetadata({
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html suppressHydrationWarning data-theme="light" className={`${comfortaa.variable} ${dmSans.variable}`}>
+    <html suppressHydrationWarning className={`${comfortaa.variable} ${dmSans.variable}`}>
       <body suppressHydrationWarning className={dmSans.className}>
-        <ThemeProvider attribute="data-theme" defaultTheme="light" enableSystem={false} forcedTheme="light" storageKey="pulse-theme">
+        <ThemeProvider>
           <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
         </ThemeProvider>
       </body>

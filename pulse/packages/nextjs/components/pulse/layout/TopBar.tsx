@@ -9,6 +9,7 @@ import { Bug, Cable, LayoutDashboard, Lock, Menu, Search, Settings } from "lucid
 import { PulseLogo } from "~~/components/pulse/brand/PulseLogo";
 import { AddressSearchBar } from "~~/components/pulse/explorer/AddressSearchBar";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
+import { SwitchTheme } from "~~/components/SwitchTheme";
 import { SHOW_SCAFFOLD_DEV_UI } from "~~/constants/pulseAppConfig";
 import { useOutsideClick } from "~~/hooks/scaffold-eth";
 import { useTargetNetwork } from "~~/hooks/scaffold-eth/useTargetNetwork";
@@ -159,6 +160,7 @@ export const TopBar = ({ onOpenConnectionKit }: TopBarProps) => {
             ))}
           </nav>
 
+          <SwitchTheme />
           <ConnectionKitButton onOpen={onOpenConnectionKit} />
           <WalletConnectButton />
         </div>

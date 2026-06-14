@@ -40,7 +40,14 @@ export const PulseLogo = ({ height = 44, className = "" }: PulseLogoProps) => {
         />
       ))}
       <circle cx={MARK_CENTER} cy={MARK_CENTER} r={DOT_RADIUS} fill={PULSE_COLORS.blue} />
-      <text x="78" y="46.5" fill={PULSE_COLORS.ink} className="pulse-wordmark" fontSize="33" fontWeight="600">
+      <text
+        x="78"
+        y="46.5"
+        fill="currentColor"
+        className="pulse-wordmark"
+        fontSize="33"
+        fontWeight="600"
+      >
         pulse
       </text>
     </svg>
