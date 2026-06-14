@@ -55,6 +55,25 @@ Legacy Ledger is the reference consumer. It listens for the outcome event, valid
 
 Integrators embed World ID with Pulse's shared app_id, let their users sign Pulse calls with their own wallet, and read state by profileId. The contract address, ABI, app_id, and action naming convention are the full connection kit.
 
+## Deployed contracts (Sepolia testnet)
+
+| Contract | Address | Notes |
+|----------|---------|--------|
+| **PulseOracleV2** (active) | [`0x41e60b7c2f067a3bb5a655959c944f7f28bd66e3`](https://sepolia.etherscan.io/address/0x41e60b7c2f067a3bb5a655959c944f7f28bd66e3) | `reportSignal`, World ID `checkin`, `ThresholdReached` |
+| PulseOracle v0.1 (legacy) | [`0xf954586747b7361f9deac0f943160a2d66ec8e5f`](https://sepolia.etherscan.io/address/0xf954586747b7361f9deac0f943160a2d66ec8e5f) | Earlier hackathon deploy; kept for comparison |
+| World ID Router | [`0x469449f251692e0779667583026b5a1e99512157`](https://sepolia.etherscan.io/address/0x469449f251692e0779667583026b5a1e99512157) | Passed to `PulseOracleV2` constructor on Sepolia |
+
+**Profile ID:** `keccak256(owner, consumer)` — e.g. owner `0x70997970C51812dc3A010C7d01b50e0d17dc79C8` + consumer `0x4D7a23045f7C76Dc57e2aFd2eb038e2Cf743e284` → `0x15bf86d12556e3bf30fea83549f4a6b4168fc54f8bcb9acbbb9fabbf3397fb05`.
+
+**Integrator wiring:**
+
+- Set `NEXT_PUBLIC_PULSE_ORACLE_ADDRESS` to the V2 address (see `packages/nextjs/.env.example`).
+- ABI + typed hooks: `packages/nextjs/contracts/deployedContracts.ts`
+- Solidity: `packages/hardhat/contracts/PulseOracleV2.sol`
+- Redeploy: `yarn deploy:pulse-oracle-v2 --network sepolia`
+
+Demo script, sample txs, and Walrus blob IDs: [`HACKATHON-DEMO.md`](HACKATHON-DEMO.md).
+
 ## Privacy model
 
 The visibility model separates results from progress:
