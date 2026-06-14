@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
-import { RandomnessBlock } from "~~/components/pulse/setup/rhythm/RandomnessBlock";
+import { RandomnessAgentBlock } from "~~/components/pulse/setup/rhythm/RandomnessAgentBlock";
 import { CONFIG_FIELD_HINTS } from "~~/constants/pulseProtocol";
 import { DEMO_RHYTHM_CONFIG, describeMonitoringRhythm } from "~~/constants/monitoringProfiles";
+import type { RandomnessAgentConfig } from "~~/types/consumer";
 import type { ProfileConfig } from "~~/types/pulse";
 
 type RhythmFieldConfig = {
@@ -185,17 +186,20 @@ type StageRhythmProps = {
   disabled: boolean;
   initialConfig: ProfileConfig;
   initialNotificationTarget?: string | null;
-  onSave: (config: ProfileConfig, notificationTarget: string | null) => void;
+  initialRandomnessAgent: RandomnessAgentConfig;
+  onSave: (config: ProfileConfig, notificationTarget: string | null, randomnessAgent: RandomnessAgentConfig) => void;
 };
 
 export const StageRhythm = ({
   disabled,
   initialConfig,
   initialNotificationTarget = null,
+  initialRandomnessAgent,
   onSave,
 }: StageRhythmProps) => {
   const [draftConfig, setDraftConfig] = useState<ProfileConfig>(initialConfig);
   const [notificationTarget, setNotificationTarget] = useState(initialNotificationTarget ?? "");
+  const [randomnessAgent, setRandomnessAgent] = useState<RandomnessAgentConfig>(initialRandomnessAgent);
   const [isDemoPreset, setIsDemoPreset] = useState(false);
 
   useEffect(() => {
@@ -205,6 +209,10 @@ export const StageRhythm = ({
   useEffect(() => {
     setNotificationTarget(initialNotificationTarget ?? "");
   }, [initialNotificationTarget]);
+
+  useEffect(() => {
+    setRandomnessAgent(initialRandomnessAgent);
+  }, [initialRandomnessAgent]);
 
   const applyDemoPreset = () => {
     setDraftConfig(DEMO_RHYTHM_CONFIG);
@@ -218,7 +226,7 @@ export const StageRhythm = ({
 
   const handleSave = () => {
     const trimmedTarget = notificationTarget.trim();
-    onSave(draftConfig, trimmedTarget ? trimmedTarget : null);
+    onSave(draftConfig, trimmedTarget ? trimmedTarget : null, randomnessAgent);
   };
 
   return (
@@ -242,7 +250,11 @@ export const StageRhythm = ({
 
       <PlainLanguageSummary config={draftConfig} />
 
-      <RandomnessBlock />
+      <RandomnessAgentBlock
+        disabled={disabled}
+        value={randomnessAgent}
+        onChange={setRandomnessAgent}
+      />
 
       <div className="flex flex-wrap items-center gap-3">
         <PulseButton variant="secondary" disabled={disabled} onClick={applyDemoPreset}>

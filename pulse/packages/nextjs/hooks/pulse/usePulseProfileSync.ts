@@ -2,7 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import { useAccount } from "wagmi";
-import { loadConsumerPulseSnapshot, saveConsumerPulseSnapshot } from "~~/services/store/pulseProfileStorage";
+import { loadConsumerConfig, saveConsumerConfig } from "~~/services/store/consumerConfigStorage";
+import {
+  loadRuntimeSnapshotLocal,
+  saveRuntimeSnapshotLocal,
+} from "~~/services/store/runtimeProfileStorage";
 import { getInitialPulseState, usePulseStore } from "~~/services/store/pulseStore";
 
 const SAVE_DEBOUNCE_MS = 400;
@@ -15,11 +19,17 @@ export const usePulseProfileSync = () => {
   useEffect(() => {
     let cancelled = false;
 
-    const syncProfileForWallet = async () => {
+    const syncForWallet = async () => {
       const previousAddress = previousAddressRef.current;
 
       if (previousAddress && previousAddress !== address) {
-        await saveConsumerPulseSnapshot(previousAddress, usePulseStore.getState().exportConsumerSnapshot());
+        await saveConsumerConfig(previousAddress, usePulseStore.getState().exportConsumerConfig());
+        const runtime = usePulseStore.getState().exportConsumerSnapshot();
+        saveRuntimeSnapshotLocal(previousAddress, {
+          profiles: runtime.profiles,
+          activeProfileId: runtime.activeProfileId,
+          publicSignalsByOwner: runtime.publicSignalsByOwner,
+        });
       }
 
       previousAddressRef.current = address ?? null;
@@ -31,22 +41,31 @@ export const usePulseProfileSync = () => {
         return;
       }
 
-      const savedSnapshot = await loadConsumerPulseSnapshot(address);
+      const [consumerConfig, runtimeSnapshot] = await Promise.all([
+        loadConsumerConfig(address),
+        Promise.resolve(loadRuntimeSnapshotLocal(address)),
+      ]);
+
       if (cancelled) return;
 
-      if (savedSnapshot) {
-        usePulseStore.getState().importConsumerSnapshot(savedSnapshot);
-      } else {
-        usePulseStore.setState({
-          ...getInitialPulseState(),
+      usePulseStore.getState().importConsumerConfig(consumerConfig);
+
+      if (runtimeSnapshot) {
+        usePulseStore.setState(state => ({
+          profiles: runtimeSnapshot.profiles,
+          activeProfileId: runtimeSnapshot.activeProfileId,
+          publicSignalsByOwner: runtimeSnapshot.publicSignalsByOwner,
           consumerAddress: address,
-        });
+          configuredAdapters: state.configuredAdapters,
+        }));
+      } else {
+        usePulseStore.setState(state => ({ ...state, consumerAddress: address }));
       }
 
       isHydratingRef.current = false;
     };
 
-    void syncProfileForWallet();
+    void syncForWallet();
 
     return () => {
       cancelled = true;
@@ -63,7 +82,13 @@ export const usePulseProfileSync = () => {
 
       if (saveTimeout) clearTimeout(saveTimeout);
       saveTimeout = setTimeout(() => {
-        void saveConsumerPulseSnapshot(address, usePulseStore.getState().exportConsumerSnapshot());
+        void saveConsumerConfig(address, usePulseStore.getState().exportConsumerConfig());
+        const runtime = usePulseStore.getState().exportConsumerSnapshot();
+        saveRuntimeSnapshotLocal(address, {
+          profiles: runtime.profiles,
+          activeProfileId: runtime.activeProfileId,
+          publicSignalsByOwner: runtime.publicSignalsByOwner,
+        });
       }, SAVE_DEBOUNCE_MS);
     });
 

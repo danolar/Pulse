@@ -14,6 +14,12 @@ import {
   type VerificationAttempt,
   type VerificationType,
 } from "~~/types/pulse";
+import {
+  CONSUMER_CONFIG_SCHEMA_VERSION,
+  DEFAULT_RANDOMNESS_AGENT,
+  type ConsumerConfig,
+  type RandomnessAgentConfig,
+} from "~~/types/consumer";
 import { upsertPublicOwnerProfile } from "~~/services/store/publicExplorerIndex";
 import { normalizeAddress } from "~~/utils/pulse/explorerAddress";
 import { computeConsumerContextHash, resolveProfileIdentity, type ProfileId } from "~~/utils/pulse/profileId";
@@ -99,6 +105,16 @@ type PulseState = PersistedPulseProfile & {
   profiles: Record<string, PersistedPulseProfile>;
   activeProfileId: string | null;
   publicSignalsByOwner: Record<string, PublicSignalRecord[]>;
+  randomnessAgent: RandomnessAgentConfig;
+  identityIntegrated: boolean;
+  exportConsumerConfig: () => ConsumerConfig;
+  importConsumerConfig: (config: ConsumerConfig) => void;
+  mockAcknowledgeIdentity: () => void;
+  mockSaveRhythmConfig: (
+    config: ProfileConfig,
+    notificationTarget: string | null,
+    randomnessAgent: RandomnessAgentConfig,
+  ) => void;
   initProfileTarget: (ownerAddress: string, consumerAddress: string) => ProfileId;
   loadProfile: (profileId: string) => boolean;
   getProfilesByConsumer: (consumerAddress: string) => PersistedPulseProfile[];
@@ -118,6 +134,7 @@ type PulseState = PersistedPulseProfile & {
   mockRemoveRequestor: (requestorId: string) => void;
   mockClaimRequestorSlot: (requestorAddress: string, verification?: PulseWorldIdVerification) => void;
   mockCompleteSetup: () => void;
+  mockSeedLabProfile: (ownerAddress: string, consumerAddress: string) => void;
   mockCheckIn: (verification?: PulseWorldIdVerification) => void;
   mockRequestExtension: (verification?: PulseWorldIdVerification) => void;
   mockBlock: (verification?: PulseWorldIdVerification) => void;
@@ -173,6 +190,7 @@ export const getInitialPulseState = (): Omit<
   | "mockRemoveRequestor"
   | "mockClaimRequestorSlot"
   | "mockCompleteSetup"
+  | "mockSeedLabProfile"
   | "mockCheckIn"
   | "mockRequestExtension"
   | "mockBlock"
@@ -182,6 +200,10 @@ export const getInitialPulseState = (): Omit<
   | "mockForceOpenAttempt"
   | "mockResolveExpiredAttempt"
   | "appendSignal"
+  | "exportConsumerConfig"
+  | "importConsumerConfig"
+  | "mockAcknowledgeIdentity"
+  | "mockSaveRhythmConfig"
 > => ({
   profileId: null,
   ownerAddress: null,
@@ -207,6 +229,8 @@ export const getInitialPulseState = (): Omit<
   profiles: {},
   activeProfileId: null,
   publicSignalsByOwner: {},
+  randomnessAgent: { ...DEFAULT_RANDOMNESS_AGENT },
+  identityIntegrated: false,
 });
 
 export const toPersistedProfile = (state: PulseState): PersistedPulseProfile => ({
@@ -304,6 +328,46 @@ export const usePulseStore = create<PulseState>((set, get) => ({
     });
   },
 
+  exportConsumerConfig: () => {
+    const state = get();
+    return {
+      schemaVersion: CONSUMER_CONFIG_SCHEMA_VERSION,
+      consumerAddress: state.consumerAddress ?? "",
+      setupComplete: state.setupComplete,
+      configuredAdapters: state.configuredAdapters,
+      rhythmConfig: state.config,
+      notificationTarget: state.notificationTarget,
+      randomnessAgent: state.randomnessAgent,
+      identityIntegrated: state.identityIntegrated,
+    };
+  },
+
+  importConsumerConfig: config => {
+    set({
+      consumerAddress: config.consumerAddress,
+      setupComplete: config.setupComplete,
+      configuredAdapters: config.configuredAdapters,
+      config: config.rhythmConfig,
+      notificationTarget: config.notificationTarget,
+      randomnessAgent: config.randomnessAgent,
+      identityIntegrated: config.identityIntegrated,
+      configSaved: Boolean(config.rhythmConfig),
+    });
+  },
+
+  mockAcknowledgeIdentity: () => {
+    set({ identityIntegrated: true });
+  },
+
+  mockSaveRhythmConfig: (config, notificationTarget, randomnessAgent) => {
+    set({
+      config,
+      notificationTarget,
+      randomnessAgent,
+      configSaved: true,
+    });
+  },
+
   mockCreateProfile: (ownerAddress, consumerAddress, verification) => {
     if (verification && !isMockWorldIdVerification(verification) && verification.level !== "device") {
       throw new Error("createProfile requires Device-level World ID verification.");
@@ -344,15 +408,7 @@ export const usePulseStore = create<PulseState>((set, get) => ({
   },
 
   mockSaveConfig: (config, notificationTarget = null) => {
-    set(state => {
-      const next: Partial<PulseState> = {
-        config,
-        notificationTarget,
-        configSaved: true,
-        attempts: buildAttempts(config.attemptsPerWindow),
-      };
-      return { ...next, ...syncActiveToProfiles({ ...state, ...next } as PulseState) };
-    });
+    get().mockSaveRhythmConfig(config, notificationTarget, get().randomnessAgent);
   },
 
   toggleModule: moduleId => {
@@ -534,34 +590,64 @@ export const usePulseStore = create<PulseState>((set, get) => ({
   },
 
   mockCompleteSetup: () => {
-    const { config, ownerAddress, consumerAddress } = get();
-    const consumerHash = consumerAddress
-      ? computeConsumerContextHash(consumerAddress as Address)
-      : "0x0000000000000000000000000000000000000000000000000000000000000000";
+    set({
+      accessListsSaved: true,
+      setupComplete: true,
+    });
+  },
+
+  mockSeedLabProfile: (ownerAddress: string, consumerAddress: string) => {
+    const { profileId, ownerAddress: owner, consumerAddress: consumer } = resolveProfileIdentity(
+      ownerAddress,
+      consumerAddress,
+    );
+    const consumerHash = computeConsumerContextHash(consumer);
+    const { config, configuredAdapters } = get();
+    const demoSignals = buildDemoSignals(consumerHash);
+    const adapters: SignalAdapter[] = configuredAdapters.map(item => ({
+      id: crypto.randomUUID(),
+      moduleId: item.catalogId,
+      address: item.adapterAddress,
+      weight: item.weight,
+      label: item.name,
+      typeLabel: item.typeLabel,
+      capabilities: item.capabilities,
+    }));
+
+    const profileState: PersistedPulseProfile = {
+      profileId,
+      ownerAddress: owner,
+      consumerAddress: consumer,
+      deviceVerified: true,
+      deviceNullifierHash: null,
+      orbBound: false,
+      orbNullifierHash: null,
+      configSaved: true,
+      accessListsSaved: true,
+      setupComplete: true,
+      config,
+      notificationTarget: get().notificationTarget,
+      adapters,
+      requestors: [],
+      enabledModuleIds: [],
+      lifecycle: "ACTIVE",
+      epoch: 1,
+      accumulatedWeight: 23,
+      attempts: buildAttempts(config.attemptsPerWindow),
+      signals: demoSignals,
+    };
 
     set(state => {
-      const demoSignals = buildDemoSignals(consumerHash);
-      const next: Partial<PulseState> = {
-        accessListsSaved: true,
-        setupComplete: true,
-        lifecycle: "ACTIVE",
-        epoch: 1,
-        accumulatedWeight: 23,
-        attempts: buildAttempts(config.attemptsPerWindow),
-        signals: demoSignals,
+      const profiles = { ...state.profiles, [profileId]: profileState };
+      const publicSignalsByOwner = { ...state.publicSignalsByOwner };
+      publicSignalsByOwner[normalizeAddress(owner)] = demoSignals.map(signal => toPublicSignal(signal));
+      upsertPublicOwnerProfile(profileState);
+      return {
+        profiles,
+        publicSignalsByOwner,
+        ...applyPersistedProfile(profileState),
+        configuredAdapters: state.configuredAdapters,
       };
-      const merged = { ...state, ...next } as PulseState;
-      const profiles = {
-        ...merged.profiles,
-        ...(merged.profileId ? { [merged.profileId]: toPersistedProfile(merged) } : {}),
-      };
-      const publicSignalsByOwner = { ...merged.publicSignalsByOwner };
-      if (ownerAddress) {
-        const ownerKey = normalizeAddress(ownerAddress);
-        publicSignalsByOwner[ownerKey] = demoSignals.map(signal => toPublicSignal(signal));
-      }
-      upsertPublicOwnerProfile(toPersistedProfile(merged));
-      return { ...next, profiles, publicSignalsByOwner };
     });
   },
 

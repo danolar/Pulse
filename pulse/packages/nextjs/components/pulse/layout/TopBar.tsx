@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { hardhat } from "viem/chains";
 import { useAccount } from "wagmi";
-import { Bug, Cable, LayoutDashboard, Lock, Menu, Plug, Search, Settings } from "lucide-react";
+import { Bug, Cable, LayoutDashboard, Lock, Menu, Search, Settings } from "lucide-react";
 import { PulseLogo } from "~~/components/pulse/brand/PulseLogo";
 import { AddressSearchBar } from "~~/components/pulse/explorer/AddressSearchBar";
 import { RainbowKitCustomConnectButton } from "~~/components/scaffold-eth";
@@ -57,11 +57,6 @@ export const TopBar = ({ onOpenConnectionKit }: TopBarProps) => {
     const locked = !address;
     return [
       { label: "Explorer", href: "/explorer", matchPrefix: true },
-      {
-        label: "Adapters",
-        href: "/adapters",
-        icon: locked ? <Lock className="h-3.5 w-3.5 shrink-0 opacity-60" /> : <Plug className="h-4 w-4 shrink-0" />,
-      },
       {
         label: "Setup",
         href: "/setup",

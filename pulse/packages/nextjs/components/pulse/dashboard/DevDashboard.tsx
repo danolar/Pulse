@@ -41,23 +41,41 @@ export const DevDashboard = () => {
         <section className="pulse-card overflow-hidden">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-base-content/10 px-5 py-4 sm:px-6">
             <div>
-              <h2 className="pulse-section-title">Your profiles</h2>
-              <p className="mt-1 text-sm text-pulse-muted">Decoded state and actions live on the profile console.</p>
+              <h2 className="pulse-section-title">Monitored profiles</h2>
+              <p className="mt-1 text-sm text-pulse-muted">
+                Profiles created by your app via onchain <span className="font-mono text-xs">createProfile</span>.
+                Configure integration defaults in Setup; test writes in{" "}
+                <Link href="/lab" className="link link-primary">
+                  Integration lab
+                </Link>
+                .
+              </p>
             </div>
-            <Link href="/setup">
-              <PulseButton>Create profile</PulseButton>
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link href="/lab">
+                <PulseButton variant="secondary">Integration lab</PulseButton>
+              </Link>
+              <Link href="/setup">
+                <PulseButton>Edit consumer setup</PulseButton>
+              </Link>
+            </div>
           </div>
 
           {profiles.length === 0 ? (
             <div className="px-5 py-12 text-center sm:px-6">
               <p className="mb-2 text-sm font-medium">No profiles yet</p>
               <p className="mb-4 text-sm text-pulse-muted">
-                Configure adapters, then run Setup to create a profile for an owner address.
+                Complete consumer setup, then create profiles from your app or use Integration lab to seed a
+                demo profile.
               </p>
-              <Link href="/setup">
-                <PulseButton>Open Setup</PulseButton>
-              </Link>
+              <div className="flex flex-wrap justify-center gap-2">
+                <Link href="/lab">
+                  <PulseButton variant="secondary">Integration lab</PulseButton>
+                </Link>
+                <Link href="/setup">
+                  <PulseButton>Consumer setup</PulseButton>
+                </Link>
+              </div>
             </div>
           ) : (
             <div className="overflow-x-auto">

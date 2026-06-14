@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { isAddress } from "viem";
 import { useRouter } from "next/navigation";
 import { useAccount } from "wagmi";
 import { PageShell, SectionHeader } from "~~/components/pulse";
-import { ProfileTargetInput } from "~~/components/pulse/setup/ProfileTargetInput";
+import { ConsumerAdminNote } from "~~/components/pulse/setup/ConsumerAdminNote";
 import { validateEnabledModulesForActivation } from "~~/components/pulse/setup/signals/signalsValidation";
 import { StageIdentity } from "~~/components/pulse/setup/StageIdentity";
 import { StageRhythm } from "~~/components/pulse/setup/StageRhythm";
@@ -24,53 +23,36 @@ import {
   CONFIGURATION_PAGE_TITLE,
 } from "~~/constants/explorerCopy";
 import { SHOW_SCAFFOLD_DEV_UI } from "~~/constants/pulseAppConfig";
+import type { RandomnessAgentConfig } from "~~/types/consumer";
 import { usePulseStore } from "~~/services/store/pulseStore";
 
-type SetupWizardProps = {
-  editProfileId?: string;
-};
-
-export const SetupWizard = ({ editProfileId }: SetupWizardProps) => {
+export const SetupWizard = () => {
   const router = useRouter();
   const { address } = useAccount();
   const store = usePulseStore();
   const {
-    deviceVerified,
+    identityIntegrated,
     configSaved,
     config,
     notificationTarget,
-    ownerAddress,
-    profileId,
-    mockSaveConfig,
+    randomnessAgent,
+    mockSaveRhythmConfig,
     mockCompleteSetup,
-    initProfileTarget,
   } = store;
 
-  const [ownerDraft, setOwnerDraft] = useState(() => ownerAddress ?? address ?? "");
-
   useEffect(() => {
-    if (!address) return;
-    if (ownerAddress && isAddress(ownerAddress)) {
-      setOwnerDraft(ownerAddress);
-      return;
+    if (address) {
+      usePulseStore.setState({ consumerAddress: address });
     }
-    if (editProfileId) return;
-    setOwnerDraft(address);
-  }, [address, ownerAddress, editProfileId]);
-
-  useEffect(() => {
-    if (!address || !isAddress(ownerDraft)) return;
-    initProfileTarget(ownerDraft, address);
-  }, [address, ownerDraft, initProfileTarget]);
+  }, [address]);
 
   const progress = useMemo(
     () =>
       getSetupStageProgress({
-        deviceVerified: store.deviceVerified,
+        identityIntegrated: store.identityIntegrated,
         configSaved: store.configSaved,
-        adapters: store.adapters,
       }),
-    [store.deviceVerified, store.configSaved, store.adapters],
+    [store.identityIntegrated, store.configSaved],
   );
 
   const [currentStage, setCurrentStage] = useState<SetupStageId>(() => getDefaultSetupStage(progress));
@@ -81,8 +63,6 @@ export const SetupWizard = ({ editProfileId }: SetupWizardProps) => {
       return getDefaultSetupStage(progress);
     });
   }, [progress]);
-
-  const ownerValid = isAddress(ownerDraft);
 
   const handleBack = () => {
     const previous = getPreviousStage(currentStage);
@@ -96,11 +76,11 @@ export const SetupWizard = ({ editProfileId }: SetupWizardProps) => {
   };
 
   const handleFinish = () => {
-    if (!configSaved || !ownerValid || !address) return;
+    if (!configSaved || !address) return;
     if (!validateEnabledModulesForActivation()) return;
+    if (!identityIntegrated) return;
     mockCompleteSetup();
-    const targetProfileId = profileId ?? initProfileTarget(ownerDraft, address);
-    router.push(`/dashboard/${targetProfileId}`);
+    router.push("/dashboard");
   };
 
   const scrollClearance = SHOW_SCAFFOLD_DEV_UI
@@ -112,26 +92,23 @@ export const SetupWizard = ({ editProfileId }: SetupWizardProps) => {
       <PageShell className={scrollClearance}>
         <SectionHeader
           title={CONFIGURATION_PAGE_TITLE}
-          eyebrow="setup"
+          eyebrow="consumer setup"
           subtitle={CONFIGURATION_PAGE_SUBTITLE}
         />
 
-        <div className="mb-6">
-          <ProfileTargetInput
-            ownerAddress={ownerDraft}
-            onOwnerAddressChange={setOwnerDraft}
-            disabled={Boolean(editProfileId)}
-          />
+        <div className="mb-6 space-y-4">
+          <ConsumerAdminNote />
         </div>
 
         {currentStage === "signals" ? <StageSignals /> : null}
-        {currentStage === "identity" ? <StageIdentity ownerAddress={ownerDraft} /> : null}
+        {currentStage === "identity" ? <StageIdentity /> : null}
         {currentStage === "rhythm" ? (
           <StageRhythm
-            disabled={!deviceVerified}
+            disabled={!identityIntegrated}
             initialConfig={config}
             initialNotificationTarget={notificationTarget}
-            onSave={(savedConfig, target) => mockSaveConfig(savedConfig, target)}
+            initialRandomnessAgent={randomnessAgent}
+            onSave={(savedConfig, target, agent) => mockSaveRhythmConfig(savedConfig, target, agent)}
           />
         ) : null}
 
@@ -147,7 +124,7 @@ export const SetupWizard = ({ editProfileId }: SetupWizardProps) => {
         onBack={handleBack}
         onNext={handleNext}
         onFinish={handleFinish}
-        finishDisabled={!configSaved || !ownerValid}
+        finishDisabled={!configSaved || !identityIntegrated}
       />
     </>
   );

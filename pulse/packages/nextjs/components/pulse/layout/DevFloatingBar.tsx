@@ -47,6 +47,12 @@ export const DevFloatingBar = () => {
               <Faucet />
             </div>
             <Link
+              href="/lab"
+              className="btn btn-ghost h-10 min-h-10 shrink-0 gap-1.5 rounded-none border-none px-3 font-normal shadow-none sm:px-4"
+            >
+              <span className="hidden whitespace-nowrap sm:inline">Lab</span>
+            </Link>
+            <Link
               href="/blockexplorer"
               className="btn btn-ghost h-10 min-h-10 shrink-0 gap-1.5 rounded-none border-none px-3 font-normal shadow-none sm:px-4"
             >

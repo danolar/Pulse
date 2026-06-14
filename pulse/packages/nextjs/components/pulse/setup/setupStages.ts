@@ -1,12 +1,11 @@
-import type { SignalAdapter } from "~~/types/pulse";
 import { isSignalsStageReady } from "~~/components/pulse/setup/signals/signalsValidation";
 
 export type SetupStageId = "signals" | "identity" | "rhythm";
 
 export const SETUP_STAGES: { id: SetupStageId; label: string; detail: string }[] = [
-  { id: "signals", label: "Signals", detail: "Active adapters on this profile" },
-  { id: "identity", label: "Identity", detail: "World ID reference + wallet dev test" },
-  { id: "rhythm", label: "Rhythm", detail: "Monitoring cadence & randomness" },
+  { id: "signals", label: "Signals", detail: "Adapters, credentials, and weights" },
+  { id: "identity", label: "Identity", detail: "World ID reference for your app" },
+  { id: "rhythm", label: "Rhythm", detail: "Cadence, threshold, randomness agent" },
 ];
 
 export type SetupStageProgress = {
@@ -16,11 +15,10 @@ export type SetupStageProgress = {
 };
 
 export const getSetupStageProgress = (state: {
-  deviceVerified: boolean;
+  identityIntegrated: boolean;
   configSaved: boolean;
-  adapters: SignalAdapter[];
 }): SetupStageProgress => ({
-  identityDone: state.deviceVerified,
+  identityDone: state.identityIntegrated,
   signalsDone: isSignalsStageReady(),
   rhythmDone: state.configSaved,
 });

@@ -8,10 +8,10 @@ export const EXPLORER_SEARCH_LABEL = "Search a wallet address";
 
 export const EXPLORER_HERO_CTA = "Enter a wallet address to see its Pulse oracle activity.";
 
-export const CONFIGURATION_PAGE_TITLE = "Profile setup";
+export const CONFIGURATION_PAGE_TITLE = "Consumer setup";
 
 export const CONFIGURATION_PAGE_SUBTITLE =
-  "Signals, identity, and monitoring rhythm — create a profile for profileId = keccak256(owner, your wallet).";
+  "One-time integration config for your wallet as consumer — adapters, World ID reference, rhythm, and randomness agent. Stored in Neon; only this wallet can modify it.";
 
 export const REQUESTORS_CONFIG_CALLOUT =
   "Trusted requestors are authorized per end-user profile inside your consumer app (for example Legacy Ledger), not globally in Explorer. Your app calls authorizeRequestor for specific wallets tied to that user's profile, then each requestor claims their slot with World ID.";
