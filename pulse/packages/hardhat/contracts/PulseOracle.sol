@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {IThresholdNotifier} from "./interfaces/IThresholdNotifier.sol";
+
 /// @title PulseOracle v0.1 - Core accumulator
 /// @notice Minimal version: profile creation, adapter authorization, signal reporting, threshold detection.
 /// @dev World ID, attempts, windows, commit-reveal, block/resurrect are added in subsequent iterations.
@@ -109,6 +111,9 @@ contract PulseOracle {
     error WrongState(LifecycleState current);
     error ZeroAddress();
     error ZeroThreshold();
+    error ZeroWeight();
+    error WeightExceedsThreshold();
+    error AdapterNotAuthorized();
 
     // ============ Modifiers ============
 
@@ -174,8 +179,14 @@ contract PulseOracle {
         uint32 threshold
     ) external onlyConsumer(profileId) profileExists(profileId) {
         if (threshold == 0) revert ZeroThreshold();
-        profiles[profileId].config.threshold = threshold;
+
+        Profile storage p = profiles[profileId];
+        p.config.threshold = threshold;
         emit ConfigUpdated(profileId, threshold);
+
+        if (p.state == LifecycleState.ACTIVE && p.accumulatedWeight >= threshold) {
+            _reachThreshold(profileId, bytes32(0));
+        }
     }
 
     function setNotificationTarget(
@@ -196,7 +207,11 @@ contract PulseOracle {
         bytes32 typeLabel
     ) external onlyConsumer(profileId) profileExists(profileId) {
         if (adapter == address(0)) revert ZeroAddress();
+        if (weight == 0) revert ZeroWeight();
         if (capabilities == 0 || capabilities > 3) revert CapabilityNotAllowed();
+
+        uint32 threshold = profiles[profileId].config.threshold;
+        if (weight > threshold) revert WeightExceedsThreshold();
 
         bool isNew = !adapters[profileId][adapter].authorized;
 
@@ -218,7 +233,20 @@ contract PulseOracle {
         bytes32 profileId,
         address adapter
     ) external onlyConsumer(profileId) profileExists(profileId) {
+        if (!adapters[profileId][adapter].authorized) revert AdapterNotAuthorized();
+
         adapters[profileId][adapter].authorized = false;
+
+        address[] storage adapterList = _adapterList[profileId];
+        uint256 length = adapterList.length;
+        for (uint256 i = 0; i < length; ++i) {
+            if (adapterList[i] == adapter) {
+                adapterList[i] = adapterList[length - 1];
+                adapterList.pop();
+                break;
+            }
+        }
+
         emit AdapterRevoked(profileId, adapter);
     }
 
@@ -291,14 +319,7 @@ contract PulseOracle {
         emit ThresholdReached(profileId, p.epoch, auditBlobId, uint64(block.timestamp));
 
         if (p.notificationTarget != address(0)) {
-            (bool success,) = p.notificationTarget.call(
-                abi.encodeWithSignature(
-                    "onThresholdReached(bytes32,bytes32)",
-                    profileId,
-                    auditBlobId
-                )
-            );
-            (success); // event is source of truth; a buggy consumer must not brick the oracle
+            try IThresholdNotifier(p.notificationTarget).onThresholdReached(profileId, auditBlobId) {} catch {}
         }
     }
 }
