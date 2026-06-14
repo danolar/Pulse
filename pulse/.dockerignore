@@ -1,0 +1,41 @@
+# dependencies & build output
+node_modules
+**/node_modules
+.next
+**/.next
+out
+**/out
+
+# git & IDE
+.git
+.gitignore
+.vscode
+.idea
+**/.DS_Store
+
+# secrets — inject via Coolify env, never bake into image
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Hardhat secrets & heavy artifacts (not needed to run Next.js)
+packages/hardhat/.keystore
+packages/hardhat/cache
+packages/hardhat/artifacts
+packages/hardhat/typechain-types
+
+# local tooling
+.cursor
+.agents
+.claude
+.husky
+**/coverage
+**/*.log
+
+# docs / CRE (not used by the web app container)
+cre
+HACKATHON-DEMO.md
+SETUP-EXTERNAL.md
