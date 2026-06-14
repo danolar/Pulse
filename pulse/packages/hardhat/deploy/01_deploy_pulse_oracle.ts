@@ -4,9 +4,33 @@ import { deployScript, artifacts } from "../rocketh/deploy.js";
 // Hardhat account #1 — profile owner for local dev seeding.
 const DEV_PROFILE_OWNER = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
 const DEV_THRESHOLD = 100;
-const DEV_ADAPTER_WEIGHT = 8;
 const CAP_NEGATIVE = 1;
-const ONCHAIN_TX_LABEL = ethers.encodeBytes32String("ONCHAIN_TX");
+const CAP_BOTH = 3;
+
+/** Match packages/nextjs/constants/internalAdapters.ts dev defaults. */
+const DEV_INTERNAL_ADAPTERS = [
+  {
+    address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+    weight: 10,
+    capabilities: CAP_NEGATIVE,
+    typeLabel: ethers.encodeBytes32String("ONCHAIN_TX"),
+    name: "onchain-activity",
+  },
+  {
+    address: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+    weight: 8,
+    capabilities: CAP_NEGATIVE,
+    typeLabel: ethers.encodeBytes32String("GOOGLE_ACTIVITY"),
+    name: "google-activity",
+  },
+  {
+    address: "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+    weight: 12,
+    capabilities: CAP_BOTH,
+    typeLabel: ethers.encodeBytes32String("VOICE_AGENT"),
+    name: "twilio-voice",
+  },
+] as const;
 
 export default deployScript(
   async env => {
@@ -28,17 +52,22 @@ export default deployScript(
       args: [DEV_PROFILE_OWNER, deployer],
     });
 
-    await env.execute(pulseOracle, {
-      account: deployer,
-      functionName: "authorizeAdapter",
-      args: [profileId, deployer, DEV_ADAPTER_WEIGHT, CAP_NEGATIVE, ONCHAIN_TX_LABEL],
-    });
+    for (const adapter of DEV_INTERNAL_ADAPTERS) {
+      await env.execute(pulseOracle, {
+        account: deployer,
+        functionName: "authorizeAdapter",
+        args: [profileId, adapter.address, adapter.weight, adapter.capabilities, adapter.typeLabel],
+      });
+    }
 
     console.log("PulseOracle deployed:", pulseOracle.address);
     console.log("Dev profile owner:", DEV_PROFILE_OWNER);
     console.log("Dev profile consumer:", deployer);
     console.log("Dev profileId:", profileId);
-    console.log("CRE adapter authorized:", deployer);
+    console.log(
+      "Internal adapters authorized:",
+      DEV_INTERNAL_ADAPTERS.map(a => `${a.name}@${a.address}`).join(", "),
+    );
   },
   {
     tags: ["PulseOracle"],

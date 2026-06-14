@@ -11,5 +11,7 @@ export const twilioVoiceModule: PulseVerificationModule = {
   complements: ["world-id"],
   verificationType: "VOICE_AGENT",
   docsUrl: "https://www.twilio.com/docs/voice",
+  adapterLabel: "VOICE_AGENT",
+  suggestedWeight: 12,
   setupKind: "adapter",
 };

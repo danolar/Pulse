@@ -62,7 +62,7 @@ export const AdaptersPage = () => {
       <SectionHeader
         title="Signal adapters"
         eyebrow="data plane"
-        subtitle="Configure adapter credentials and authorize signers before activating them in configuration."
+        subtitle="Configure Pulse-hosted adapters and weights. Deploy PulseOracle once; authorize signers per profile."
       />
 
       <div className="space-y-8">

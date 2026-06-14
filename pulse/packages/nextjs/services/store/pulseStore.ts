@@ -497,6 +497,7 @@ export const usePulseStore = create<PulseState>((set, get) => ({
       const existing = state.configuredAdapters.filter(a => a.catalogId !== adapter.catalogId);
       return { configuredAdapters: [...existing, { ...adapter, bindingStatus }] };
     });
+    get().ensureModuleEnabled(adapter.catalogId);
   },
 
   mockRevokeConfiguredAdapter: catalogId => {

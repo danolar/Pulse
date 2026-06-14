@@ -11,6 +11,6 @@ export const isSignalsStageReady = (): boolean => {
 export const validateEnabledModulesForActivation = (): boolean => {
   if (isSignalsStageReady()) return true;
 
-  notification.error("Configure at least one adapter with API credentials and a weight.");
+  notification.error("Configure at least one adapter with a weight.");
   return false;
 };

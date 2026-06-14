@@ -6,6 +6,7 @@ import { AdapterSetupFlow } from "~~/components/pulse/adapters/AdapterSetupFlow"
 import { PulseButton } from "~~/components/pulse/ui/PulseButton";
 import { StatusTag } from "~~/components/pulse/ui/StatusTag";
 import { ADAPTER_CATALOG, type AdapterCatalogEntry } from "~~/constants/adapterCatalog";
+import { INTERNAL_ADAPTERS_INTRO } from "~~/constants/internalAdapters";
 import { usePulseStore } from "~~/services/store/pulseStore";
 
 export const ConsumerAdaptersSection = () => {
@@ -37,17 +38,21 @@ export const ConsumerAdaptersSection = () => {
           <div>
             <h2 className="pulse-section-title">Signal adapters</h2>
             <p className="mt-1 text-sm text-pulse-muted">
-              Select adapters, add credentials, and set weights. Defaults apply to every profile you create.
+              Enable Pulse-hosted adapters and set weights. End users link Google or phone in your app.
             </p>
           </div>
           <PulseButton onClick={() => setCatalogOpen(true)}>Add from catalog</PulseButton>
         </div>
 
+        <p className="mb-4 rounded-2xl border border-base-content/10 bg-base-200/40 px-4 py-3 text-xs leading-relaxed text-pulse-muted">
+          {INTERNAL_ADAPTERS_INTRO}
+        </p>
+
         {configuredAdapters.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-base-content/15 px-4 py-10 text-center">
             <p className="mb-1 text-sm font-medium">No adapters configured</p>
             <p className="mb-4 text-sm text-pulse-muted">
-              Add at least one signal source with a weight before continuing.
+              Add at least one adapter with a weight before continuing.
             </p>
             <PulseButton onClick={() => setCatalogOpen(true)}>Browse catalog</PulseButton>
           </div>

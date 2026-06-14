@@ -45,6 +45,7 @@ export const AdapterCatalogModal = ({
               <div className="mb-1 flex flex-wrap items-center gap-2">
                 <span className="pulse-item-title">{entry.name}</span>
                 <StatusTag label={entry.typeLabel} tone="neutral" />
+                {entry.isInternal ? <StatusTag label="Pulse-hosted" tone="accent" /> : null}
                 {entry.isDecisionLayer ? <StatusTag label="Decision layer" tone="accent" /> : null}
               </div>
               <p className="text-sm text-pulse-muted">{entry.description}</p>

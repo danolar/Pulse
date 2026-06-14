@@ -1,4 +1,9 @@
 import { getPulseModule } from "~~/modules/pulse";
+import {
+  INTERNAL_ADAPTER_IDS,
+  getInternalAdapterAddress,
+  type InternalAdapterId,
+} from "~~/constants/internalAdapters";
 
 export type AdapterCapability = "life" | "inactivity" | "both";
 
@@ -11,12 +16,20 @@ export type AdapterCatalogEntry = {
   suggestedWeight: number;
   capabilities: AdapterCapability;
   isDecisionLayer?: boolean;
+  /** Pulse-hosted adapters — no consumer API keys; weight + authorizeAdapter only. */
+  isInternal?: boolean;
   dataPlaneFields: { key: string; label: string; placeholder: string; secret?: boolean }[];
 };
 
-const moduleEntries = ["onchain-activity", "google-activity", "twilio-voice"] as const;
+const moduleCapabilities = (id: InternalAdapterId): AdapterCapability => {
+  const module = getPulseModule(id);
+  if (!module) return "both";
+  if (module.signalDirection === "positive") return "life";
+  if (module.signalDirection === "negative") return "inactivity";
+  return "both";
+};
 
-export const ADAPTER_CATALOG: AdapterCatalogEntry[] = moduleEntries.flatMap(id => {
+export const ADAPTER_CATALOG: AdapterCatalogEntry[] = INTERNAL_ADAPTER_IDS.flatMap(id => {
   const module = getPulseModule(id);
   if (!module) return [];
 
@@ -26,20 +39,11 @@ export const ADAPTER_CATALOG: AdapterCatalogEntry[] = moduleEntries.flatMap(id =
       name: module.name,
       description: module.summary,
       typeLabel: module.adapterLabel ?? module.id.toUpperCase(),
-      adapterAddress: "",
+      adapterAddress: getInternalAdapterAddress(id),
       suggestedWeight: module.suggestedWeight ?? 10,
-      capabilities:
-        module.signalDirection === "positive"
-          ? "life"
-          : module.signalDirection === "negative"
-            ? "inactivity"
-            : "both",
-      dataPlaneFields:
-        id === "google-activity"
-          ? [{ key: "oauthToken", label: "OAuth token", placeholder: "Token from your OAuth flow", secret: true }]
-          : id === "twilio-voice"
-            ? [{ key: "accountSid", label: "Twilio Account SID", placeholder: "AC…", secret: true }]
-            : [{ key: "signerKey", label: "Signer key", placeholder: "0x… or key ref", secret: true }],
+      capabilities: moduleCapabilities(id),
+      isInternal: true,
+      dataPlaneFields: [],
     },
   ];
 });
